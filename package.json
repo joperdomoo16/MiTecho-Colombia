@@ -1,0 +1,17 @@
+{
+  "name": "mitecho",
+  "version": "1.0.0",
+  "description": "MiTecho Colombia - App Móvil Oficial",
+  "private": true,
+  "scripts": {
+    "test": "node test/Verificarmodulos.js && node test/Verificarcasos.js && node test/Verificarpdf.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  }
+}
+

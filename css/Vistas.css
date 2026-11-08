@@ -1,0 +1,223 @@
+/* Estilos de las pantallas principales, tarjetas de cifras, barras de ingresos y catálogo de vivienda */
+/* Encabezado de cupo máximo y tarjetas del resumen inicial */
+.m7g { padding:16px 22px 0; display:flex; flex-direction:column; gap:2px; }
+.m7h { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.m7i { height:32px; padding:0 12px 0 6px; margin:-6px 0; border-radius:16px; border:1px solid var(--ln); display:flex; align-items:center; gap:6px; font:600 12px 'Familjen Grotesk',sans-serif; color:var(--mu); flex:none; }
+.m7j { width:20px; height:20px; border-radius:10px; background:var(--c2); color:var(--ik); display:flex; align-items:center; justify-content:center; font:700 12px 'Familjen Grotesk',sans-serif; }
+.m7k { display:flex; align-items:flex-start; gap:6px; margin-top:4px; }
+.m7l { font:600 38px/1 'Familjen Grotesk',sans-serif; color:var(--at); margin-top:12px; }
+.m7m { font:600 112px/.9 'Familjen Grotesk',sans-serif; letter-spacing:-.06em; color:var(--ik); font-variant-numeric:tabular-nums; }
+.m7n { display:flex; justify-content:space-between; align-items:baseline; margin-top:8px; }
+.m7o { font:600 20px 'Familjen Grotesk',sans-serif; color:var(--at); letter-spacing:-.01em; }
+.m7p { font:500 12px 'IBM Plex Mono',monospace; color:var(--at); white-space:nowrap; }
+.m7q { margin-top:18px; display:flex; flex-direction:column; gap:10px; }
+.m7r { display:flex; gap:3px; height:14px; }
+.m7s { display:flex; align-items:center; gap:8px; font:500 12px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.m7t { display:flex; width:calc(100% - 28px); text-align:left; margin:22px 14px 0; padding:16px 16px 14px; background:var(--cd); border:1px solid var(--ln); border-radius:26px; flex-direction:column; gap:12px; box-sizing:border-box; }
+.m7u { display:flex; justify-content:space-between; align-items:baseline; width:100%; }
+.m7v { font:400 12px 'IBM Plex Mono',monospace; color:var(--mu); }
+.m7w { height:44px; border-radius:22px; background:var(--c2); position:relative; width:100%; }
+.m7x { width:36px; height:36px; border-radius:18px; background:var(--oa); display:flex; align-items:center; justify-content:center; gap:3px; }
+.m7y { width:3px; height:3px; border-radius:2px; background:var(--ac); }
+.m7z { position:absolute; left:16px; top:50%; transform:translateY(-50%); font:700 15px 'Familjen Grotesk',sans-serif; color:var(--oa); }
+.m80 { width:100%; padding:10px 12px; border-radius:14px; background:var(--c2); display:flex; justify-content:space-between; align-items:baseline; gap:10px; box-sizing:border-box; }
+.m81 { font:500 12px/1.35 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.m82 { font:700 15px 'Familjen Grotesk',sans-serif; color:var(--ik); white-space:nowrap; }
+.m83 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 14px 0; }
+.m84 { background:var(--cd); border:1px solid var(--ln); border-radius:22px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.m85 { font:400 11px 'IBM Plex Mono',monospace; color:var(--fa); }
+.m86 { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.m87 { text-align:left; background:var(--cd); border:1px solid var(--ln); border-radius:22px; padding:14px; display:flex; flex-direction:column; justify-content:space-between; gap:10px; }
+.m88 { font:600 24px/1 'Familjen Grotesk',sans-serif; color:var(--ik); letter-spacing:-.02em; }
+.m89 { height:6px; width:100%; border-radius:3px; background:var(--dm); }
+.m8a { width:calc(100% - 28px); text-align:left; margin:8px 14px 0; padding:12px 14px; border-radius:18px; background:var(--al); display:flex; align-items:center; gap:10px; box-sizing:border-box; }
+.m8b { font:600 13px/1.3 'Hanken Grotesk',sans-serif; color:#120A05; flex:1; }
+.m8c { font:600 12px 'IBM Plex Mono',monospace; color:#120A05; }
+.m8d { width:calc(100% - 28px); text-align:left; margin:8px 14px 0; padding:12px 14px; border-radius:18px; background:#FFD23F; display:flex; align-items:center; gap:10px; box-sizing:border-box; }
+.m8e { font:600 13px/1.3 'Hanken Grotesk',sans-serif; color:#0B0C0A; flex:1; }
+.m8f { font:600 12px 'IBM Plex Mono',monospace; color:#0B0C0A; }
+.m8g { width:calc(100% - 28px); text-align:left; margin:8px 14px 0; padding:14px 16px; border-radius:22px; border:1px dashed var(--ad); display:flex; align-items:center; gap:12px; box-sizing:border-box; }
+.m8h { font:400 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); flex:1; }
+.m8i { font:600 16px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.m8j { padding:10px 22px 0; display:flex; flex-direction:column; gap:16px; }
+.m8k { display:flex; justify-content:space-between; align-items:center; }
+.m8l { margin:0; font:600 30px 'Familjen Grotesk',sans-serif; letter-spacing:-.03em; color:var(--ik); }
+.m8m { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.m8n { font:700 16px 'Familjen Grotesk',sans-serif; }
+.m8o { font:500 11px 'IBM Plex Mono',monospace; opacity:.75; }
+.m8p { display:grid; grid-template-columns:1fr 1fr 1fr; height:44px; padding:4px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); box-sizing:border-box; }
+.m8q { font:500 9px 'IBM Plex Mono',monospace; opacity:.7; }
+.m8r { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; padding:16px 14px 0; }
+.m8s { padding:22px 22px 0; display:flex; flex-direction:column; gap:4px; }
+.m8t { font:500 14px 'Familjen Grotesk',sans-serif; color:var(--mu); }
+.m8u { font:600 26px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.m8v { font:600 64px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.05em; color:var(--ik); }
+.m8w { margin:16px 14px 0; padding:14px 16px; background:var(--cd); border:1px solid var(--ln); border-radius:22px; display:flex; flex-direction:column; gap:10px; }
+.m8x { font:400 11px 'IBM Plex Mono',monospace; color:var(--mu); }
+.m8y { height:10px; border-radius:5px; background:var(--c2); overflow:hidden; }
+.m8z { padding:20px 22px 8px; display:flex; justify-content:space-between; align-items:baseline; }
+.m90 { width:40px; height:40px; border-radius:20px; background:var(--c2); display:flex; align-items:center; justify-content:center; font:600 13px 'Familjen Grotesk',sans-serif; color:var(--ik); flex:none; }
+.m91 { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.m92 { font:600 14px 'Hanken Grotesk',sans-serif; color:var(--ik); }
+.m93 { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.m94 { font:600 9.5px 'IBM Plex Mono',monospace; color:#120A05; background:var(--al); padding:3px 7px; border-radius:6px; white-space:nowrap; display:flex; align-items:center; gap:5px; }
+.m95 { font-size:11px; }
+.m96 { font:600 9.5px 'IBM Plex Mono',monospace; color:var(--oa); background:var(--ac); padding:3px 7px; border-radius:6px; white-space:nowrap; }
+.m97 { width:100%; height:52px; display:flex; align-items:center; justify-content:center; gap:8px; font:600 14px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.m98 { margin:8px 14px 0; padding:14px 16px; border-radius:22px; border:1px dashed var(--ad); font:400 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.m99 { margin:8px 14px 0; height:92px; border-radius:20px; border:1px solid var(--ln); background:var(--cd); overflow:hidden; display:flex; }
+.m9a { width:112px; height:100%; object-fit:cover; display:block; flex:none; }
+.m9b { flex:1; min-width:0; padding:10px 12px; display:flex; flex-direction:column; justify-content:space-between; }
+.m9c { display:flex; justify-content:space-between; gap:6px; }
+.m9d { font:500 9.5px 'IBM Plex Mono',monospace; color:var(--fa); }
+.m9e { font:600 13px/1.25 'Familjen Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.m9f { font:600 12px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.m9g { font:600 26px 'Familjen Grotesk',sans-serif; color:var(--al); }
+.m9h { margin:16px 14px 0; padding:14px 16px; background:var(--cd); border:1px solid var(--ln); border-radius:22px; display:grid; grid-template-columns:1fr auto; gap:8px 12px; font:400 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.m9i { color:var(--ik); font-weight:600; text-align:right; }
+.m9j { color:var(--ik); font-weight:600; border-top:1px solid var(--ln); padding-top:8px; }
+.m9k { color:var(--at); font-weight:700; text-align:right; border-top:1px solid var(--ln); padding-top:8px; }
+.m9l { display:flex; align-items:center; gap:12px; padding:13px 14px; border-bottom:1px solid var(--ln); }
+.m9m { font:600 15px 'Familjen Grotesk',sans-serif; color:var(--ik); white-space:nowrap; }
+.m9n { width:32px; height:32px; border-radius:16px; background:var(--c2); color:var(--mu); font:600 15px 'Familjen Grotesk',sans-serif; flex:none; }
+.m9o { width:100%; height:52px; display:flex; align-items:center; justify-content:center; font:600 14px 'Familjen Grotesk',sans-serif; color:var(--al); }
+.m9p { margin:8px 14px 0; padding:14px 16px; border-radius:22px; border:1px dashed var(--ad); font:400 13px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); text-wrap:pretty; }
+.m9q { width:calc(100% - 28px); margin:8px 14px 0; padding:14px 16px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); display:flex; align-items:center; gap:12px; text-align:left; box-sizing:border-box; }
+.m9r { margin:16px 14px 0; padding:16px; border-radius:22px; background:var(--ac); display:flex; flex-direction:column; gap:4px; }
+.m9s { font:500 12px 'IBM Plex Mono',monospace; color:var(--oa); opacity:.7; }
+.m9t { font:600 19px/1.25 'Familjen Grotesk',sans-serif; color:var(--oa); text-wrap:pretty; }
+.m9u { margin:8px 14px 0; padding:14px 16px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); display:flex; align-items:center; gap:12px; }
+.m9v { font:600 14px/1.3 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.m9w { height:40px; padding:0 14px; border-radius:20px; background:var(--ac); color:var(--oa); font:700 13px 'Familjen Grotesk',sans-serif; flex:none; }
+.m9x { margin:8px 14px 0; padding:16px; background:var(--cd); border:1px solid var(--ln); border-radius:22px; display:flex; flex-direction:column; gap:14px; }
+.m9y { display:flex; gap:10px; align-items:flex-end; height:130px; }
+.m9z { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.ma0 { flex:1; min-height:0; width:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:6px; }
+.ma1 { font:500 10.5px 'IBM Plex Mono',monospace; color:var(--mu); }
+.ma2 { font:500 11px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.ma3 { display:grid; grid-template-columns:1fr auto; gap:6px 12px; border-top:1px solid var(--ln); padding-top:12px; font:400 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.ma4 { color:var(--at); font-weight:700; text-align:right; }
+.ma5 { background:var(--c2); border-radius:16px; padding:12px; display:flex; flex-direction:column; gap:2px; }
+.ma6 { font:400 10.5px 'IBM Plex Mono',monospace; color:var(--mu); }
+.ma7 { font:600 22px 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.ma8 { position:relative; display:flex; gap:6px; align-items:flex-end; height:78px; }
+.ma9 { display:flex; gap:6px; }
+.maa { flex:1; text-align:center; font:500 10.5px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mab { width:100%; height:52px; display:flex; align-items:center; justify-content:center; font:600 14px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.mae { font:600 44px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.04em; color:var(--ik); }
+.maf { display:flex; gap:3px; height:12px; }
+.mag { flex:1; background:var(--al); border-radius:6px; }
+.mah { display:flex; flex-direction:column; gap:2px; align-items:flex-end; }
+.maj { width:100%; display:flex; align-items:center; gap:12px; padding:14px; border-bottom:1px solid var(--ln); text-align:left; }
+.mak { margin:0 14px; padding:16px; background:var(--cd); border:1px solid var(--ln); border-radius:22px; display:flex; flex-direction:column; gap:12px; }
+.mam { display:flex; justify-content:space-between; font:500 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mao { font:600 56px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.05em; color:var(--ik); }
+.map { margin:8px 14px 0; padding:16px; border-radius:24px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:12px; margin-top:16px; }
+.maq { display:grid; grid-template-columns:1fr auto; gap:7px 12px; font:400 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mau { font:400 13px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mav { display:flex; justify-content:space-between; gap:10px; font:500 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.maw { color:var(--ik); font-weight:600; white-space:nowrap; }
+.maz { padding:10px 22px 0; display:flex; justify-content:space-between; align-items:center; }
+.mb0 { margin:18px 14px 0; padding:16px; background:var(--cd); border:1px solid var(--ln); border-radius:26px; display:flex; flex-direction:column; gap:14px; }
+.mb1 { position:relative; height:44px; }
+.mb2 { position:absolute; inset:0; border-radius:22px; background:var(--c2); }
+.mb3 { position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:grab; }
+.mb4 { margin:8px 14px 0; padding:16px; background:var(--cd); border:1px solid var(--ln); border-radius:26px; display:flex; flex-direction:column; gap:12px; }
+.mb5 { display:flex; flex-wrap:wrap; gap:6px; }
+.mb6 { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.mb7 { height:36px; padding:0 12px; border-radius:18px; border:1px dashed var(--ad); color:var(--at); font:600 12px 'Familjen Grotesk',sans-serif; white-space:nowrap; flex:none; }
+.mb8 { width:calc(100% - 28px); margin:8px 14px 0; padding:16px; background:var(--cd); border:1px solid var(--ln); border-radius:26px; display:flex; align-items:center; gap:12px; text-align:left; box-sizing:border-box; }
+.mb9 { margin:8px 14px 0; padding:14px 16px; border-radius:24px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:10px; }
+.mba { height:32px; padding:0 12px 0 6px; border-radius:16px; border:1px solid var(--ln); display:flex; align-items:center; gap:6px; font:600 12px 'Familjen Grotesk',sans-serif; color:var(--mu); flex:none; }
+.mbb { display:flex; gap:8px; }
+.mbc { flex:1; min-width:0; padding:10px 12px; border-radius:16px; background:var(--c2); display:flex; flex-direction:column; gap:5px; }
+.mbd { font:600 12.5px/1.4 'Hanken Grotesk',sans-serif; color:var(--al); }
+.mbe { padding:18px 22px 8px; font:600 14px 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.mbf { margin:8px 14px 0; padding:12px 14px; border-radius:18px; background:var(--al); font:600 13px/1.35 'Hanken Grotesk',sans-serif; color:#120A05; }
+.mbg { margin:8px 14px 0; padding:12px 14px; border-radius:18px; border:1px solid var(--ln); background:var(--cd); display:flex; gap:10px; align-items:flex-start; }
+.mbh { font:500 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.mbj { flex:1; display:flex; flex-direction:column; }
+.mbk { font:700 26px/1.05 'Familjen Grotesk',sans-serif; color:var(--oa); letter-spacing:-.03em; }
+.mbl { height:48px; padding:0 18px; border-radius:24px; background:var(--oa); color:var(--ac); font:700 14px 'Familjen Grotesk',sans-serif; }
+.mbm { padding:20px 22px 0; display:flex; flex-direction:column; gap:2px; }
+.mbn { font:600 32px/1 'Familjen Grotesk',sans-serif; color:var(--at); margin-top:10px; }
+.mbp { font:600 18px 'Familjen Grotesk',sans-serif; color:var(--at); align-self:flex-end; margin-bottom:10px; }
+.mbq { margin:16px 14px 0; padding:14px 16px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:8px; font:400 12px 'IBM Plex Mono',monospace; }
+.mbs { font-weight:600; }
+.mbt { margin:8px 14px 0; padding:16px; border-radius:26px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden; }
+.mbu { font:600 34px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.03em; color:var(--ik); }
+.mbv { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.mbw { display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid var(--ln); padding-top:12px; }
+.mbx { font:700 20px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.mby { position:absolute; left:0; right:0; bottom:0; top:96px; background:var(--cd); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:0 20px; text-align:center; }
+.mbz { font:400 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mc0 { height:44px; padding:0 18px; border-radius:22px; background:var(--ik); color:var(--bg); font:600 13px 'Familjen Grotesk',sans-serif; }
+.mc1 { margin:8px 14px 0; padding:16px; border-radius:26px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:12px; }
+.mc2 { padding:12px; border-radius:16px; background:#FFD23F; display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.mc3 { font:600 13px/1.35 'Hanken Grotesk',sans-serif; color:#0B0C0A; }
+.mc4 { font:700 17px 'Familjen Grotesk',sans-serif; color:#0B0C0A; white-space:nowrap; }
+.mc5 { display:grid; grid-template-columns:1fr auto; gap:8px; margin:14px 14px 0; }
+.mc6 { height:54px; border-radius:27px; background:var(--ac); color:var(--oa); font:700 14px 'Familjen Grotesk',sans-serif; }
+.mc7 { height:54px; padding:0 18px; border-radius:27px; border:1px solid var(--ln); color:var(--ik); font:600 13px 'Familjen Grotesk',sans-serif; }
+.mc8 { margin:14px 14px 0; display:grid; grid-template-columns:1fr 1fr; height:44px; padding:4px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); box-sizing:border-box; }
+.mc9 { padding:18px 22px 0; display:flex; flex-direction:column; gap:2px; }
+.mca { display:flex; align-items:flex-start; gap:4px; }
+.mcb { font:600 30px/1 'Familjen Grotesk',sans-serif; color:var(--at); margin-top:10px; }
+.mcc { font:600 92px/.92 'Familjen Grotesk',sans-serif; letter-spacing:-.06em; color:var(--ik); }
+.mcd { display:flex; gap:6px; margin-top:14px; }
+.mce { flex:1; border-top:1px solid var(--ln); padding-top:10px; display:flex; flex-direction:column; gap:3px; }
+.mcf { flex:1; border-top:1px solid #FFD23F; padding-top:10px; display:flex; flex-direction:column; gap:3px; }
+.mcg { margin:8px 14px 0; padding:12px 14px; border-radius:18px; border:1px solid var(--al); font:500 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.mch { display:flex; flex-direction:column; gap:8px; margin:20px 14px 0; }
+.mci { display:flex; align-items:center; gap:12px; width:100%; }
+.mcj { width:100%; height:52px; border-radius:20px; border:1px dashed var(--ad); display:flex; align-items:center; justify-content:center; gap:10px; color:var(--at); font:600 14px 'Familjen Grotesk',sans-serif; }
+.mck { width:26px; height:26px; border-radius:13px; background:var(--c2); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.mcl { font:400 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); padding:0 8px; }
+.mcm { margin:8px 14px 0; padding:14px 16px; border-radius:22px; background:var(--al); display:flex; flex-direction:column; gap:4px; }
+.mcn { font:600 14px 'Familjen Grotesk',sans-serif; color:#120A05; }
+.mco { font:400 12px/1.4 'Hanken Grotesk',sans-serif; color:#120A05; }
+.mcp { align-self:flex-start; margin-top:6px; height:38px; padding:0 14px; border-radius:19px; background:#120A05; color:#FF6A2B; font:700 13px 'Familjen Grotesk',sans-serif; }
+.mcq { font:600 88px/.92 'Familjen Grotesk',sans-serif; letter-spacing:-.06em; color:var(--ik); }
+.mcr { height:12px; border-radius:6px; background:var(--c2); overflow:hidden; margin-top:14px; }
+.mcs { display:flex; justify-content:space-between; margin-top:6px; font:500 11px 'IBM Plex Mono',monospace; color:var(--fa); }
+.mct { margin:8px 14px 0; padding:16px; border-radius:24px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:12px; margin-top:18px; }
+.mcu { font:600 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--al); }
+.mcv { font:700 24px 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.mcw { width:calc(100% - 28px); margin:8px 14px 0; padding:14px 16px; border-radius:22px; border:1px dashed var(--ad); display:flex; align-items:center; gap:12px; text-align:left; box-sizing:border-box; }
+.mcx { flex:1; font:400 13px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mcy { display:flex; justify-content:space-between; }
+.mcz { font:600 15px/1.3 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.md0 { font:400 12px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.md1 { height:40px; border-radius:20px; background:var(--ik); color:var(--bg); font:600 13px 'Familjen Grotesk',sans-serif; }
+.md2 { padding:6px 22px 0; font:400 14px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.md3 { display:flex; flex-wrap:wrap; gap:6px 14px; padding:10px 22px 0; }
+.md4 { display:flex; align-items:center; gap:6px; font:500 11.5px 'Hanken Grotesk',sans-serif; color:var(--mu); white-space:nowrap; }
+.md5 { width:9px; height:9px; border-radius:3px; background:var(--ac); }
+.md6 { width:9px; height:9px; border-radius:3px; background:#FFD23F; }
+.md7 { width:9px; height:9px; border-radius:3px; background:var(--fa); }
+.md8 { margin:16px 14px 0; padding:14px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); display:flex; flex-direction:column; gap:10px; }
+.md9 { height:28px; font:600 12px 'Familjen Grotesk',sans-serif; color:var(--at); }
+.mda { font:600 13px 'Hanken Grotesk',sans-serif; white-space:nowrap; }
+.mdb { height:36px; padding:0 13px; border-radius:18px; border:1px dashed var(--ad); color:var(--at); font:600 13px 'Familjen Grotesk',sans-serif; white-space:nowrap; }
+.mdc { display:flex; align-items:center; gap:8px; padding:0 12px; height:46px; border-bottom:1px solid var(--ln); }
+.mdd { max-height:230px; overflow-y:auto; scrollbar-width:none; }
+.mde { width:100%; min-height:44px; padding:8px 14px; display:flex; align-items:center; gap:10px; text-align:left; border-bottom:1px solid var(--ln); }
+.mdf { padding:16px 14px; font:400 13px 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mdg { margin:12px 14px 0; padding:22px 18px; border-radius:22px; border:1px dashed var(--ln); font:400 14px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); text-align:center; }
+.mdh { padding:22px 22px 10px; display:flex; align-items:center; gap:8px; }
+.mdi { font:600 18px 'Familjen Grotesk',sans-serif; letter-spacing:-.01em; color:var(--ik); }
+.mdj { font:600 10px 'IBM Plex Mono',monospace; padding:3px 7px; border-radius:8px; background:var(--ac); color:var(--oa); }
+.mdk { flex:1; }
+.mdl { display:flex; flex-direction:column; gap:8px; margin:0 14px; }
+.mdm { border-radius:24px; background:var(--cd); border:1px solid var(--ln); overflow:hidden; display:flex; flex-direction:column; }
+.mdn { height:150px; position:relative; background:var(--c2); overflow:hidden; }
+.mdo { position:absolute; inset:auto 0 0 0; height:60%; background:linear-gradient(transparent,rgba(0,0,0,.55)); }
+.mdp { position:absolute; left:12px; bottom:10px; font:500 10px 'IBM Plex Mono',monospace; color:#F2F4EC; }
+.mdq { padding:14px 16px; display:flex; flex-direction:column; gap:4px; }
+.mdr { font:700 16px 'Familjen Grotesk',sans-serif; color:var(--ik); white-space:nowrap; }
+.mds { align-self:flex-start; margin-top:8px; height:36px; padding:0 14px; border-radius:18px; border:1px solid var(--ln); color:var(--ik); font:600 13px 'Familjen Grotesk',sans-serif; }
+.mdt { padding:18px 16px; border-radius:22px; border:1px dashed var(--ln); font:400 13px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.mdu { position:absolute; left:12px; right:12px; bottom:16px; height:64px; border-radius:32px; background:var(--dk); border:1px solid var(--ln); display:flex; align-items:center; justify-content:space-between; padding:0 8px; box-sizing:border-box; z-index:15; }
+.mdv { font:700 13px 'Familjen Grotesk',sans-serif; }
+.mdw { width:48px; height:48px; border-radius:24px; background:var(--fb); color:var(--of); display:flex; align-items:center; justify-content:center; flex:none; }
+.mdx { width:40px; height:4px; border-radius:2px; background:var(--fa); align-self:center; opacity:.6; }

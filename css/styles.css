@@ -1,0 +1,79 @@
+/* Estilos generales, letra base y adaptación a pantallas de celular */
+body { margin: 0; background: #E4E3DC; font-family: 'Hanken Grotesk', system-ui, sans-serif; }
+a { color: #4E6E00; }
+a:hover { color: #0B0C0A; }
+button { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; color: inherit; }
+input { font: inherit; }
+/* Marco base e indicadores de estado superior */
+.m3k { height:40px; color:var(--mu); font:600 13px 'Familjen Grotesk',sans-serif; }
+.m1 { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px 16px; box-sizing:border-box; --bg:#0B0C0A; --cd:#16180F; --c2:#24271C; --ln:rgba(255,255,255,.07); --ik:#F2F4EC; --mu:#A3A898; --fa:#6F7466; --ac:#D4FF3A; --oa:#0B0C0A; --at:#D4FF3A; --al:#FF6A2B; --dk:#1C1E15; --di:#A3A898; --fb:#F2F4EC; --of:#0B0C0A; --dm:#2A2D22; --ad:#5E6B2A; }
+.m2 { display:flex; gap:10px; align-items:center; font:500 11px 'IBM Plex Mono',monospace; letter-spacing:.06em; color:rgba(0,0,0,.5); }
+.m3 { width:390px; height:844px; border:11px solid #0d0d0c; border-radius:56px; overflow:hidden; position:relative; background:var(--bg); box-shadow:0 1px 0 1px rgba(0,0,0,.15),0 24px 48px -28px rgba(0,0,0,.4); transition:background .25s ease-out; }
+.m4 { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:118px; height:34px; background:#000; border-radius:20px; z-index:40; }
+.m5 { display:flex; gap:6px; align-items:center; }
+.m6 { display:flex; gap:2px; align-items:flex-end; }
+.m7 { width:3px; height:5px; background:currentColor; border-radius:1px; }
+.m8 { width:3px; height:7px; background:currentColor; border-radius:1px; }
+.m9 { width:3px; height:9px; background:currentColor; border-radius:1px; }
+.ma { width:3px; height:11px; background:currentColor; border-radius:1px; }
+.mb { width:24px; height:11px; border:1.5px solid var(--mu); border-radius:3px; padding:1px; box-sizing:border-box; }
+.mc { width:70%; height:100%; background:currentColor; border-radius:1px; }
+.md { position:absolute; top:54px; left:0; right:0; bottom:0; z-index:25; background:linear-gradient(180deg,#1E345B 0%,#0B1A39 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; padding-bottom:60px; box-sizing:border-box; }
+
+/* Ajuste a pantalla completa en celulares Android e iOS respetando las barras del teléfono */
+@media (max-width: 960px), (max-height: 600px), (hover: none) and (pointer: coarse) {
+  :root {
+    --sat-eff: max(var(--sat, 0px), env(safe-area-inset-top, 0px));
+    --sab-eff: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px));
+    --sal-eff: max(var(--sal, 0px), env(safe-area-inset-left, 0px));
+    --sar-eff: max(var(--sar, 0px), env(safe-area-inset-right, 0px));
+  }
+  body { background: #0B0C0A; margin: 0; overflow: hidden; }
+  .m1 { padding: 0 !important; gap: 0 !important; min-height: 100vh !important; min-height: 100dvh !important; justify-content: flex-start !important; }
+  .m2, .m4, .m3 > div[style*="height:54px"] { display: none !important; }
+  .m3 { width: 100vw !important; max-width: 100% !important; height: 100vh !important; height: 100dvh !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; overflow: hidden !important; }
+  .m3::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--sab-eff); background: var(--bg); z-index: 26; pointer-events: none; transition: background .25s ease-out; }
+  .md { top: 0 !important; padding: var(--sat-eff) var(--sar-eff) calc(var(--sab-eff) + 24px) var(--sal-eff) !important; }
+  .mk { top: 0 !important; padding: 0 !important; }
+  .mk.is-splash { overflow: hidden !important; }
+  .ml { flex: 0 0 auto !important; justify-content: center !important; transition: height 1.15s cubic-bezier(.45,0,.15,1), min-height 1.15s cubic-bezier(.45,0,.15,1), border-radius 1.15s cubic-bezier(.45,0,.15,1), padding 1.15s cubic-bezier(.45,0,.15,1), gap 1.15s cubic-bezier(.45,0,.15,1) !important; }
+  .mk.is-splash .ml { height: 100vh !important; height: 100dvh !important; min-height: 100vh !important; min-height: 100dvh !important; border-radius: 0 !important; padding: var(--sat-eff) 22px calc(var(--sab-eff) + 24px) !important; gap: 10px !important; cursor: pointer; }
+  .mk.is-login .ml { height: clamp(204px, 28.5dvh, 252px) !important; min-height: clamp(204px, 28.5dvh, 252px) !important; border-radius: 0 0 40px 40px !important; padding: calc(var(--sat-eff) + 6px) 22px clamp(12px, 2dvh, 22px) !important; gap: 4px !important; }
+  .mm { transition: width 1.15s cubic-bezier(.45,0,.15,1), height 1.15s cubic-bezier(.45,0,.15,1), margin-top 1.15s cubic-bezier(.45,0,.15,1), transform 1.1s cubic-bezier(.22,1,.36,1), opacity .7s ease-out !important; }
+  .mk.is-splash .mm { width: clamp(170px, 25dvh, 210px) !important; height: clamp(170px, 25dvh, 210px) !important; margin-top: 0 !important; }
+  .mk.is-login .mm { width: clamp(104px, 15.5dvh, 142px) !important; height: clamp(104px, 15.5dvh, 142px) !important; margin-top: 2px !important; }
+  .mn { transition: font-size 1.15s cubic-bezier(.45,0,.15,1), margin-top 1.15s cubic-bezier(.45,0,.15,1), opacity .7s ease-out .35s, transform .8s cubic-bezier(.22,1,.36,1) .35s !important; }
+  .mk.is-splash .mn { font-size: clamp(38px, 5.2dvh, 44px) !important; margin-top: 0 !important; }
+  .mk.is-login .mn { font-size: clamp(26px, 3.9dvh, 34px) !important; margin-top: -6px !important; }
+  .mq { flex: 1 0 auto !important; padding: clamp(8px, 1.5dvh, 16px) 22px !important; gap: 6px !important; }
+  .mt { flex: 0 0 auto !important; padding: 0 18px calc(var(--sab-eff) + 14px) !important; gap: 8px !important; }
+  .mk.is-splash .mq, .mk.is-splash .mt { opacity: 0 !important; transform: translateY(22px) !important; pointer-events: none !important; }
+  .mk.is-login .mq { opacity: 1 !important; transform: translateY(0) !important; pointer-events: auto !important; transition: opacity .75s cubic-bezier(.4,0,.2,1) .28s, transform .85s cubic-bezier(.22,1,.36,1) .22s !important; }
+  .mk.is-login .mt { opacity: 1 !important; transform: translateY(0) !important; pointer-events: auto !important; transition: opacity .75s cubic-bezier(.4,0,.2,1) .36s, transform .85s cubic-bezier(.22,1,.36,1) .28s !important; }
+  .mr { font-size: clamp(25px, 3.8dvh, 34px) !important; }
+  .mu, .mw { height: clamp(48px, 6.2dvh, 54px) !important; }
+  .my { height: clamp(42px, 5.5dvh, 48px) !important; }
+  .m10 { height: clamp(44px, 5.8dvh, 50px) !important; }
+  .m12, .m22 { top: 0 !important; padding: calc(var(--sat-eff) + 6px) var(--sar-eff) calc(var(--sab-eff) + 6px) var(--sal-eff) !important; }
+  .m18 { width: 100% !important; max-width: 100% !important; overflow-y: auto !important; padding: clamp(16px, 3.5dvh, 34px) 22px 16px !important; }
+  .m1z { padding: 0 22px 18px !important; }
+  .m3h { padding: 0 18px 16px !important; }
+  .m3l { top: 0 !important; padding: calc(var(--sat-eff) + 8px) var(--sar-eff) calc(var(--sab-eff) + 28px) var(--sal-eff) !important; }
+  .m75 { top: 0 !important; padding: 0 var(--sar-eff) calc(var(--sab-eff) + 92px) var(--sal-eff) !important; overflow-x: hidden !important; }
+  .m76 { padding: calc(var(--sat-eff) + 8px) 18px 10px !important; }
+  .m7m { font-size: clamp(72px, 23vw, 112px) !important; }
+  .m33 { font-size: clamp(68px, 22vw, 104px) !important; }
+  .mbo { font-size: clamp(64px, 21vw, 96px) !important; }
+  .mcc { font-size: clamp(62px, 20vw, 92px) !important; }
+  .mcq { font-size: clamp(60px, 19vw, 88px) !important; }
+  .mdu { bottom: calc(var(--sab-eff) + 10px) !important; left: max(12px, calc(var(--sal-eff) + 12px)) !important; right: max(12px, calc(var(--sar-eff) + 12px)) !important; max-width: 500px !important; margin: 0 auto !important; }
+  .mt-sheet { padding: 10px max(18px, calc(var(--sar-eff) + 18px)) calc(var(--sab-eff) + 20px) max(18px, calc(var(--sal-eff) + 18px)) !important; max-height: 88dvh !important; overflow-y: auto !important; box-sizing: border-box !important; max-width: 600px !important; margin: 0 auto !important; }
+}
+
+@media (min-width: 540px) and (max-width: 960px), (orientation: landscape) and (max-height: 600px) {
+  .m75 > *:not(.m76), .m26 > *, .m3l > *:not(.m3m) { max-width: 640px !important; margin-left: auto !important; margin-right: auto !important; box-sizing: border-box !important; }
+  .m7t, .m8a, .m8d, .m8g, .m9q, .mb8, .mcw, .m57 { width: calc(100% - 28px) !important; max-width: 612px !important; }
+  .m7m, .m33, .mbo, .mcc, .mcq { font-size: clamp(50px, 14dvh, 76px) !important; }
+  .m1a, .m28, .m5j, .m65 { font-size: clamp(24px, 6.5dvh, 34px) !important; }
+  .mdu { height: 56px !important; }
+}

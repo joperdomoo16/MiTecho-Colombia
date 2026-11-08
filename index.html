@@ -1,0 +1,59 @@
+<!-- Estructura principal de la aplicación móvil MiTecho y carga de estilos y módulos -->
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' capacitor: http://localhost https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' capacitor: https://tbliwiawziexlziqqcji.supabase.co https://script.google.com https://script.googleusercontent.com https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self';">
+  <meta name="theme-color" content="#0B0C0A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MiTecho Colombia</title>
+  <link rel="icon" href="assets/logo-app.png">
+  <link rel="apple-touch-icon" href="assets/logo-app.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fuentes de texto y hojas de estilo de la aplicación móvil -->
+  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/Formularios.css">
+  <link rel="stylesheet" href="css/Vistas.css">
+</head>
+<body>
+<!-- Contenedor donde se dibuja la pantalla activa en el celular -->
+<main id="app" role="main"></main>
+
+<template id="mt-template"></template>
+
+<!-- Módulos de cálculo financiero, certificado, almacenamiento, vistas y control de pantallas -->
+<script src="js/jspdf.umd.min.js"></script>
+<script src="js/Constantesbancarias.js"></script>
+<script src="js/Listaciudades.js"></script>
+<script src="js/Proyectosaliados.js"></script>
+<script src="js/Motorcalculo.js"></script>
+<script src="js/Estiloscertificado.js"></script>
+<script src="js/Generadorpdfhojatres.js"></script>
+<script src="js/Generadorpdf.js"></script>
+<script src="js/Servicioapi.js"></script>
+<script src="js/Almacenamiento.js"></script>
+<script src="js/Estadobase.js"></script>
+<script src="js/Valoresperfil.js"></script>
+<script src="js/Valoresadicionales.js"></script>
+<script src="js/Valoresinicio.js"></script>
+<script src="js/Valoresingresos.js"></script>
+<script src="js/Valoressimulador.js"></script>
+<script src="js/Valorespantallas.js"></script>
+<script src="js/Sincronizacion.js"></script>
+<script src="vistas/Plantillabienvenida.js"></script>
+<script src="vistas/Plantillaperfilusuario.js"></script>
+<script src="vistas/Plantillaayuda.js"></script>
+<script src="vistas/Plantillanavegacionsuperior.js"></script>
+<script src="vistas/Plantillaperfil.js"></script>
+<script src="vistas/Plantillaingresosplan.js"></script>
+<script src="vistas/Plantillaprincipal.js"></script>
+<script src="vistas/Plantillamodales.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

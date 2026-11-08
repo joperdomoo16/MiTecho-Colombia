@@ -1,0 +1,97 @@
+<!-- Pantalla móvil para cambiar la contraseña desde el enlace enviado al correo -->
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0C0A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Restablecer Contraseña | MiTecho</title>
+  <link rel="icon" href="https://tbliwiawziexlziqqcji.supabase.co/storage/v1/object/public/publico/logo-glyph.png">
+  <link rel="apple-touch-icon" href="https://tbliwiawziexlziqqcji.supabase.co/storage/v1/object/public/publico/logo-glyph.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/style.css">
+  <link rel="stylesheet" href="./styles/Formulario.css">
+</head>
+<body>
+  <main class="contenido-principal">
+    <!-- Tarjeta central con el logotipo de la aplicación y los estados del cambio de clave -->
+    <article class="tarjeta" id="contenedor-tarjeta">
+      <div class="encabezado-marca">
+        <img src="https://tbliwiawziexlziqqcji.supabase.co/storage/v1/object/public/publico/logo-glyph.png" width="44" height="37" alt="Logotipo de MiTecho" class="imagen-logo">
+        <div class="datos-marca">
+          <span class="nombre-marca">MiTecho</span>
+          <span class="subtitulo-marca">Un producto de RumoriaStudio</span>
+        </div>
+      </div>
+
+      <!-- Formulario para escribir y confirmar la nueva contraseña -->
+      <section id="seccion-formulario" class="seccion-estado">
+        <div>
+          <h1 class="titulo-tarjeta">Crea tu nueva contraseña</h1>
+          <p class="subtitulo-tarjeta">Ingresa una clave segura de al menos 6 caracteres para entrar a tu cuenta en la aplicación móvil MiTecho (Android e iOS).</p>
+        </div>
+
+        <div id="caja-alerta" class="caja-mensaje error oculto" role="alert">
+          <span id="texto-alerta"></span>
+        </div>
+
+        <div class="grupo-campo">
+          <label class="etiqueta-campo" for="nueva-clave">Nueva contraseña</label>
+          <div class="contenedor-entrada">
+            <input type="password" id="nueva-clave" class="campo-entrada" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+            <button type="button" id="ver-nueva-clave" class="boton-ojo" aria-label="Mostrar u ocultar nueva contraseña">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="grupo-campo">
+          <label class="etiqueta-campo" for="confirmar-clave">Confirma tu nueva contraseña</label>
+          <div class="contenedor-entrada">
+            <input type="password" id="confirmar-clave" class="campo-entrada" placeholder="Escribe de nuevo la contraseña" autocomplete="new-password">
+            <button type="button" id="ver-confirmar-clave" class="boton-ojo" aria-label="Mostrar u ocultar confirmación de contraseña">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="lista-reglas">
+          <p class="regla-clave" id="regla-longitud">Mínimo 6 caracteres</p>
+          <p class="regla-clave" id="regla-coincidencia">Las contraseñas coinciden</p>
+        </div>
+
+        <button type="button" id="boton-guardar" class="boton-guardar">
+          Guardar nueva contraseña
+        </button>
+      </section>
+
+      <!-- Aviso cuando la contraseña se guardó bien con botón para volver a la aplicación -->
+      <section id="seccion-exito" class="seccion-estado estado-centrado oculto">
+        <div class="insignia-estado exito" aria-hidden="true">&#10003;</div>
+        <h2 class="titulo-tarjeta">Contraseña restablecida</h2>
+        <p class="subtitulo-tarjeta">Tu clave se actualizó correctamente. Ya puedes abrir la aplicación MiTecho en tu celular Android o iOS e iniciar sesión.</p>
+        <a href="mitecho://login" class="boton-volver">Abrir la app MiTecho</a>
+      </section>
+
+      <!-- Aviso cuando el enlace del correo ya se venció o ya fue usado -->
+      <section id="seccion-expirado" class="seccion-estado estado-centrado oculto">
+        <div class="insignia-estado alerta" aria-hidden="true">!</div>
+        <h2 class="titulo-tarjeta">Enlace no válido o vencido</h2>
+        <p class="subtitulo-tarjeta">Este enlace ya fue usado o superó los 30 minutos de vigencia. Abre la aplicación MiTecho en tu celular y solicita uno nuevo desde la pantalla de inicio de sesión.</p>
+      </section>
+
+      <!-- Pie de tarjeta con el correo de soporte de RumoriaStudio -->
+      <div class="pie-soporte">
+        <p>MiTecho es una app de RumoriaStudio · <a href="mailto:rumoriastudio@gmail.com">Soporte técnico</a></p>
+      </div>
+    </article>
+  </main>
+
+  <script type="module" src="./logic/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+// Listado de municipios de Colombia con su departamento para elegir ubicación en la aplicación
+
+const Directoriociudades = [
+  ["Acacías","Meta"],["Aguachica","Cesar"],["Aguazul","Casanare"],["Apartadó","Antioquia"],
+  ["Arauca","Arauca"],["Arjona","Bolívar"],["Armenia","Quindío"],["Barrancabermeja","Santander"],
+  ["Barranquilla","Atlántico"],["Bello","Antioquia"],["Bogotá","Bogotá D.C."],["Bucaramanga","Santander"],
+  ["Buenaventura","Valle del Cauca"],["Buga","Valle del Cauca"],["Cajicá","Cundinamarca"],["Calarcá","Quindío"],
+  ["Caldas","Antioquia"],["Cali","Valle del Cauca"],["Candelaria","Valle del Cauca"],["Cartagena","Bolívar"],
+  ["Cartago","Valle del Cauca"],["Caucasia","Antioquia"],["Cereté","Córdoba"],["Chía","Cundinamarca"],
+  ["Chinchiná","Caldas"],["Chiquinquirá","Boyacá"],["Ciénaga","Magdalena"],["Copacabana","Antioquia"],
+  ["Corozal","Sucre"],["Cota","Cundinamarca"],["Cúcuta","Norte de Santander"],["Dosquebradas","Risaralda"],
+  ["Duitama","Boyacá"],["El Carmen de Bolívar","Bolívar"],["El Carmen de Viboral","Antioquia"],["Envigado","Antioquia"],
+  ["Espinal","Tolima"],["Facatativá","Cundinamarca"],["Florencia","Caquetá"],["Floridablanca","Santander"],
+  ["Fundación","Magdalena"],["Funza","Cundinamarca"],["Fusagasugá","Cundinamarca"],["Galapa","Atlántico"],
+  ["Garzón","Huila"],["Girardot","Cundinamarca"],["Girardota","Antioquia"],["Girón","Santander"],
+  ["Granada","Meta"],["Guarne","Antioquia"],["Honda","Tolima"],["Ibagué","Tolima"],
+  ["Inírida","Guainía"],["Ipiales","Nariño"],["Itagüí","Antioquia"],["Jamundí","Valle del Cauca"],
+  ["La Calera","Cundinamarca"],["La Ceja","Antioquia"],["La Dorada","Caldas"],["La Estrella","Antioquia"],
+  ["La Virginia","Risaralda"],["Leticia","Amazonas"],["Lorica","Córdoba"],["Los Patios","Norte de Santander"],
+  ["Madrid","Cundinamarca"],["Magangué","Bolívar"],["Maicao","La Guajira"],["Malambo","Atlántico"],
+  ["Manizales","Caldas"],["Marinilla","Antioquia"],["Medellín","Antioquia"],["Melgar","Tolima"],
+  ["Mitú","Vaupés"],["Mocoa","Putumayo"],["Montenegro","Quindío"],["Montería","Córdoba"],
+  ["Mosquera","Cundinamarca"],["Neiva","Huila"],["Ocaña","Norte de Santander"],["Paipa","Boyacá"],
+  ["Palmira","Valle del Cauca"],["Pamplona","Norte de Santander"],["Pasto","Nariño"],["Pereira","Risaralda"],
+  ["Piedecuesta","Santander"],["Pitalito","Huila"],["Popayán","Cauca"],["Puerto Asís","Putumayo"],
+  ["Puerto Carreño","Vichada"],["Puerto Colombia","Atlántico"],["Quibdó","Chocó"],["Quimbaya","Quindío"],
+  ["Riohacha","La Guajira"],["Rionegro","Antioquia"],["Sabanalarga","Atlántico"],["Sabaneta","Antioquia"],
+  ["Sahagún","Córdoba"],["San Andrés","San Andrés y Providencia"],["San Gil","Santander"],["San José del Guaviare","Guaviare"],
+  ["Santa Fe de Antioquia","Antioquia"],["Santa Marta","Magdalena"],["Santa Rosa de Cabal","Risaralda"],["Santander de Quilichao","Cauca"],
+  ["Saravena","Arauca"],["Sincelejo","Sucre"],["Soacha","Cundinamarca"],["Socorro","Santander"],
+  ["Sogamoso","Boyacá"],["Soledad","Atlántico"],["Sopó","Cundinamarca"],["Tenjo","Cundinamarca"],
+  ["Tocancipá","Cundinamarca"],["Tuluá","Valle del Cauca"],["Tumaco","Nariño"],["Tunja","Boyacá"],
+  ["Turbaco","Bolívar"],["Turbo","Antioquia"],["Uribia","La Guajira"],["Valledupar","Cesar"],
+  ["Villa del Rosario","Norte de Santander"],["Villamaría","Caldas"],["Villavicencio","Meta"],["Yopal","Casanare"],
+  ["Yumbo","Valle del Cauca"],["Zipaquirá","Cundinamarca"]
+];
+
+const CITIES = Directoriociudades;

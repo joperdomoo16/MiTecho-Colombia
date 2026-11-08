@@ -1,0 +1,9 @@
+{
+  "appId": "co.mitecho.app",
+  "appName": "MiTecho",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
+

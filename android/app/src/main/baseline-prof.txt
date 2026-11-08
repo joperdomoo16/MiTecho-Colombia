@@ -1,0 +1,9 @@
+# Perfil de arranque para optimizar el inicio en frío en dispositivos Android de gama media y baja
+HSPLco/mitecho/app/MainActivity;-><init>()V
+HSPLco/mitecho/app/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLco/mitecho/app/MainActivity;->onResume()V
+HSPLco/mitecho/app/MainActivity;->onWindowFocusChanged(Z)V
+HSPLco/mitecho/app/MainActivity;->applySystemBars(Ljava/lang/String;ZLjava/lang/String;ZZ)V
+HSPLco/mitecho/app/MainActivity;->pushInsetsToWebView()V
+Lco/mitecho/app/MainActivity;
+
