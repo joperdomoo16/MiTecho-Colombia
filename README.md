@@ -37,3 +37,18 @@ El proyecto está organizado en módulos independientes para que cada archivo te
    - Entra a la carpeta `siterecuperacion`.
    - Ejecuta `Compilar.bat` y luego `Iniciar.bat`.
 
+## Sitios Legales y Políticas de Privacidad (Firebase Hosting)
+
+Los sitios legales oficiales requeridos para el cumplimiento normativo en Colombia (Ley 1581 de 2012) y para las fichas de Google Play Store y App Store están desplegados en Firebase Hosting bajo el dominio oficial:
+
+- **Portal de Transparencia y Privacidad:** [https://mitecho-co.web.app/](https://mitecho-co.web.app/)
+- **Política de Tratamiento de Datos Personales:** [https://mitecho-co.web.app/Politicadeprivacidad](https://mitecho-co.web.app/Politicadeprivacidad)
+- **Eliminación de Cuenta y Datos:** [https://mitecho-co.web.app/Eliminarcuenta](https://mitecho-co.web.app/Eliminarcuenta)
+- **Canal Oficial de Privacidad y Soporte:** [rumoriastudio@gmail.com](mailto:rumoriastudio@gmail.com)
+
+Los archivos fuente se encuentran en la carpeta [`sitiolegal/`](sitiolegal/) y se despliegan con:
+```bash
+npx firebase-tools deploy --only hosting
+```
+
+

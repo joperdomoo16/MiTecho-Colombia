@@ -24,3 +24,7 @@ Thumbs.db
 
 # Archivos de registro
 *.log
+
+# Firebase local
+.firebase/
+

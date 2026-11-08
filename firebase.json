@@ -1,0 +1,129 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "android/**",
+      "test/**",
+      "tienda/**",
+      "correos/**",
+      "siterecuperacion/**",
+      "dist/**",
+      "css/**",
+      "js/**",
+      "vistas/**",
+      "index.html",
+      "*.apk",
+      "*.js",
+      "*.json",
+      "*.md"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/Eliminarcuenta.html",
+        "destination": "/Eliminarcuenta",
+        "type": 301
+      },
+      {
+        "source": "/Politicadeprivacidad.html",
+        "destination": "/Politicadeprivacidad",
+        "type": 301
+      },
+      {
+        "source": "/Transparenciayprivacidad.html",
+        "destination": "/Transparenciayprivacidad",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Eliminarcuenta.html",
+        "destination": "/Eliminarcuenta",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Politicadeprivacidad.html",
+        "destination": "/Politicadeprivacidad",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Transparenciayprivacidad.html",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Eliminarcuenta",
+        "destination": "/Eliminarcuenta",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Politicadeprivacidad",
+        "destination": "/Politicadeprivacidad",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Transparenciayprivacidad",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal",
+        "destination": "/",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/sitiolegal/Transparenciayprivacidad.html"
+      },
+      {
+        "source": "/Transparenciayprivacidad",
+        "destination": "/sitiolegal/Transparenciayprivacidad.html"
+      },
+      {
+        "source": "/Politicadeprivacidad",
+        "destination": "/sitiolegal/Politicadeprivacidad.html"
+      },
+      {
+        "source": "/Eliminarcuenta",
+        "destination": "/sitiolegal/Eliminarcuenta.html"
+      },
+      {
+        "source": "/politica-de-privacidad",
+        "destination": "/sitiolegal/Politicadeprivacidad.html"
+      },
+      {
+        "source": "/eliminar-cuenta",
+        "destination": "/sitiolegal/Eliminarcuenta.html"
+      },
+      {
+        "source": "**",
+        "destination": "/sitiolegal/404.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/@(Politicadeprivacidad|Eliminarcuenta|Transparenciayprivacidad)*",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/sitiolegal/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      }
+    ]
+  }
+}

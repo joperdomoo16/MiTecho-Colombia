@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eliminar cuenta · MiTecho</title>
+<meta name="description" content="Cómo eliminar tu cuenta de MiTecho y tus datos, con o sin la app instalada.">
+<meta name="theme-color" content="#0B1A39">
+<link rel="icon" href="../assets/Logoglyph.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0C0A;--cd:#16180F;--c2:#24271C;--ln:rgba(255,255,255,.08);--ik:#F2F4EC;--mu:#A3A898;--fa:#6F7466;--ac:#D4FF3A;--oa:#0B0C0A;--at:#D4FF3A;--al:#FF6A2B;--nv1:#1E345B;--nv2:#0B1A39}
+@media (prefers-color-scheme:light){:root{--bg:#F1F2EC;--cd:#FFFFFF;--c2:#E6E9DC;--ln:rgba(15,17,12,.10);--ik:#0F110C;--mu:#565C4D;--fa:#7C8273;--at:#4A6900}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ik);font:400 16px/1.65 'Hanken Grotesk',system-ui,sans-serif}
+a{color:var(--at);text-underline-offset:3px}
+.hero{background:linear-gradient(160deg,var(--nv1) 0%,var(--nv2) 100%);color:#F2F4EC;padding:28px 16px 40px;border-radius:0 0 32px 32px}
+.hero .in{max-width:860px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#F2F4EC}
+.brand img{width:44px;height:auto}
+.brand b{font:700 24px 'Familjen Grotesk',sans-serif;letter-spacing:-.02em}
+.flag{display:block;width:64px;height:4px;border-radius:2px;margin:6px 0 0 56px;background:linear-gradient(90deg,#F2C230 0 50%,#2B5BC9 50% 75%,#E0453A 75%)}
+.kicker{font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#D4FF3A;margin:28px 0 8px}
+h1{font:700 clamp(30px,6vw,46px)/1.05 'Familjen Grotesk',sans-serif;letter-spacing:-.025em;margin:0}
+.lead{color:#C9CDBF;font-size:17px;max-width:640px;margin:12px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{font:500 12px 'IBM Plex Mono',monospace;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;color:#E4E8DA}
+main{max-width:860px;margin:0 auto;padding:28px 16px 64px}
+nav.toc{background:var(--cd);border:1px solid var(--ln);border-radius:20px;padding:18px 20px;margin-bottom:28px}
+nav.toc p{font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin:0 0 8px}
+nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}
+nav.toc li{margin:3px 0;break-inside:avoid}
+@media (max-width:620px){nav.toc ol{columns:1}}
+section{padding:8px 0 18px;border-bottom:1px solid var(--ln);scroll-margin-top:16px}
+section:last-of-type{border-bottom:0}
+h2{font:700 24px/1.2 'Familjen Grotesk',sans-serif;letter-spacing:-.015em;margin:24px 0 10px;display:flex;gap:12px;align-items:baseline}
+h2 .n{font:600 13px 'IBM Plex Mono',monospace;color:var(--at);min-width:26px}
+h3{font:600 18px 'Familjen Grotesk',sans-serif;margin:20px 0 6px}
+p,li{color:var(--ik)}
+.mu{color:var(--mu)}
+ul,ol{padding-left:22px}
+li{margin:6px 0}
+.card{background:var(--cd);border:1px solid var(--ln);border-radius:20px;padding:18px 20px;margin:14px 0}
+.card.ac{border-color:var(--ac);box-shadow:inset 4px 0 0 var(--ac)}
+.card.al{border-color:rgba(255,106,43,.45);box-shadow:inset 4px 0 0 var(--al)}
+.tbl{overflow-x:auto;border:1px solid var(--ln);border-radius:16px;margin:14px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--ln)}
+th{font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);background:var(--cd)}
+tr:last-child td{border-bottom:0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ac);color:var(--oa);font:700 16px 'Familjen Grotesk',sans-serif;text-decoration:none;border-radius:999px;padding:14px 22px;margin:6px 8px 6px 0}
+.btn.sec{background:transparent;color:var(--ik);border:1px solid var(--ln)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:0 0 0 46px;margin:14px 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:var(--ac);color:var(--oa);font:700 15px 'Familjen Grotesk';display:grid;place-items:center}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:.92em}
+mark.fill{background:rgba(255,106,43,.18);color:var(--al);border:1px dashed var(--al);border-radius:6px;padding:0 6px;font-weight:600}
+.draft{background:rgba(255,106,43,.12);border:1px solid rgba(255,106,43,.5);color:var(--ik);border-radius:14px;padding:12px 16px;margin:0 0 22px;font-size:14px}
+footer{max-width:860px;margin:0 auto;padding:24px 16px 48px;color:var(--fa);font:500 12px/1.6 'IBM Plex Mono',monospace;border-top:1px solid var(--ln)}
+.ok{color:var(--at);font-weight:700}.no{color:var(--al);font-weight:700}
+.btn-copiar{background:transparent;border:1px solid var(--ln);color:var(--mu);font:600 12px 'IBM Plex Mono',monospace;padding:2px 8px;border-radius:6px;cursor:pointer;margin-left:6px;vertical-align:middle;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.btn-copiar:hover{border-color:var(--at);color:var(--ik)}
+.btn-copiar.copiado{border-color:var(--ac);color:var(--at)}
+</style>
+<script>
+/* Enlaces de correo y botones "Copiar" (igual en las tres páginas legales).
+   - Celular: el enlace mailto: abre la app de correo del teléfono.
+   - Computador: abre la redacción de Gmail en otra pestaña (Chrome sin cliente
+     de correo configurado no hace nada con mailto:). Si el navegador bloquea la
+     pestaña, se usa mailto: como respaldo. */
+(function () {
+  var CORREO = 'rumoriastudio@gmail.com';
+  var esMovil = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+
+  function leerMailto(href) {
+    var resto = href.replace(/^mailto:/i, '');
+    var i = resto.indexOf('?');
+    var datos = { para: decodeURIComponent(i < 0 ? resto : resto.slice(0, i)) || CORREO, asunto: '', cuerpo: '' };
+    if (i >= 0) resto.slice(i + 1).split('&').forEach(function (par) {
+      var j = par.indexOf('=');
+      var clave = (j < 0 ? par : par.slice(0, j)).toLowerCase();
+      var valor = j < 0 ? '' : decodeURIComponent(par.slice(j + 1));
+      if (clave === 'subject') datos.asunto = valor;
+      if (clave === 'body') datos.cuerpo = valor;
+    });
+    return datos;
+  }
+
+  function urlGmail(d) {
+    return 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(d.para) +
+      (d.asunto ? '&su=' + encodeURIComponent(d.asunto) : '') +
+      (d.cuerpo ? '&body=' + encodeURIComponent(d.cuerpo) : '');
+  }
+
+  function avisar(btn, texto) {
+    var original = btn.getAttribute('data-texto') || btn.textContent;
+    btn.setAttribute('data-texto', original);
+    btn.textContent = texto;
+    btn.classList.add('copiado');
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () { btn.textContent = original; btn.classList.remove('copiado'); }, 2000);
+  }
+
+  function copiar(texto, btn) {
+    function respaldo() {
+      var t = document.createElement('textarea');
+      t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(t);
+      avisar(btn, ok ? '¡Copiado!' : 'Copia manual');
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(texto).then(function () { avisar(btn, '¡Copiado!'); }, respaldo);
+    } else { respaldo(); }
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!e.target || !e.target.closest) return;
+    var btn = e.target.closest('.btn-copiar');
+    if (btn) { e.preventDefault(); copiar(btn.getAttribute('data-copiar') || CORREO, btn); return; }
+
+    var a = e.target.closest('a[href^="mailto:"]');
+    if (!a || esMovil || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    var href = a.getAttribute('href');
+    var ventana = window.open(urlGmail(leerMailto(href)), '_blank');
+    if (ventana) { try { ventana.opener = null; } catch (err) {} }
+    else { window.location.href = href; }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="hero"><div class="in">
+  <a class="brand" href="/"><img src="../assets/Logoglyph.png" alt="MiTecho"><b>MiTecho</b></a><span class="flag"></span>
+  <p class="kicker">MiTecho · desarrollado por RumoriaStudio</p>
+  <h1>Cómo eliminar tu cuenta de MiTecho</h1>
+  <p class="lead">Puedes borrar tu cuenta y todos los datos asociados desde la app o, si ya no la tienes instalada, desde esta página.</p>
+</div></header>
+
+<main>
+  <div class="card ac">
+    <h3 style="margin-top:0">¿Ya no tienes la app? Pide la eliminación por correo</h3>
+    <p>No necesitas instalar MiTecho otra vez. Envía el correo desde la dirección con la que te registraste:</p>
+    <a class="btn" href="mailto:rumoriastudio@gmail.com?subject=Eliminar%20mi%20cuenta%20de%20MiTecho&amp;body=Hola%2C%20quiero%20eliminar%20mi%20cuenta%20de%20MiTecho%20y%20todos%20mis%20datos.%0A%0ACorreo%20de%20la%20cuenta%3A%20%0ANombre%3A%20">Solicitar eliminación por correo</a>
+    <p class="mu" style="margin-bottom:0">Destinatario: <a class="mono" href="mailto:rumoriastudio@gmail.com?subject=Eliminar%20mi%20cuenta%20de%20MiTecho&amp;body=Hola%2C%20quiero%20eliminar%20mi%20cuenta%20de%20MiTecho%20y%20todos%20mis%20datos.%0A%0ACorreo%20de%20la%20cuenta%3A%20%0ANombre%3A%20">rumoriastudio@gmail.com</a> <button type="button" class="btn-copiar">Copiar</button> · Asunto: <span class="mono">Eliminar mi cuenta de MiTecho</span></p>
+  </div>
+
+  <section id="desde-la-app"><h2><span class="n">A</span>Desde la app</h2>
+    <ol class="steps">
+      <li>Abre MiTecho e inicia sesión.</li>
+      <li>Toca tu foto o tus iniciales arriba a la derecha y entra a <b>Mi perfil financiero</b>.</li>
+      <li>Baja hasta el final y toca <b>Borrar mi cuenta</b>.</li>
+      <li>Confirma. Tu cuenta se cierra de inmediato y los datos se borran del celular y de la nube.</li>
+    </ol>
+  </section>
+
+  <section id="por-correo"><h2><span class="n">B</span>Por correo, sin la app</h2>
+    <ol class="steps">
+      <li>Escribe a <a href="mailto:rumoriastudio@gmail.com?subject=Eliminar%20mi%20cuenta%20de%20MiTecho&amp;body=Hola%2C%20solicito%20eliminar%20mi%20cuenta%20de%20MiTecho%20y%20mis%20datos.">rumoriastudio@gmail.com</a> <button type="button" class="btn-copiar">Copiar</button> desde el correo de tu cuenta, con el asunto <span class="mono">Eliminar mi cuenta de MiTecho</span>.</li>
+      <li>Si escribes desde otro correo, te pediremos confirmar que la cuenta es tuya antes de borrarla.</li>
+      <li>Te confirmamos que recibimos la solicitud en un máximo de 2 días hábiles.</li>
+      <li>Te avisamos por correo cuando la eliminación termine, en un máximo de 15 días hábiles.</li>
+    </ol>
+  </section>
+
+  <section id="cancelar-pro"><h2><span class="n">C</span>Antes de borrar: cancela MiTecho Pro</h2>
+    <p>Borrar la cuenta <b>no cancela</b> una suscripción pagada en la tienda. Si tienes MiTecho Pro, cancélala primero:</p>
+    <ul>
+      <li><b>Android:</b> <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener">Google Play → tu foto → Pagos y suscripciones → Suscripciones</a> → MiTecho → Cancelar.</li>
+      <li><b>iPhone:</b> <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener">Ajustes → tu nombre → Suscripciones</a> → MiTecho → Cancelar suscripción.</li>
+    </ul>
+    <p class="mu">Si necesitas ayuda, <a href="mailto:rumoriastudio@gmail.com?subject=Ayuda%20para%20cancelar%20MiTecho%20Pro">escríbenos</a> y te guiamos.</p>
+  </section>
+
+  <section id="que-se-borra"><h2><span class="n">D</span>Qué se borra y qué se conserva</h2>
+    <div class="tbl"><table>
+      <tr><th>Dato</th><th>Qué pasa</th><th>Plazo</th></tr>
+      <tr><td>Cuenta de acceso (correo, contraseña, vínculo con Google)</td><td class="ok">Se borra</td><td>Inmediato al confirmar en la app; hasta 15 días hábiles por correo</td></tr>
+      <tr><td>Perfil (nombre, edad, ciudad, foto)</td><td class="ok">Se borra</td><td>Hasta 30 días</td></tr>
+      <tr><td>Información financiera (ingresos, deudas, ahorro, Caja, Sisbén, datos de pareja)</td><td class="ok">Se borra</td><td>Hasta 30 días</td></tr>
+      <tr><td>Registros diarios de ingresos y gastos</td><td class="ok">Se borran</td><td>Hasta 30 días</td></tr>
+      <tr><td>Resúmenes PDF generados (código y cifras)</td><td class="ok">Se borran</td><td>Hasta 30 días</td></tr>
+      <tr><td>Solicitudes de soporte</td><td class="ok">Se borran</td><td>Hasta 30 días</td></tr>
+      <tr><td>Copias de respaldo de nuestros proveedores</td><td class="ok">Se sobrescriben</td><td>Hasta 90 días</td></tr>
+      <tr><td>Prueba de tu autorización y registro de la solicitud de eliminación (correo y fecha)</td><td class="no">Se conserva</td><td>Solo el tiempo que exija la ley, para demostrar que cumplimos la <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=49981" target="_blank" rel="noopener">Ley 1581 de 2012</a></td></tr>
+    </table></div>
+    <p>Los PDF que ya descargaste quedan en tu celular o donde los guardaste; puedes borrarlos tú directamente.</p>
+  </section>
+
+  <section id="borrar-algunos-datos"><h2><span class="n">E</span>Solo quiero borrar algunos datos</h2>
+    <p>Puedes editar o borrar deudas, registros y datos del perfil desde la app sin eliminar la cuenta. También puedes <a href="mailto:rumoriastudio@gmail.com?subject=Borrar%20datos%20espec%C3%ADficos%20de%20MiTecho&amp;body=Hola%2C%20quiero%20que%20borren%20estos%20datos%20de%20mi%20cuenta%20de%20MiTecho%3A%0A%0ACorreo%20de%20la%20cuenta%3A%20%0ADatos%20a%20borrar%3A%20">pedirnos por correo</a> que borremos datos específicos.</p>
+    <p>Más información en la <a href="/Politicadeprivacidad">Política de Tratamiento de Datos Personales</a> (ver <a href="/Politicadeprivacidad#derechos">tus derechos</a> y <a href="/Politicadeprivacidad#conservacion">tiempo de conservación</a>).</p>
+  </section>
+</main>
+
+<footer>MiTecho · RumoriaStudio · Bogotá, Colombia · <a href="mailto:rumoriastudio@gmail.com?subject=Contacto%20%C2%B7%20MiTecho">rumoriastudio@gmail.com</a></footer>
+</body>
+</html>
