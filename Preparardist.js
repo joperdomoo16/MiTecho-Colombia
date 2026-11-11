@@ -1,34 +1,61 @@
-// Copia los archivos y carpetas de la aplicación móvil hacia la carpeta lista para instalar en el celular
-const fs = require('fs');
-const path = require('path');
+// Arma la carpeta dist/ que va dentro del APK. Aquí en el proyecto los archivos conservan sus comentarios;
+// en la copia para el celular se quitan los comentarios y los espacios de más, sin cambiar el código.
+const Archivos = require('fs');
+const Rutas = require('path');
+const { minify: Limpiarjs } = require('terser');
+const Limpiadorcss = require('clean-css');
 
-const Directoriodist = path.join(__dirname, 'dist');
-if (fs.existsSync(Directoriodist)) {
-  fs.rmSync(Directoriodist, { recursive: true, force: true });
+const Directoriodist = Rutas.join(__dirname, 'dist');
+
+// Solo quita comentarios y espacios: no renombra variables ni reordena nada, porque los archivos comparten
+// funciones entre sí y la huella del script del reporte en la CSP tiene que seguir igual
+const Opcionesjs = { compress: false, mangle: false, format: { comments: false } };
+const Opcionescss = { level: { 1: { specialComments: 0 } } };
+
+async function Prepararjs(Origen, Destino) {
+  const Resultado = await Limpiarjs(Archivos.readFileSync(Origen, 'utf8'), Opcionesjs);
+  if (!Resultado || typeof Resultado.code !== 'string') throw new Error('No se pudo preparar ' + Origen);
+  Archivos.writeFileSync(Destino, Resultado.code);
 }
-fs.mkdirSync(Directoriodist, { recursive: true });
 
-fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(Directoriodist, 'index.html'));
+function Prepararcss(Origen, Destino) {
+  const Resultado = new Limpiadorcss(Opcionescss).minify(Archivos.readFileSync(Origen, 'utf8'));
+  if (Resultado.errors.length) throw new Error('No se pudo preparar ' + Origen + ': ' + Resultado.errors.join(' '));
+  Archivos.writeFileSync(Destino, Resultado.styles);
+}
 
-// Recorre una carpeta y copia todo su contenido conservando las subcarpetas
-function Copiardirectorio(Origen, Destino) {
-  if (!fs.existsSync(Origen)) return;
-  fs.mkdirSync(Destino, { recursive: true });
-  const Entradas = fs.readdirSync(Origen, { withFileTypes: true });
-  for (const Entrada of Entradas) {
-    const Rutaorigen = path.join(Origen, Entrada.name);
-    const Rutadestino = path.join(Destino, Entrada.name);
-    if (Entrada.isDirectory()) {
-      Copiardirectorio(Rutaorigen, Rutadestino);
-    } else {
-      fs.copyFileSync(Rutaorigen, Rutadestino);
-    }
+// En el HTML solo se quitan los comentarios <!-- -->; index.html no tiene scripts escritos adentro
+function Prepararhtml(Origen, Destino) {
+  const Texto = Archivos.readFileSync(Origen, 'utf8');
+  if (/<script(?![^>]*\bsrc=)[^>]*>/i.test(Texto)) throw new Error(Origen + ' tiene un script escrito adentro: revisa la CSP antes de limpiarlo');
+  Archivos.writeFileSync(Destino, Texto.replace(/<!--[\s\S]*?-->/g, '').replace(/\n\s*\n+/g, '\n'));
+}
+
+// Recorre una carpeta: limpia .js y .css, y copia igual las imágenes, fuentes y demás archivos
+async function Copiardirectorio(Origen, Destino) {
+  if (!Archivos.existsSync(Origen)) return;
+  Archivos.mkdirSync(Destino, { recursive: true });
+  for (const Entrada of Archivos.readdirSync(Origen, { withFileTypes: true })) {
+    const Rutaorigen = Rutas.join(Origen, Entrada.name);
+    const Rutadestino = Rutas.join(Destino, Entrada.name);
+    if (Entrada.isDirectory()) await Copiardirectorio(Rutaorigen, Rutadestino);
+    else if (Entrada.name.endsWith('.js')) await Prepararjs(Rutaorigen, Rutadestino);
+    else if (Entrada.name.endsWith('.css')) Prepararcss(Rutaorigen, Rutadestino);
+    else Archivos.copyFileSync(Rutaorigen, Rutadestino);
   }
 }
 
-Copiardirectorio(path.join(__dirname, 'css'), path.join(Directoriodist, 'css'));
-Copiardirectorio(path.join(__dirname, 'js'), path.join(Directoriodist, 'js'));
-Copiardirectorio(path.join(__dirname, 'vistas'), path.join(Directoriodist, 'vistas'));
-Copiardirectorio(path.join(__dirname, 'assets'), path.join(Directoriodist, 'assets'));
+async function Prepararcarpeta(Carpeta = Directoriodist) {
+  if (Archivos.existsSync(Carpeta)) Archivos.rmSync(Carpeta, { recursive: true, force: true });
+  Archivos.mkdirSync(Carpeta, { recursive: true });
+  Prepararhtml(Rutas.join(__dirname, 'index.html'), Rutas.join(Carpeta, 'index.html'));
+  for (const Nombre of ['css', 'js', 'vistas', 'assets']) await Copiardirectorio(Rutas.join(__dirname, Nombre), Rutas.join(Carpeta, Nombre));
+}
 
-console.log('Archivos de la aplicación móvil empacados en dist/.');
+module.exports = { Prepararcarpeta };
+
+if (require.main === module) {
+  Prepararcarpeta()
+    .then(() => console.log('Archivos de la app del celular empacados en dist/ sin comentarios.'))
+    .catch(Falla => { console.error('No se pudo armar dist/: ' + Falla.message); process.exit(1); });
+}

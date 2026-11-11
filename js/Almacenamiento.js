@@ -1,87 +1,103 @@
 // Guardado y lectura de datos por usuario en la memoria del celular y recorte de foto de perfil
 
 // Crea un nombre único por correo para que los datos de cada cuenta queden separados
-function Obtenerclaveusuario(correo) {
-  const limpio = String(correo || '').trim().toLowerCase();
-  return limpio ? (Clavealmacenamiento + '.' + limpio) : Clavealmacenamiento;
+function Obtenerclaveusuario(Correo) {
+  const Limpio = String(Correo || '').trim().toLowerCase();
+  return Limpio ? (Clavealmacenamiento + '.' + Limpio) : Clavealmacenamiento;
+}
+
+// Lee la clave nueva y, si no existe, trae la de la versión anterior convertida a los nombres actuales
+function Leerconmigracion(Clavenueva, Claveantigua) {
+  const Actual = localStorage.getItem(Clavenueva);
+  if (Actual) return JSON.parse(Actual);
+  const Antiguo = localStorage.getItem(Claveantigua);
+  if (!Antiguo) return null;
+  const Convertido = Migrarestadoantiguo(JSON.parse(Antiguo));
+  localStorage.setItem(Clavenueva, JSON.stringify(Convertido));
+  localStorage.removeItem(Claveantigua);
+  return Convertido;
 }
 
 function Cargardatosalmacenados() {
   try {
-    return JSON.parse(localStorage.getItem(Clavealmacenamiento) || 'null');
-  } catch (e) {
+    return Leerconmigracion(Clavealmacenamiento, Clavealmacenamientoantigua);
+  } catch (Falla) {
     return null;
   }
 }
 
-function Cargardatosusuario(correo) {
+function Cargardatosusuario(Correo) {
   try {
-    if (!correo) return null;
-    return JSON.parse(localStorage.getItem(Obtenerclaveusuario(correo)) || 'null');
-  } catch (e) {
+    if (!Correo) return null;
+    const Limpio = String(Correo).trim().toLowerCase();
+    return Leerconmigracion(Obtenerclaveusuario(Correo), Clavealmacenamientoantigua + '.' + Limpio);
+  } catch (Falla) {
     return null;
   }
 }
 
-function Guardardatosalmacenados(state) {
+function Guardardatosalmacenados(Estadocomponente) {
   try {
-    if (!state || !state.logged) {
+    if (!Estadocomponente || !Estadocomponente.Ingresado) {
       localStorage.removeItem(Clavealmacenamiento);
       return true;
     }
-    const o = {};
-    Camposalmacenados.forEach(k => {
-      if (k !== 'gsUrl' && state[k] !== undefined) {
-        o[k] = state[k];
+    const Objeto = {};
+    Camposalmacenados.forEach(Clave => {
+      if (Estadocomponente[Clave] !== undefined) {
+        Objeto[Clave] = Estadocomponente[Clave];
       }
     });
-    const serializado = JSON.stringify(o);
-    localStorage.setItem(Clavealmacenamiento, serializado);
-    if (state.email) {
-      localStorage.setItem(Obtenerclaveusuario(state.email), serializado);
+    const Serializado = JSON.stringify(Objeto);
+    localStorage.setItem(Clavealmacenamiento, Serializado);
+    if (Estadocomponente.Correo) {
+      localStorage.setItem(Obtenerclaveusuario(Estadocomponente.Correo), Serializado);
     }
     return true;
-  } catch (e) {
+  } catch (Falla) {
     return false;
   }
 }
 
-function Borrardatosalmacenados(correo) {
+function Borrardatosalmacenados(Correo) {
   try {
     localStorage.removeItem(Clavealmacenamiento);
-    if (correo) {
-      localStorage.removeItem(Obtenerclaveusuario(correo));
+    localStorage.removeItem(Clavealmacenamientoantigua);
+    if (Correo) {
+      localStorage.removeItem(Obtenerclaveusuario(Correo));
+      localStorage.removeItem(Clavealmacenamientoantigua + '.' + String(Correo).trim().toLowerCase());
     }
     return true;
-  } catch (e) {
+  } catch (Falla) {
     return false;
   }
 }
 
-function Procesarfotoperfil(file, callback) {
-  if (!file || !file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const size = 180;
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const minDim = Math.min(img.width, img.height);
-      const sx = (img.width - minDim) / 2;
-      const sy = (img.height - minDim) / 2;
-      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      callback(dataUrl);
+function Procesarfotoperfil(Archivo, Alterminar) {
+  if (!Archivo || !Archivo.type.startsWith('image/')) return;
+  const Lector = new FileReader();
+  Lector.onload = (Eventolectura) => {
+    const Imagen = new Image();
+    Imagen.onload = () => {
+      const Lienzo = document.createElement('canvas');
+      const Tamano = 180;
+      Lienzo.width = Tamano;
+      Lienzo.height = Tamano;
+      const Contexto = Lienzo.getContext('2d');
+      const Dimensionminima = Math.min(Imagen.width, Imagen.height);
+      const Origenx = (Imagen.width - Dimensionminima) / 2;
+      const Origeny = (Imagen.height - Dimensionminima) / 2;
+      Contexto.drawImage(Imagen, Origenx, Origeny, Dimensionminima, Dimensionminima, 0, 0, Tamano, Tamano);
+      const Imagendatos = Lienzo.toDataURL('image/jpeg', 0.85);
+      Alterminar(Imagendatos);
     };
-    img.src = ev.target.result;
+    Imagen.src = Eventolectura.target.result;
   };
-  reader.readAsDataURL(file);
+  Lector.readAsDataURL(Archivo);
 }
 
-const cargarDatosAlmacenados = Cargardatosalmacenados;
-const guardarDatosAlmacenados = Guardardatosalmacenados;
-const borrarDatosAlmacenados = Borrardatosalmacenados;
-const procesarImagenPerfil = Procesarfotoperfil;
+
+// La foto guardada en el celular solo se muestra si es una imagen JPEG o PNG en base64, como la que arma la app
+function Imagensegura(Valor) {
+  return typeof Valor === 'string' && Valor.length < 3000000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/]+={0,2}$/.test(Valor) ? Valor : '';
+}

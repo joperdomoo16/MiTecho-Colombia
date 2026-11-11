@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <!-- Pantalla a la que llega la persona después de dar clic en "Confirmar mi correo" -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0C0A">
+  <title>Correo confirmado | MiTecho</title>
+  <meta name="description" content="Confirmación del correo de tu cuenta en MiTecho, la app para simular tu crédito de vivienda en Colombia.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/Logoglyph.png">
+  <link rel="apple-touch-icon" href="/assets/Logoglyph.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/siterecuperacion/estilos/Estilos.css">
+  <link rel="stylesheet" href="/siterecuperacion/estilos/Formulario.css">
+</head>
+<body>
+  <main class="contenido-principal">
+    <article class="tarjeta">
+      <div class="encabezado-marca">
+        <img src="/assets/Logoglyph.webp" width="44" height="44" alt="Logotipo de MiTecho" class="imagen-logo">
+        <div class="datos-marca">
+          <span class="nombre-marca">MiTecho</span>
+          <span class="subtitulo-marca">Un producto de RumoriaStudio</span>
+        </div>
+      </div>
+
+      <!-- Se ve por defecto: el enlace funcionó y la cuenta quedó activa -->
+      <section id="seccion-exito" class="seccion-estado estado-centrado">
+        <div class="insignia-estado exito" aria-hidden="true">&#10003;</div>
+        <h1 class="titulo-tarjeta">Tu correo quedó confirmado</h1>
+        <p class="subtitulo-tarjeta">Ya puedes abrir MiTecho en tu celular y entrar con tu correo y contraseña. La primera vez que entres te llegará un correo de bienvenida.</p>
+        <a href="mitecho://login" class="boton-volver">Abrir la app MiTecho</a>
+      </section>
+
+      <!-- Se ve cuando Supabase avisa que el enlace venció o ya se había usado -->
+      <section id="seccion-expirado" class="seccion-estado estado-centrado oculto">
+        <div class="insignia-estado alerta" aria-hidden="true">!</div>
+        <h2 class="titulo-tarjeta">Este enlace ya no sirve</h2>
+        <p class="subtitulo-tarjeta">Venció o ya se había usado. Si ya confirmaste tu correo, abre la app y entra normalmente. Si no, regístrate otra vez en la app con el mismo correo y te enviamos un enlace nuevo.</p>
+        <a href="mitecho://login" class="boton-volver">Abrir la app MiTecho</a>
+      </section>
+
+      <div class="pie-soporte">
+        <p>MiTecho es una app de RumoriaStudio · <a href="mailto:rumoriastudio@gmail.com?subject=Ayuda%20para%20confirmar%20mi%20correo%20en%20MiTecho">Soporte técnico</a></p>
+      </div>
+    </article>
+  </main>
+
+  <script type="module" src="/siterecuperacion/logica/Correoconfirmado.js"></script>
+</body>
+</html>

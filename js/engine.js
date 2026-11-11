@@ -1,198 +1,199 @@
 // Motor liviano para actualizar la pantalla del celular sin perder el foco ni las animaciones
 
 (function () {
-  const EVENTS = {
-    onclick: 'click', oninput: 'input', onchange: 'input', onscroll: 'scroll',
-    ontouchstart: 'touchstart', ontouchmove: 'touchmove', ontouchend: 'touchend'
+  // Las plantillas usan atributos al-* en vez de onclick para que la CSP no tenga que permitir código en línea
+  const Eventos = {
+    'al-clic': 'click', 'al-escribir': 'input', 'al-cambiar': 'input', 'al-desplazar': 'scroll',
+    'al-tocar-inicio': 'touchstart', 'al-tocar-mover': 'touchmove', 'al-tocar-fin': 'touchend'
   };
-  const HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
-  const WHOLE = /^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/;
-  const tplIds = new WeakMap();
-  let tplSeq = 0;
+  const Hueco = /\{\{\s*([^}]+?)\s*\}\}/g;
+  const Completoexpresion = /^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/;
+  const Idsplantilla = new WeakMap();
+  let Secuenciaplantilla = 0;
 
-  function createRef() { return { current: null }; }
+  function Crearreferencia() { return { Actual: null }; }
 
-  function literal(expr) {
-    if (expr === 'true') return [true, true];
-    if (expr === 'false') return [true, false];
-    if (expr === 'null') return [true, null];
-    if (/^-?\d+(\.\d+)?$/.test(expr)) return [true, +expr];
-    const m = expr.match(/^(['"])(.*)\1$/);
-    return m ? [true, m[2]] : [false];
+  function Leerliteral(Expresion) {
+    if (Expresion === 'true') return [true, true];
+    if (Expresion === 'false') return [true, false];
+    if (Expresion === 'null') return [true, null];
+    if (/^-?\d+(\.\d+)?$/.test(Expresion)) return [true, +Expresion];
+    const Coincidencia = Expresion.match(/^(['"])(.*)\1$/);
+    return Coincidencia ? [true, Coincidencia[2]] : [false];
   }
 
-  function lookup(expr, scopes) {
-    expr = expr.trim();
-    const lit = literal(expr);
-    if (lit[0]) return lit[1];
-    const parts = expr.split('.');
-    let v, found = false;
-    for (let i = scopes.length - 1; i >= 0; i--) {
-      const s = scopes[i];
-      if (s && typeof s === 'object' && parts[0] in s) { v = s[parts[0]]; found = true; break; }
+  function Buscarvalor(Expresion, Ambitos) {
+    Expresion = Expresion.trim();
+    const Literal = Leerliteral(Expresion);
+    if (Literal[0]) return Literal[1];
+    const Partes = Expresion.split('.');
+    let Valor, Encontrado = false;
+    for (let Indice = Ambitos.length - 1; Indice >= 0; Indice--) {
+      const Ambitoactual = Ambitos[Indice];
+      if (Ambitoactual && typeof Ambitoactual === 'object' && Partes[0] in Ambitoactual) { Valor = Ambitoactual[Partes[0]]; Encontrado = true; break; }
     }
-    if (!found) return undefined;
-    for (let k = 1; k < parts.length; k++) { if (v == null) return undefined; v = v[parts[k]]; }
-    return v;
+    if (!Encontrado) return undefined;
+    for (let Indiceparte = 1; Indiceparte < Partes.length; Indiceparte++) { if (Valor == null) return undefined; Valor = Valor[Partes[Indiceparte]]; }
+    return Valor;
   }
 
-  function interp(str, scopes) {
-    return str.replace(HOLE, (_, p) => { const v = lookup(p, scopes); return v == null || v === false ? '' : String(v); });
+  function Interpolar(Texto, Ambitos) {
+    return Texto.replace(Hueco, (Ignorado, Ruta) => { const Valor = Buscarvalor(Ruta, Ambitos); return Valor == null || Valor === false ? '' : String(Valor); });
   }
 
-  function tid(node) { let id = tplIds.get(node); if (!id) { id = 't' + (++tplSeq); tplIds.set(node, id); } return id; }
+  function Idplantilla(Nodoplantilla) { let Identificador = Idsplantilla.get(Nodoplantilla); if (!Identificador) { Identificador = 't' + (++Secuenciaplantilla); Idsplantilla.set(Nodoplantilla, Identificador); } return Identificador; }
 
-  function build(node, scopes, ctx, out, loopKey) {
-    const key = tid(node) + loopKey;
-    if (node.nodeType === 3) {
-      const t = document.createTextNode(node.nodeValue.includes('{{') ? interp(node.nodeValue, scopes) : node.nodeValue);
-      t.__mk = key; out.appendChild(t); return;
+  function Construirnodo(Nodoplantilla, Ambitos, Contexto, Salida, Claveciclo) {
+    const Llave = Idplantilla(Nodoplantilla) + Claveciclo;
+    if (Nodoplantilla.nodeType === 3) {
+      const Auxiliar = document.createTextNode(Nodoplantilla.nodeValue.includes('{{') ? Interpolar(Nodoplantilla.nodeValue, Ambitos) : Nodoplantilla.nodeValue);
+      Auxiliar.Clavenodo = Llave; Salida.appendChild(Auxiliar); return;
     }
-    if (node.nodeType !== 1) return;
-    const tag = node.localName;
-    if (tag === 'sc-for') {
-      const list = lookup((node.getAttribute('list') || '').replace(HOLE, '$1'), scopes);
-      const as = node.getAttribute('as') || 'item';
-      if (Array.isArray(list)) list.forEach((item, idx) => {
-        const scope = { [as]: item, $index: idx };
-        for (const c of node.childNodes) build(c, scopes.concat([scope]), ctx, out, loopKey + '|' + key + ':' + idx);
+    if (Nodoplantilla.nodeType !== 1) return;
+    const Etiquetanodo = Nodoplantilla.localName;
+    if (Etiquetanodo === 'sc-for') {
+      const Lista = Buscarvalor((Nodoplantilla.getAttribute('list') || '').replace(Hueco, '$1'), Ambitos);
+      const Alias = Nodoplantilla.getAttribute('as') || 'item';
+      if (Array.isArray(Lista)) Lista.forEach((Itemlista, Posicionlista) => {
+        const Ambito = { [Alias]: Itemlista, Indiceciclo: Posicionlista };
+        for (const Hijo of Nodoplantilla.childNodes) Construirnodo(Hijo, Ambitos.concat([Ambito]), Contexto, Salida, Claveciclo + '|' + Llave + ':' + Posicionlista);
       });
       return;
     }
-    if (tag === 'sc-if') {
-      if (lookup((node.getAttribute('value') || '').replace(HOLE, '$1'), scopes)) for (const c of node.childNodes) build(c, scopes, ctx, out, loopKey);
+    if (Etiquetanodo === 'sc-if') {
+      if (Buscarvalor((Nodoplantilla.getAttribute('value') || '').replace(Hueco, '$1'), Ambitos)) for (const Hijo of Nodoplantilla.childNodes) Construirnodo(Hijo, Ambitos, Contexto, Salida, Claveciclo);
       return;
     }
-    const el = document.createElementNS(node.namespaceURI, tag);
-    el.__mk = key;
-    for (const a of node.attributes) {
-      const name = a.name, raw = a.value;
-      if (name.startsWith('hint-')) continue;
-      const whole = raw.match(WHOLE);
-      if (EVENTS[name]) {
-        const fn = whole ? lookup(whole[1], scopes) : null;
-        if (typeof fn === 'function') el.setAttribute('data-on-' + EVENTS[name], ctx.handler(fn));
+    const Nodo = document.createElementNS(Nodoplantilla.namespaceURI, Etiquetanodo);
+    Nodo.Clavenodo = Llave;
+    for (const Atributo of Nodoplantilla.attributes) {
+      const Nombreatributo = Atributo.name, Crudo = Atributo.value;
+      if (Nombreatributo.startsWith('hint-')) continue;
+      const Completo = Crudo.match(Completoexpresion);
+      if (Eventos[Nombreatributo]) {
+        const Funcion = Completo ? Buscarvalor(Completo[1], Ambitos) : null;
+        if (typeof Funcion === 'function') Nodo.setAttribute('data-on-' + Eventos[Nombreatributo], Contexto.Manejador(Funcion));
         continue;
       }
-      if (name === 'ref') {
-        const obj = whole ? lookup(whole[1], scopes) : null;
-        if (obj) el.setAttribute('data-ref', ctx.ref(obj));
+      if (Nombreatributo === 'ref') {
+        const Objetivo = Completo ? Buscarvalor(Completo[1], Ambitos) : null;
+        if (Objetivo) Nodo.setAttribute('data-ref', Contexto.Referencia(Objetivo));
         continue;
       }
-      let v = whole ? lookup(whole[1], scopes) : (raw.includes('{{') ? interp(raw, scopes) : raw);
-      if (name === 'autofocus') { if (v) el.setAttribute('data-autofocus', ''); continue; }
-      if (name.startsWith('aria-') && v != null) v = String(v);
-      if (v === false || v == null) continue;
-      el.setAttribute(name, v === true ? '' : String(v));
-      if (tag === 'textarea' && name === 'value') el.value = String(v);
+      let Valor = Completo ? Buscarvalor(Completo[1], Ambitos) : (Crudo.includes('{{') ? Interpolar(Crudo, Ambitos) : Crudo);
+      if (Nombreatributo === 'autofocus') { if (Valor) Nodo.setAttribute('data-autofocus', ''); continue; }
+      if (Nombreatributo.startsWith('aria-') && Valor != null) Valor = String(Valor);
+      if (Valor === false || Valor == null) continue;
+      Nodo.setAttribute(Nombreatributo, Valor === true ? '' : String(Valor));
+      if (Etiquetanodo === 'textarea' && Nombreatributo === 'value') Nodo.value = String(Valor);
     }
-    for (const c of node.childNodes) build(c, scopes, ctx, el, loopKey);
-    out.appendChild(el);
+    for (const Hijo of Nodoplantilla.childNodes) Construirnodo(Hijo, Ambitos, Contexto, Nodo, Claveciclo);
+    Salida.appendChild(Nodo);
   }
 
-  function sameKind(a, b) {
-    return a.nodeType === b.nodeType && (a.nodeType !== 1 || (a.localName === b.localName && a.namespaceURI === b.namespaceURI));
+  function Mismotipo(Atributo, Segundo) {
+    return Atributo.nodeType === Segundo.nodeType && (Atributo.nodeType !== 1 || (Atributo.localName === Segundo.localName && Atributo.namespaceURI === Segundo.namespaceURI));
   }
 
-  function morphEl(live, next, inserted) {
-    for (const a of Array.from(live.attributes)) if (!next.hasAttribute(a.name) && a.name !== 'style') live.removeAttribute(a.name);
-    for (const a of next.attributes) if (live.getAttribute(a.name) !== a.value) live.setAttribute(a.name, a.value);
-    if (live.localName === 'input' || live.localName === 'textarea') {
-      const nv = next.getAttribute('value') ?? '';
-      if (live.value !== nv) live.value = nv;
+  function Mezclarnodo(Vivo, Siguiente, Insertados) {
+    for (const Atributo of Array.from(Vivo.attributes)) if (!Siguiente.hasAttribute(Atributo.name) && Atributo.name !== 'style') Vivo.removeAttribute(Atributo.name);
+    for (const Atributo of Siguiente.attributes) if (Vivo.getAttribute(Atributo.name) !== Atributo.value) Vivo.setAttribute(Atributo.name, Atributo.value);
+    if (Vivo.localName === 'input' || Vivo.localName === 'textarea') {
+      const Nuevovalor = Siguiente.getAttribute('value') ?? '';
+      if (Vivo.value !== Nuevovalor) Vivo.value = Nuevovalor;
     }
-    morphChildren(live, next, inserted);
+    Mezclarhijos(Vivo, Siguiente, Insertados);
   }
 
-  function morphChildren(live, next, inserted) {
-    const nextNodes = Array.from(next.childNodes);
-    const byKey = new Map();
-    for (const l of live.childNodes) if (l.__mk) byKey.set(l.__mk, l);
-    nextNodes.forEach((n, i) => {
-      const at = live.childNodes[i] || null;
-      const l = byKey.get(n.__mk);
-      if (l && sameKind(l, n)) {
-        byKey.delete(n.__mk);
-        if (n.nodeType === 3) { if (l.nodeValue !== n.nodeValue) l.nodeValue = n.nodeValue; }
-        else morphEl(l, n, inserted);
-        if (l !== at) live.insertBefore(l, at);
+  function Mezclarhijos(Vivo, Siguiente, Insertados) {
+    const Siguientesnodos = Array.from(Siguiente.childNodes);
+    const Porclave = new Map();
+    for (const Nodovivo of Vivo.childNodes) if (Nodovivo.Clavenodo) Porclave.set(Nodovivo.Clavenodo, Nodovivo);
+    Siguientesnodos.forEach((Nodonuevo, Indice) => {
+      const Posicionactual = Vivo.childNodes[Indice] || null;
+      const Nodovivo = Porclave.get(Nodonuevo.Clavenodo);
+      if (Nodovivo && Mismotipo(Nodovivo, Nodonuevo)) {
+        Porclave.delete(Nodonuevo.Clavenodo);
+        if (Nodonuevo.nodeType === 3) { if (Nodovivo.nodeValue !== Nodonuevo.nodeValue) Nodovivo.nodeValue = Nodonuevo.nodeValue; }
+        else Mezclarnodo(Nodovivo, Nodonuevo, Insertados);
+        if (Nodovivo !== Posicionactual) Vivo.insertBefore(Nodovivo, Posicionactual);
       } else {
-        live.insertBefore(n, at);
-        inserted.push(n);
+        Vivo.insertBefore(Nodonuevo, Posicionactual);
+        Insertados.push(Nodonuevo);
       }
     });
-    while (live.childNodes.length > nextNodes.length) live.removeChild(live.lastChild);
+    while (Vivo.childNodes.length > Siguientesnodos.length) Vivo.removeChild(Vivo.lastChild);
   }
 
-  class MTComponent {
-    constructor(props) { this.props = props || {}; this.state = {}; }
-    setState(update) {
-      const patch = typeof update === 'function' ? update(this.state, this.props) : update;
-      if (patch == null) return;
-      this.state = Object.assign({}, this.state, patch);
-      this.__schedule && this.__schedule();
+  class Componentebase {
+    constructor(Propiedades) { this.Propiedades = Propiedades || {}; this.Estadocomponente = {}; }
+    Cambiarestado(Actualizacion) {
+      const Cambios = typeof Actualizacion === 'function' ? Actualizacion(this.Estadocomponente, this.Propiedades) : Actualizacion;
+      if (Cambios == null) return;
+      this.Estadocomponente = Object.assign({}, this.Estadocomponente, Cambios);
+      this.Programarrender && this.Programarrender();
     }
-    forceUpdate() { this.__schedule && this.__schedule(); }
+    Forzaractualizacion() { this.Programarrender && this.Programarrender(); }
   }
 
-  function mount(Comp, host, tplEl, props) {
-    const comp = new Comp(props);
-    const tpl = tplEl.content;
-    let handlers = new Map(), refs = new Map(), scheduled = false, mounted = false, prevState = null;
+  function Montar(Clasecomponente, Anfitrion, Elementoplantilla, Propiedades) {
+    const Componente = new Clasecomponente(Propiedades);
+    const Plantilla = Elementoplantilla.content;
+    let Manejadores = new Map(), Referencias = new Map(), Programado = false, Montado = false, Estadoanterior = null;
 
-    function dispatch(type, e, ownOnly) {
-      let stopped = false;
-      let el = e.target;
-      while (el && el !== host.parentNode) {
-        const id = el.nodeType === 1 && el.getAttribute('data-on-' + type);
-        if (id && handlers.has(id)) {
-          handlers.get(id)({
-            type, nativeEvent: e, target: e.target, currentTarget: el,
-            preventDefault: () => e.preventDefault(), stopPropagation: () => { stopped = true; }
+    function Despachar(Tipoevento, Evento, Propiosolo) {
+      let Detenido = false;
+      let Nodo = Evento.target;
+      while (Nodo && Nodo !== Anfitrion.parentNode) {
+        const Identificador = Nodo.nodeType === 1 && Nodo.getAttribute('data-on-' + Tipoevento);
+        if (Identificador && Manejadores.has(Identificador)) {
+          Manejadores.get(Identificador)({
+            type: Tipoevento, Eventonativo: Evento, target: Evento.target, currentTarget: Nodo,
+            preventDefault: () => Evento.preventDefault(), stopPropagation: () => { Detenido = true; }
           });
         }
-        if (stopped || ownOnly) break;
-        el = el.parentNode;
+        if (Detenido || Propiosolo) break;
+        Nodo = Nodo.parentNode;
       }
     }
-    host.addEventListener('click', e => dispatch('click', e));
-    host.addEventListener('input', e => dispatch('input', e));
-    host.addEventListener('change', e => dispatch('input', e));
-    host.addEventListener('scroll', e => dispatch('scroll', e, true), true);
-    host.addEventListener('touchstart', e => dispatch('touchstart', e), { passive: true });
-    host.addEventListener('touchmove', e => dispatch('touchmove', e), { passive: true });
-    host.addEventListener('touchend', e => dispatch('touchend', e), { passive: true });
+    Anfitrion.addEventListener('click', Evento => Despachar('click', Evento));
+    Anfitrion.addEventListener('input', Evento => Despachar('input', Evento));
+    Anfitrion.addEventListener('change', Evento => Despachar('input', Evento));
+    Anfitrion.addEventListener('scroll', Evento => Despachar('scroll', Evento, true), true);
+    Anfitrion.addEventListener('touchstart', Evento => Despachar('touchstart', Evento), { passive: true });
+    Anfitrion.addEventListener('touchmove', Evento => Despachar('touchmove', Evento), { passive: true });
+    Anfitrion.addEventListener('touchend', Evento => Despachar('touchend', Evento), { passive: true });
 
-    function render() {
-      scheduled = false;
-      let hSeq = 0, rSeq = 0;
-      const nextHandlers = new Map(), nextRefs = new Map();
-      const ctx = {
-        handler(fn) { const id = 'h' + (++hSeq); nextHandlers.set(id, fn); return id; },
-        ref(obj) { const id = 'r' + (++rSeq); nextRefs.set(id, obj); return id; }
+    function Dibujar() {
+      Programado = false;
+      let Secuenciamanejador = 0, Secuenciareferencia = 0;
+      const Siguientesmanejadores = new Map(), Siguientesreferencias = new Map();
+      const Contexto = {
+        Manejador(Funcion) { const Identificador = 'h' + (++Secuenciamanejador); Siguientesmanejadores.set(Identificador, Funcion); return Identificador; },
+        Referencia(Objetivo) { const Identificador = 'r' + (++Secuenciareferencia); Siguientesreferencias.set(Identificador, Objetivo); return Identificador; }
       };
-      const vals = comp.renderVals();
-      const scratch = document.createElement('div');
-      for (const n of tpl.childNodes) build(n, [vals], ctx, scratch, '');
-      const inserted = [];
-      morphChildren(host, scratch, inserted);
-      handlers = nextHandlers; refs = nextRefs;
-      host.querySelectorAll('[data-ref]').forEach(el => { const obj = refs.get(el.getAttribute('data-ref')); if (obj) obj.current = el; });
-      for (const n of inserted) {
-        if (n.nodeType !== 1) continue;
-        const af = n.hasAttribute('data-autofocus') ? n : n.querySelector('[data-autofocus]');
-        if (af) { af.focus({ preventScroll: true }); break; }
+      const Valores = Componente.Valoresvista();
+      const Borrador = document.createElement('div');
+      for (const Nodonuevo of Plantilla.childNodes) Construirnodo(Nodonuevo, [Valores], Contexto, Borrador, '');
+      const Insertados = [];
+      Mezclarhijos(Anfitrion, Borrador, Insertados);
+      Manejadores = Siguientesmanejadores; Referencias = Siguientesreferencias;
+      Anfitrion.querySelectorAll('[data-ref]').forEach(Nodo => { const Objetivo = Referencias.get(Nodo.getAttribute('data-ref')); if (Objetivo) Objetivo.Actual = Nodo; });
+      for (const Nodonuevo of Insertados) {
+        if (Nodonuevo.nodeType !== 1) continue;
+        const Afiliacion = Nodonuevo.hasAttribute('data-autofocus') ? Nodonuevo : Nodonuevo.querySelector('[data-autofocus]');
+        if (Afiliacion) { Afiliacion.focus({ preventScroll: true }); break; }
       }
-      const ps = prevState; prevState = comp.state;
-      if (!mounted) { mounted = true; comp.componentDidMount && comp.componentDidMount(); }
-      else comp.componentDidUpdate && comp.componentDidUpdate(comp.props, ps);
+      const Estadopasado = Estadoanterior; Estadoanterior = Componente.Estadocomponente;
+      if (!Montado) { Montado = true; Componente.Almontar && Componente.Almontar(); }
+      else Componente.Alactualizar && Componente.Alactualizar(Componente.Propiedades, Estadopasado);
     }
-    comp.__schedule = () => { if (!scheduled) { scheduled = true; queueMicrotask(render); } };
-    render();
-    return comp;
+    Componente.Programarrender = () => { if (!Programado) { Programado = true; queueMicrotask(Dibujar); } };
+    Dibujar();
+    return Componente;
   }
 
-  window.MTComponent = MTComponent;
-  window.createRef = createRef;
-  window.MT = { mount };
+  window.Componentebase = Componentebase;
+  window.Crearreferencia = Crearreferencia;
+  window.Motorvista = { Montar };
 })();

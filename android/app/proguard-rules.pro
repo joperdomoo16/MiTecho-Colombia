@@ -3,10 +3,9 @@
 -keepattributes JavascriptInterface
 -keepattributes SourceFile,LineNumberTable
 
--keep public class co.mitecho.app.MainActivity { *; }
--keepclassmembers class co.mitecho.app.MainActivity$* {
+-keep public class co.mitecho.app.ActividadPrincipal { *; }
+-keep public class co.mitecho.app.PuenteNativo {
     @android.webkit.JavascriptInterface <methods>;
-    public *;
 }
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;

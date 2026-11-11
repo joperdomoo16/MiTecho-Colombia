@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Carpetas que se pueden compartir con la cámara: solo las fotos propias de la app y la caché -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <external-files-path name="fotos_camara" path="Pictures/" />
+    <cache-path name="cache_imagenes" path="." />
 </paths>

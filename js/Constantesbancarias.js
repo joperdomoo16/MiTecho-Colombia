@@ -16,31 +16,34 @@ const Ciudadesconsubsidioalto = [
   'Turbaco','Cúcuta','Villa del Rosario','Los Patios'
 ];
 
-const Consultartopevis = (ciudad) => (Ciudadesconsubsidioalto.includes(ciudad) ? 150 : 135);
+const Consultartopevis = (Ciudad) => (Ciudadesconsubsidioalto.includes(Ciudad) ? 150 : 135);
 
 const Unidadtributaria = 52374;
 const Inflacionanual = 0.0517;
-const ValorUvrHoy = 420.7199;
-const EscenariosInflacion = [0.03, 0.045, 0.063];
-const InflacionEquilibrioUvr = 0.0558;
-const UmbralIngresoRenta = 6900000;
-const TopeDeduccionInteresesUvt = 1200;
-const TopeAnticipoNominaUvt = 100;
-const TopePatrimonioDeclarar = 4500 * Unidadtributaria;
+
+// Semana de las tasas promedio de la Superintendencia Financiera que usa la app; se actualiza junto con las tasas
+// Se reemplaza por la fecha de corte real cuando llegan las tasas de la Superintendencia (js/Tasasmercado.js)
+let Fechatasasreferencia = '23 oct 2026';
+const Valoruvrhoy = 420.7199;
+const Escenariosinflacion = [0.03, 0.045, 0.063];
+const Inflacionequilibriouvr = 0.0558;
+const Umbralingresorenta = 6900000;
+const Topededuccioninteresesuvt = 1200;
+const Topeanticiponominauvt = 100;
+const Topepatrimoniodeclarar = 4500 * Unidadtributaria;
 
 const Tasasreferencia = {
-  promedio: { vis: 0.1435, novis: 0.1546, leasing: 0.1469, uvr: 0.075, label: 'Promedio bancos' },
-  fna: { vis: 0.109, novis: 0.119, leasing: 0.109, uvr: 0.053, label: 'Fondo Nacional del Ahorro' },
-  caja: { vis: 0.1135, novis: 0.1135, leasing: 0.1135, uvr: 0.1135, label: 'Crédito de tu Caja' }
+  promedio: { vis: 0.1435, novis: 0.1546, leasing: 0.1469, Uvr: 0.075, Etiqueta: 'Promedio bancos' },
+  fna: { vis: 0.109, novis: 0.119, leasing: 0.109, Uvr: 0.053, Etiqueta: 'Fondo Nacional del Ahorro' },
+  caja: { vis: 0.1135, novis: 0.1135, leasing: 0.1135, Uvr: 0.1135, Etiqueta: 'Crédito de tu Caja' }
 };
 
-const Factoresvariables = [0.88, 0.90, 0.96, 0.93, 0.98, 1.0];
-const Mesesetiquetas = ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov'];
 
 const Modalidadesvivienda = {
-  novis: { label: 'No VIS', desc: '30% · 70%', tope: 0.30, fin: 0.70, gastos: 0.04, gl: 'Escrituración (4%)', tag: 'NO VIS · 70%' },
-  vis: { label: 'VIS', desc: '30% · 80%', tope: 0.30, fin: 0.80, gastos: 0.03, gl: 'Escrituración VIS (3%)', tag: 'VIS · 80%' },
-  leasing: { label: 'Leasing', desc: '30% · 80%', tope: 0.30, fin: 0.80, gastos: 0, gl: 'Gastos diferidos', tag: 'LEASING · 85%' }
+  // Tope de cuota: 40% del ingreso familiar en VIS (Decreto 257 de 2021) y No VIS (Decreto 583 de 2025)
+  novis: { Etiqueta: 'No VIS', Descripcioncorta: 'Financia 70%', Tope: 0.40, Financiacion: 0.70, Gastos: 0.04, Glosario: 'Escrituración (4%)', Etiquetanodo: 'NO VIS · 70%' },
+  vis: { Etiqueta: 'VIS', Descripcioncorta: 'Financia 80%', Tope: 0.40, Financiacion: 0.80, Gastos: 0.03, Glosario: 'Escrituración VIS (3%)', Etiquetanodo: 'VIS · 80%' },
+  leasing: { Etiqueta: 'Leasing', Descripcioncorta: 'Financia 80%', Tope: 0.40, Financiacion: 0.80, Gastos: 0, Glosario: 'Gastos diferidos', Etiquetanodo: 'LEASING · 80%' }
 };
 
 const Temasinterfaz = {
@@ -66,52 +69,44 @@ const Nombrescortosdeuda = {
   'Otro egreso fijo': 'Egreso'
 };
 
-const Clavealmacenamiento = 'mitecho.datos.v1';
+const Clavealmacenamiento = 'mitecho.datos.v2';
+// Clave de la versión anterior; sus datos se convierten una vez y luego se borran
+const Clavealmacenamientoantigua = 'mitecho.datos.v1';
 const Camposalmacenados = [
-  'logged', 'setupDone', 'theme', 'fijo', 'variable', 'tipo', 'useAuto', 'manualIng',
-  'pareja', 'mod', 'rate', 'term', 'debts', 'entries', 'added', 'fixedExtra',
-  'expenses', 'cashOld', 'nombre', 'edad', 'ciudad', 'ahorro', 'ahorroMes', 'meta',
-  'caja', 'cajaNombre', 'sisben', 'rem', 'ofCities', 'avgN', 'flex40', 'opc',
-  'entidad', 'objetivo', 'sisbenGrupo', 'pro', 'ciPlazo', 'anoPct', 'leadsSent',
-  'gsUrl', 'gsLast', 'email', 'parejaIng', 'parejaDeu', 'parejaNombre', 'entInfo', 'avatarUrl', 'financiarGastos', 'ingView', 'regKind', 'simStep'
+  'Ingresado', 'Cuestionariolisto', 'Temaelegido', 'Fijo', 'Variable', 'Tipo', 'Usarautomatico', 'Ingresomanual',
+  'Pareja', 'Modalidadelegida', 'Tasatipo', 'Plazoelegido', 'Deudas', 'Registros', 'Agregado', 'Ingresosfijosextra',
+  'Egresosregistrados', 'Efectivoanterior', 'Nombre', 'Edad', 'Ciudad', 'Ahorro', 'Ahorromes', 'Meta',
+  'Caja', 'Cajanombre', 'Sisben', 'Recordatorios', 'Ofertasciudades', 'Promediomeses', 'Flexibleporcentaje', 'Topeconservador', 'Opcioncompra',
+  'Entidad', 'Objetivousuario', 'Sisbengrupo', 'Pro', 'Cuotainicialplazo', 'Anualporcentaje', 'Contactosenviados',
+  'Correo', 'Autorizacionversion', 'Fuenteingreso', 'Diasregistrados', 'Tutorialvisto', 'Consejosvistos', 'Parejaingreso', 'Parejadeudas', 'Parejanombre', 'Parejaahorro', 'Parejaactividad', 'Metodoingreso', 'Infoentidad', 'Avatarimagen', 'Financiargastos', 'Ingresovista', 'Registrotipo', 'Simuladorpaso'
 ];
 
 // Funciones para dar formato en pesos colombianos, porcentajes y cálculo de anualidades
-const Formatoenteropesos = (v) => '$' + Math.round(v).toLocaleString('es-CO');
-const Formatonumero = (v) => Math.round(v).toLocaleString('es-CO');
-const Formatomillones = (v) => (v / 1e6).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const Formatoporcentaje = (v) => (v * 100).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + '%';
-const Promediodatos = (a) => (a && a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+// Nada de lo que escribe la persona entra sin límite: se recorta y se quitan los caracteres de control
+const Textoseguro = (Valor, Maximo, Multilinea = false) => String(Valor ?? '').replace(Multilinea ? /[\u0000-\u0009\u000B-\u001F\u007F]/g : /[\u0000-\u001F\u007F]/g, '').slice(0, Maximo);
+const Formatoenteropesos = (Valor) => '$' + Math.round(Valor).toLocaleString('es-CO');
+const Formatonumero = (Valor) => Math.round(Valor).toLocaleString('es-CO');
+const Formatomillones = (Valor) => (Valor / 1e6).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const Formatoporcentaje = (Valor) => (Valor * 100).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + '%';
+const Promediodatos = (Lista) => (Lista && Lista.length ? Lista.reduce((Sumando, Sumandob) => Sumando + Sumandob, 0) / Lista.length : 0);
 
-const Historialvariables = (s) => {
-  const vb = s.tipo === 'fijo' ? 0 : (s.variable || 0);
-  return [...Factoresvariables.map(f => f * vb), vb * 1.02 + (s.added || 0)];
+const Calcularanualidad = (Tasaanual, Anios) => {
+  const Tasamensualcalculo = Math.pow(1 + Tasaanual, 1 / 12) - 1, Numero = Math.round(Anios * 12);
+  return { Tasaperiodica: Tasamensualcalculo, Numerocuotas: Numero, Factoranualidad: (1 - Math.pow(1 + Tasamensualcalculo, -Numero)) / Tasamensualcalculo };
 };
 
-const Calcularanualidad = (ea, years) => {
-  const i = Math.pow(1 + ea, 1 / 12) - 1, n = Math.round(years * 12);
-  return { i, n, a: (1 - Math.pow(1 + i, -n)) / i };
+const Mesesvigencia = (Textovalor) => {
+  const Coincidencia = String(Textovalor || '').match(/^\s*(\d{1,2})\s*\/\s*(\d{4})\s*$/);
+  if (!Coincidencia) return null;
+  const Fecha = new Date();
+  return (+Coincidencia[2] * 12 + (+Coincidencia[1])) - (Fecha.getFullYear() * 12 + Fecha.getMonth() + 1);
 };
 
-const Mesesvigencia = (txt) => {
-  const m = String(txt || '').match(/^\s*(\d{1,2})\s*\/\s*(\d{4})\s*$/);
-  if (!m) return null;
-  const d = new Date();
-  return (+m[2] * 12 + (+m[1])) - (d.getFullYear() * 12 + d.getMonth() + 1);
-};
+const Normalizartexto = (Auxiliar) => Auxiliar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-const Normalizartexto = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-
-const BASE_ING = Ingresobase;
-const FIJO = Ingresofijo;
-const META = Metaingreso;
-const AHORRO = Ahorrobase;
-const SMMLV = Salariominimo;
-const VIS150 = Ciudadesconsubsidioalto;
-const visTopeOf = Consultartopevis;
-function EscaparHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
+function Escaparhtml(Texto) {
+  if (Texto === null || Texto === undefined) return '';
+  return String(Texto)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -119,31 +114,3 @@ function EscaparHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-const UVT = Unidadtributaria;
-const IPC = Inflacionanual;
-const RATES = Tasasreferencia;
-const VAR_F = Factoresvariables;
-const MLAB = Mesesetiquetas;
-const MODS = Modalidadesvivienda;
-const THEMES = Temasinterfaz;
-const FUENTES = Fuentesingreso;
-const MEDIOS = Mediospago;
-const DEBT_TYPES = Tiposdeuda;
-const SHORT = Nombrescortosdeuda;
-const STORE_KEY = Clavealmacenamiento;
-const STORE_FIELDS = Camposalmacenados;
-const cop = Formatoenteropesos;
-const num = Formatonumero;
-const m1 = Formatomillones;
-const pctFmt = Formatoporcentaje;
-const avgArr = Promediodatos;
-const varHist = Historialvariables;
-const annuity = Calcularanualidad;
-const vigMeses = Mesesvigencia;
-const norm = Normalizartexto;
-const UVR_VALOR = ValorUvrHoy;
-const ESC_IPC = EscenariosInflacion;
-const IPC_EQ_UVR = InflacionEquilibrioUvr;
-const UMBRAL_RENTA = UmbralIngresoRenta;
-const TOPE_PAT_DECLARAR = TopePatrimonioDeclarar;
-const escapeHtml = EscaparHtml;

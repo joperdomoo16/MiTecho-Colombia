@@ -1,302 +1,311 @@
 // Preparación de los datos de inicio de sesión, pantalla principal, racha diaria y avance de ahorro
 
-function Generarvaloresinicio(c, cfg, sel, dark) {
-  const s = this.state, tab = this.tab;
-  const shown = s.shown ?? c.precio;
-  const tabs = ['inicio', 'ingresos', 'simulador', 'plan', 'ofertas'];
-  const tabIs = {}, tabBg = {}, tabFg = {}, tabGo = {};
-  tabs.forEach(t => {
-    tabIs[t] = tab === t;
-    tabBg[t] = tab === t ? 'var(--ac)' : 'transparent';
-    tabFg[t] = tab === t ? 'var(--oa)' : 'var(--di)';
-    tabGo[t] = () => this.setState({
-      tab: t,
-      simStep: t === 'simulador' ? (s.simStep || 'form') : s.simStep,
-      ...(t === 'ingresos' ? { ingView: s.ingView || 'dia', regKind: s.regKind || 'ing' } : {})
+// Aviso cuando el techo pasa el tope VIS: a ese precio la vivienda ya sería No VIS
+function Avisotopevis(Calculo, Ciudad) {
+  return 'Tu techo pasa el tope VIS de ' + (Ciudad || 'tu ciudad') + ' (' + Calculo.Topevissalarios + ' SMMLV = ' + Formatoenteropesos(Calculo.Topevis) + '). A ese precio la vivienda sería No VIS: el banco financia hasta el 70% y no aplica subsidio. Si buscas VIS, tu tope es ' + Formatoenteropesos(Calculo.Topevis) + '.';
+}
+
+function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
+  const Estadoactual = this.Estadocomponente, Pestana = this.Pestana;
+  const Mostrado = Estadoactual.Mostrado ?? Calculo.Preciotecho;
+  const Pestanas = ['inicio', 'ingresos', 'simulador', 'plan', 'ofertas'];
+  const Pestanaes = {}, Pestanafondo = {}, Pestanatexto = {}, Pestanair = {};
+  Pestanas.forEach(Auxiliar => {
+    Pestanaes[Auxiliar] = Pestana === Auxiliar;
+    Pestanafondo[Auxiliar] = Pestana === Auxiliar ? 'var(--ac)' : 'transparent';
+    Pestanatexto[Auxiliar] = Pestana === Auxiliar ? 'var(--oa)' : 'var(--di)';
+    Pestanair[Auxiliar] = () => this.Cambiarestado({
+      Pestana: Auxiliar,
+      Simuladorpaso: Auxiliar === 'simulador' ? (Estadoactual.Simuladorpaso || 'form') : Estadoactual.Simuladorpaso,
+      ...(Auxiliar === 'ingresos' ? { Ingresovista: Estadoactual.Ingresovista || 'dia', Registrotipo: Estadoactual.Registrotipo || 'ing' } : {})
     });
   });
-  tabIs.simForm = tab === 'simulador' && (s.simStep || 'form') === 'form';
-  tabIs.simResult = tab === 'simulador' && s.simStep === 'result';
+  Pestanaes.simForm = Pestana === 'simulador' && (Estadoactual.Simuladorpaso || 'form') === 'form';
+  Pestanaes.simResult = Pestana === 'simulador' && Estadoactual.Simuladorpaso === 'result';
 
-  const todayTotal = s.entries.reduce((a, e) => a + e.monto, 0);
-  const cashPend = s.entries.filter(e => e.medio === 'Efectivo').reduce((a, e) => a + e.monto, 0) + s.cashOld;
-  const ciPct = c.ci > 0 ? Math.min(1, c.cash / c.ci) : 1;
-  const monthsLeft = Math.max(0, Math.ceil(c.falta / Math.max(1, s.ahorroMes)));
-  const obIdx = s.obIdx;
-  const subUsed = Math.min(c.subsidio, c.ci);
-  const own = Math.max(0, c.ci - subUsed);
-  const smm = c.smm;
-  const potS = s.caja ? 0 : smm <= 2 ? 30 : smm <= 4 ? 20 : 0;
-  const subS = c.subCajaS + c.subMcyS;
-  const showAfil = !s.caja && s.tipo !== 'fijo' && smm < 4;
+  const Totalhoy = Sumamontos(Registrosdeldia(Estadoactual.Registros, Hoyregistro()));
+  const Efectivopendiente = Estadoactual.Registros.filter(Elemento => !Elemento.Consignado).filter(Elemento => Elemento.Medio === 'Efectivo').reduce((Acumulado, Elemento) => Acumulado + Elemento.Monto, 0) + Estadoactual.Efectivoanterior;
+  // Lo que pide el techo (cuota inicial y gastos) frente a lo que ya tiene el hogar (ahorro y subsidio que aplica a ese techo)
+  const Necesariotecho = Calculo.Cuotainicialtecho + (Estadoactual.Financiargastos ? 0 : Calculo.Gastostecho);
+  const Cuotainicialporcentaje = Necesariotecho > 0 ? Math.min(1, (Necesariotecho - Calculo.Faltatecho) / Necesariotecho) : 0;
+  // La racha cuenta los días marcados y también los días que tienen ingresos o gastos con fecha
+  const Rachadatos = Calcularracha([...(Estadoactual.Diasregistrados || []), ...Estadoactual.Registros.filter(Elemento => Elemento.Fecha).map(Elemento => Elemento.Fecha), ...Estadoactual.Egresosregistrados.filter(Elemento => Elemento.Fecha).map(Elemento => Elemento.Fecha)]);
+  const Mesesfaltantes = Math.max(0, Math.ceil(Calculo.Faltatecho / Math.max(1, Estadoactual.Ahorromes)));
+  const Subsidiousado = Calculo.Subsidiotecho;
+  const Propio = Math.max(0, Calculo.Cuotainicialtecho - Subsidiousado);
+  const Salariosminimos = Calculo.Salariosminimos;
+  const Potencialsalarios = Estadoactual.Caja ? 0 : Salariosminimos <= 2 ? 30 : Salariosminimos <= 4 ? 20 : 0;
+  const Subsidiosalarios = Calculo.Subsidiocajasalarios + Calculo.Subsidiomicasayasalarios;
+  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Salariosminimos < 4;
 
   return {
-    rootRef: this.rootRef,
-    scrollRef: this.scrollRef,
-    obRef: this.obRef,
-    isDark: dark,
-    isLight: !dark,
-    toggleTheme: () => this.setState({ theme: dark ? 'claro' : 'oscuro' }),
-    isOnboarding: this.onboarding,
-    isApp: this.screen === 'app',
-    hasSheet: this.screen === 'app' && Boolean(s.sheet),
-    sheetDisplay: (this.screen === 'app' && s.sheet) ? 'flex' : 'none',
-    sheetBackdropDisplay: (this.screen === 'app' && s.sheet) ? 'block' : 'none',
-    showDock: this.screen === 'app' && !s.help && !s.panel,
-    isWelcomeAuth: this.screen === 'splash' || this.screen === 'login',
-    isSplashMode: this.screen === 'splash' && !s.splashRetracted,
-    welcomeStateClass: (this.screen === 'splash' && !s.splashRetracted) ? 'is-splash' : 'is-login',
-    onSplashTap: () => {
-      if (this.screen === 'splash' && !s.splashRetracted) {
-        this.setState({ splashIn: true, splashRetracted: true, screen: 'login' });
+    Raizreferencia: this.Raizreferencia,
+    Desplazamientoreferencia: this.Desplazamientoreferencia,
+    Esoscuro: Oscuroactivo,
+    Esclaro: !Oscuroactivo,
+    Alternartema: () => this.Cambiarestado({ Temaelegido: Oscuroactivo ? 'claro' : 'oscuro' }),
+    Esapp: this.Pantalla === 'app',
+    Tienehoja: this.Pantalla === 'app' && Boolean(Estadoactual.Hoja),
+    Hojavisible: (this.Pantalla === 'app' && Estadoactual.Hoja) ? 'flex' : 'none',
+    Hojafondovisible: (this.Pantalla === 'app' && Estadoactual.Hoja) ? 'block' : 'none',
+    Mostrarbarra: this.Pantalla === 'app' && !Estadoactual.Ayuda && !Estadoactual.Panel,
+    Esbienvenidaingreso: this.Pantalla === 'splash' || this.Pantalla === 'login',
+    Esmodoportada: this.Pantalla === 'splash' && !Estadoactual.Portadarecogida,
+    Bienvenidaclase: (this.Pantalla === 'splash' && !Estadoactual.Portadarecogida) ? 'is-splash' : 'is-login',
+    Tocarportada: () => {
+      if (this.Pantalla === 'splash' && !Estadoactual.Portadarecogida) {
+        this.Cambiarestado({ Portadaentrando: true, Portadarecogida: true, Pantalla: 'login' });
       }
     },
-    isLogin: this.screen === 'login' || Boolean(s.splashRetracted),
-    isSplash: this.screen === 'splash' && !s.splashRetracted,
-    skipSplash: () => {
-      this.setState({ splashIn: true, splashRetracted: true, screen: 'login' });
+    Esingreso: this.Pantalla === 'login' || Boolean(Estadoactual.Portadarecogida),
+    Esportada: this.Pantalla === 'splash' && !Estadoactual.Portadarecogida,
+    Saltarportada: () => {
+      this.Cambiarestado({ Portadaentrando: true, Portadarecogida: true, Pantalla: 'login' });
     },
-    spLogoT: s.splashIn ? 'scale(1)' : 'scale(.8)',
-    spLogoO: s.splashIn ? 1 : 0,
-    spTextO: s.splashIn ? 1 : 0,
-    spTextT: s.splashIn ? 'translateY(0)' : 'translateY(14px)',
-    spBandT: s.splashIn ? 'scaleX(1)' : 'scaleX(0)',
-    statusBg: this.screen === 'splash' || this.screen === 'login' ? '#1E345B' : 'var(--bg)',
-    statusInk: this.screen === 'splash' || this.screen === 'login' ? '#F4F6FB' : 'var(--ik)',
-    emailOpen: Boolean(s.emailOpen),
-    emailClosed: !s.emailOpen,
-    isNotRecoverMode: s.loginMode !== 'recover',
-    isRecoverMode: s.loginMode === 'recover',
-    isLoginMode: (!s.loginMode || s.loginMode === 'login'),
-    isRegisterMode: s.loginMode === 'register',
-    loginTabBg: (!s.loginMode || s.loginMode === 'login') ? 'var(--ac)' : 'transparent',
-    loginTabColor: (!s.loginMode || s.loginMode === 'login') ? 'var(--oa)' : 'var(--mu)',
-    regTabBg: s.loginMode === 'register' ? 'var(--ac)' : 'transparent',
-    regTabColor: s.loginMode === 'register' ? 'var(--oa)' : 'var(--mu)',
-    passPlaceholder: s.loginMode === 'register' ? 'Contraseña (mínimo 6 caracteres)' : 'Contraseña',
-    loginPassConfirmVal: s.loginPassConfirm || '',
-    loginSuccessMsg: s.loginSuccessMsg || '',
-    regBtnText: s.loginBusy ? 'Registrando…' : 'Registrarme',
-    recoverBtnText: s.loginBusy ? 'Enviando enlace…' : 'Enviar enlace de recuperación',
-    loginEmailVal: s.loginEmail,
-    loginPassVal: s.loginPassword || '',
-    loginError: s.loginError,
-    loginNotice: s.loginNotice,
-    loginBtnText: s.loginBusy ? 'Entrando…' : 'Entrar',
-    openEmail: () => this.setState({ emailOpen: true, loginMode: 'login', loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    closeEmail: () => this.setState({ emailOpen: false, loginMode: 'login', loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    contactSupportLogin: () => {
-      clearTimeout(this._supTimer);
-      this.setState({
-        supportOpen: true,
-        supNombre: s.supNombre || s.nombre || '',
-        supEmail: s.supEmail || s.email || s.loginEmail || '',
-        supAsunto: '',
-        supDesc: '',
-        supErr: '',
-        supSent: false,
-        supBusy: false,
-        supY: 0,
-        supDragging: false,
-        supAnim: false
+    Portadalogomovimiento: Estadoactual.Portadaentrando ? 'scale(1)' : 'scale(.8)',
+    Portadalogoopacidad: Estadoactual.Portadaentrando ? 1 : 0,
+    Portadatextoopacidad: Estadoactual.Portadaentrando ? 1 : 0,
+    Portadatextomovimiento: Estadoactual.Portadaentrando ? 'translateY(0)' : 'translateY(14px)',
+    Portadafranja: Estadoactual.Portadaentrando ? 'scaleX(1)' : 'scaleX(0)',
+    Estadofondo: this.Pantalla === 'splash' || this.Pantalla === 'login' ? '#1E345B' : 'var(--bg)',
+    Estadotinta: this.Pantalla === 'splash' || this.Pantalla === 'login' ? '#F4F6FB' : 'var(--ik)',
+    Correoabierto: Boolean(Estadoactual.Correoabierto),
+    Correocerrado: !Estadoactual.Correoabierto,
+    Noesmodorecuperar: Estadoactual.Ingresomodo !== 'recover',
+    Esmodorecuperar: Estadoactual.Ingresomodo === 'recover',
+    Esmodoingreso: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login'),
+    Esmodoregistro: Estadoactual.Ingresomodo === 'register',
+    Ingresopestanafondo: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login') ? 'var(--ac)' : 'transparent',
+    Ingresopestanacolor: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login') ? 'var(--oa)' : 'var(--mu)',
+    Registropestanafondo: Estadoactual.Ingresomodo === 'register' ? 'var(--ac)' : 'transparent',
+    Registropestanacolor: Estadoactual.Ingresomodo === 'register' ? 'var(--oa)' : 'var(--mu)',
+    Claveejemplo: Estadoactual.Ingresomodo === 'register' ? 'Contraseña (mínimo 6 caracteres)' : 'Contraseña',
+    Ingresoclaveconfirmarvalor: Estadoactual.Ingresoclaveconfirmar || '',
+    Ingresoexitomensaje: Estadoactual.Ingresoexitomensaje || '',
+    Registrobotontexto: Estadoactual.Ingresoocupado ? 'Registrando…' : 'Registrarme',
+    Recuperarbotontexto: Estadoactual.Ingresoocupado ? 'Enviando enlace…' : 'Enviar enlace de recuperación',
+    Nombreregistrovalor: Estadoactual.Nombreregistro || '',
+    Ingresocorreovalor: Estadoactual.Ingresocorreo,
+    Ingresoclavevalor: Estadoactual.Ingresoclave || '',
+    Ingresoerror: Estadoactual.Ingresoerror,
+    Ingresoaviso: Estadoactual.Ingresoaviso,
+    Ingresobotontexto: Estadoactual.Ingresoocupado ? 'Entrando…' : 'Entrar',
+    Abrircorreo: () => this.Cambiarestado({ Correoabierto: true, Ingresomodo: 'login', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Cerrarcorreo: () => this.Cambiarestado({ Correoabierto: false, Ingresomodo: 'login', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Contactarsoporteingreso: () => {
+      clearTimeout(this.Soportetemporizador);
+      this.Cambiarestado({
+        Soporteabierto: true,
+        Soportenombre: Estadoactual.Soportenombre || Estadoactual.Nombre || '',
+        Soportecorreo: Estadoactual.Soportecorreo || Estadoactual.Correo || Estadoactual.Ingresocorreo || '',
+        Soportetipo: 'soporte',
+        Soporteasunto: '',
+        Soportedescripcion: '',
+        Soporteradicado: '',
+        Soportefechamaxima: '',
+        Soporteerror: '',
+        Soporteenviado: false,
+        Soporteocupado: false,
+        Soportedesplazamiento: 0,
+        Soportearrastrando: false,
+        Soporteanimado: false
       });
-      this._supTimer = setTimeout(() => this.setState({ supAnim: true }), 25);
+      this.Soportetemporizador = setTimeout(() => this.Cambiarestado({ Soporteanimado: true }), 25);
     },
-    setLoginTab: () => this.setState({ loginMode: 'login', loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    setRegisterTab: () => this.setState({ loginMode: 'register', loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    setRecoverTab: () => this.setState({ loginMode: 'recover', loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    onLoginPass: (e) => this.setState({ loginPassword: e.target.value, loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    onLoginPassConfirm: (e) => this.setState({ loginPassConfirm: e.target.value, loginError: '', loginNotice: '', loginSuccessMsg: '' }),
-    loginGoogle: async () => {
-      this.setState({ loginBusy: true, loginError: '', loginNotice: '', loginSuccessMsg: '' });
-      if (typeof window !== 'undefined' && window.MiTechoBars && typeof window.MiTechoBars.signInGoogle === 'function') {
-        window.MiTechoOnGoogleNativeSuccess = async (idToken, email, name) => {
+    Elegiringreso: () => this.Cambiarestado({ Ingresomodo: 'login', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Elegirregistro: () => this.Cambiarestado({ Ingresomodo: 'register', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Elegirrecuperar: () => this.Cambiarestado({ Ingresomodo: 'recover', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Escribirnombreregistro: (Elemento) => this.Cambiarestado({ Nombreregistro: Textoseguro(Elemento.target.value, 70), Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Escribiringresocorreo: (Elemento) => this.Cambiarestado({ Ingresocorreo: Textoseguro(Elemento.target.value, 100), Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Escribiringresoclave: (Elemento) => this.Cambiarestado({ Ingresoclave: Textoseguro(Elemento.target.value, 72), Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Escribiringresoclaveconfirmar: (Elemento) => this.Cambiarestado({ Ingresoclaveconfirmar: Textoseguro(Elemento.target.value, 72), Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' }),
+    Ingresogoogle: async () => {
+      this.Cambiarestado({ Ingresoocupado: true, Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' });
+      if (typeof window !== 'undefined' && window.Puentenativo && typeof window.Puentenativo.iniciarSesionGoogle === 'function') {
+        window.Googleexitoso = async (Tokenid, Correo, Nombreitem) => {
           try {
-            const res = await IniciarSesionConIdTokenGoogle(idToken);
-            this.setState({ loginBusy: false });
-            if (res.ok) {
-              const u = (res.datos && res.datos.user) || {};
-              const userEmail = email || u.email || '';
-              const userName = name || (u.user_metadata && (u.user_metadata.full_name || u.user_metadata.nombre)) || userEmail;
-              let p = null;
-              const resPerfil = await ObtenerPerfilApi();
-              if (resPerfil.ok && Array.isArray(resPerfil.datos) && resPerfil.datos.length > 0) {
-                p = resPerfil.datos[0];
+            const Resultado = await Iniciarsesiongoogle(Tokenid);
+            this.Cambiarestado({ Ingresoocupado: false });
+            if (Resultado.ok) {
+              const Usuario = (Resultado.datos && Resultado.datos.user) || {};
+              const Correousuario = Correo || Usuario.email || '';
+              const Nombreusuario = Nombreitem || (Usuario.user_metadata && (Usuario.user_metadata.full_name || Usuario.user_metadata.nombre)) || Correousuario;
+              let Perfilfila = null;
+              const Resultadoperfil = await Obtenerperfilapi();
+              if (Resultadoperfil.ok && Array.isArray(Resultadoperfil.datos) && Resultadoperfil.datos.length > 0) {
+                Perfilfila = Resultadoperfil.datos[0];
               }
-              this.iniciarSesionUsuario(userEmail, userName, p);
+              this.Iniciarsesionusuario(Correousuario, Nombreusuario, Perfilfila, Usuario.app_metadata);
             } else {
-              this.setState({ loginError: res.error || 'No se pudo iniciar sesión con Google.' });
+              this.Cambiarestado({ Ingresoerror: 'No se pudo iniciar sesión con Google, intenta de nuevo.' });
             }
-          } catch (e) {
-            this.setState({ loginBusy: false, loginError: 'Error al procesar la sesión.' });
+          } catch (Elemento) {
+            this.Cambiarestado({ Ingresoocupado: false, Ingresoerror: 'Error al procesar la sesión.' });
           }
         };
-        window.MiTechoOnGoogleNativeError = (errMsg) => {
-          this.setState({ loginBusy: false, loginError: errMsg || 'No se pudo conectar con Google.' });
+        window.Googlefallido = (Fallamensaje) => {
+          this.Cambiarestado({ Ingresoocupado: false, Ingresoerror: Fallamensaje || 'No se pudo conectar con Google.' });
         };
-        window.MiTechoOnGoogleNativeCancel = () => {
-          this.setState({ loginBusy: false });
+        window.Googlecancelado = () => {
+          this.Cambiarestado({ Ingresoocupado: false });
         };
-        window.MiTechoBars.signInGoogle();
+        window.Puentenativo.iniciarSesionGoogle();
         return;
       }
       try {
-        const check = await fetch(Configuracionapi.urlBase + '/auth/v1/authorize?provider=google', { redirect: 'manual' });
-        if (check.status === 400) {
-          this.setState({
-            loginBusy: false,
-            loginNotice: 'Para usar Google directo debes activar el proveedor en Supabase. Puedes ingresar o registrarte con tu correo (incluyendo Gmail) abajo.'
+        const Verificacion = await fetch(Configuracionapi.Urlbase + '/auth/v1/authorize?provider=google', { redirect: 'manual' });
+        if (Verificacion.status === 400) {
+          this.Cambiarestado({
+            Ingresoocupado: false,
+            Ingresoaviso: 'Para usar Google directo debes activar el proveedor en Supabase. Puedes ingresar o registrarte con tu correo (incluyendo Gmail) abajo.'
           });
-          this.toast('Ingresa o regístrate con tu correo abajo.');
+          this.Aviso('Ingresa o regístrate con tu correo abajo.');
           return;
         }
-        window.location.href = Configuracionapi.urlBase + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
-      } catch (err) {
-        this.setState({ loginBusy: false, loginNotice: 'Ingresa con tu correo y contraseña abajo.' });
-        this.toast('Ingresa o regístrate con tu correo abajo.');
+        window.location.href = Configuracionapi.Urlbase + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
+      } catch (Falla) {
+        this.Cambiarestado({ Ingresoocupado: false, Ingresoaviso: 'Ingresa con tu correo y contraseña abajo.' });
+        this.Aviso('Ingresa o regístrate con tu correo abajo.');
       }
     },
-    loginEmail: async () => {
-      const email = (s.loginEmail || '').trim().toLowerCase();
-      const pass = s.loginPassword || '';
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        this.setState({ loginError: 'Escribe un correo válido.' });
+    Ingresocorreo: async () => {
+      const Correo = (Estadoactual.Ingresocorreo || '').trim().toLowerCase();
+      const Clave = Estadoactual.Ingresoclave || '';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(Correo)) {
+        this.Cambiarestado({ Ingresoerror: 'Escribe un correo válido.' });
         return;
       }
-      if (!pass || pass.length < 6) {
-        this.setState({ loginError: 'Escribe tu contraseña (mínimo 6 caracteres).' });
+      if (!Clave || Clave.length < 6) {
+        this.Cambiarestado({ Ingresoerror: 'Escribe tu contraseña (mínimo 6 caracteres).' });
         return;
       }
-      this.setState({ loginBusy: true, loginError: '', loginNotice: '', loginSuccessMsg: '' });
-      const res = await IniciarSesionApi(email, pass);
-      this.setState({ loginBusy: false });
-      if (res.ok) {
-        let p = null;
-        const resPerfil = await ObtenerPerfilApi();
-        if (resPerfil.ok && Array.isArray(resPerfil.datos) && resPerfil.datos.length > 0) {
-          p = resPerfil.datos[0];
+      this.Cambiarestado({ Ingresoocupado: true, Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' });
+      const Resultado = await Iniciarsesionapi(Correo, Clave);
+      this.Cambiarestado({ Ingresoocupado: false });
+      if (Resultado.ok) {
+        let Perfilfila = null;
+        const Resultadoperfil = await Obtenerperfilapi();
+        if (Resultadoperfil.ok && Array.isArray(Resultadoperfil.datos) && Resultadoperfil.datos.length > 0) {
+          Perfilfila = Resultadoperfil.datos[0];
         }
-        this.iniciarSesionUsuario(email, '', p);
+        // El nombre que la persona escribió al registrarse queda guardado en su cuenta de Supabase
+        const Datoscuenta = (Resultado.datos && Resultado.datos.user && Resultado.datos.user.user_metadata) || {};
+        this.Iniciarsesionusuario(Correo, Limpiarnombre(Datoscuenta.nombre || ''), Perfilfila, Resultado.datos && Resultado.datos.user && Resultado.datos.user.app_metadata);
       } else {
-        const err = res.error || '';
-        const msg = err.includes('email_not_confirmed')
+        const Falla = Resultado.error || '';
+        const Mensaje = Resultado.codigo === 'email_not_confirmed'
           ? 'Por favor revisa tu correo y confirma tu cuenta con el enlace que te enviamos antes de entrar.'
-          : (err.includes('invalid_grant') || err.includes('credentials')
+          : (Falla.includes('invalid_grant') || Falla.includes('credentials')
             ? 'Correo o contraseña incorrectos. Si no tienes cuenta, selecciona "Registrarme".'
-            : (res.error || 'No se pudo iniciar sesión.'));
-        this.setState({ loginError: msg });
+            : (Resultado.offline ? Resultado.error : 'No se pudo iniciar sesión, intenta de nuevo.'));
+        this.Cambiarestado({ Ingresoerror: Mensaje });
       }
     },
-    registerEmail: async () => {
-      const email = (s.loginEmail || '').trim().toLowerCase();
-      const pass = s.loginPassword || '';
-      const passConf = s.loginPassConfirm || '';
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        this.setState({ loginError: 'Escribe un correo válido para registrarte.' });
+    Registrarcorreo: async () => {
+      const Fallanombre = Validarnombre(Estadoactual.Nombreregistro);
+      if (Fallanombre) {
+        this.Cambiarestado({ Ingresoerror: Fallanombre });
         return;
       }
-      if (!pass || pass.length < 6) {
-        this.setState({ loginError: 'La contraseña debe tener al menos 6 caracteres.' });
+      const Nombre = Limpiarnombre(Estadoactual.Nombreregistro);
+      const Correo = (Estadoactual.Ingresocorreo || '').trim().toLowerCase();
+      const Clave = Estadoactual.Ingresoclave || '';
+      const Claveconfirmada = Estadoactual.Ingresoclaveconfirmar || '';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(Correo)) {
+        this.Cambiarestado({ Ingresoerror: 'Escribe un correo válido para registrarte.' });
         return;
       }
-      if (pass !== passConf) {
-        this.setState({ loginError: 'Las contraseñas no coinciden. Por favor verifícalas.' });
+      if (!Clave || Clave.length < 6) {
+        this.Cambiarestado({ Ingresoerror: 'La contraseña debe tener al menos 6 caracteres.' });
         return;
       }
-      this.setState({ loginBusy: true, loginError: '', loginNotice: '', loginSuccessMsg: '' });
-      const res = await RegistrarUsuarioApi({ email, password: pass, nombre: s.nombre, ciudad: s.ciudad });
-      this.setState({ loginBusy: false });
-      if (res.ok) {
-        this.setState({
-          email,
-          loginMode: 'login',
-          loginPassword: '',
-          loginPassConfirm: '',
-          loginSuccessMsg: 'Te enviamos un correo de confirmación. Por favor revisa tu bandeja de entrada para verificar tu cuenta y luego regresa a la app para iniciar sesión.'
+      if (Clave !== Claveconfirmada) {
+        this.Cambiarestado({ Ingresoerror: 'Las contraseñas no coinciden. Por favor verifícalas.' });
+        return;
+      }
+      this.Cambiarestado({ Ingresoocupado: true, Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' });
+      const Resultado = await Registrarusuarioapi({ email: Correo, password: Clave, nombre: Nombre, ciudad: Estadoactual.Ciudad });
+      this.Cambiarestado({ Ingresoocupado: false });
+      if (Resultado.ok) {
+        this.Cambiarestado({
+          Correo,
+          Nombre,
+          Ingresomodo: 'login',
+          Ingresoclave: '',
+          Ingresoclaveconfirmar: '',
+          Ingresoexitomensaje: 'Te enviamos un correo de confirmación. Por favor revisa tu bandeja de entrada para verificar tu cuenta y luego regresa a la app para iniciar sesión.'
         });
-        this.toast('Revisa tu correo para confirmar tu cuenta.');
+        this.Aviso('Revisa tu correo para confirmar tu cuenta.');
       } else {
-        const msg = (res.error && res.error.includes('already registered'))
+        const Mensaje = (Resultado.error && Resultado.error.includes('already registered'))
           ? 'Este correo ya está registrado. Selecciona "Iniciar sesión" para entrar.'
-          : (res.error || 'No se pudo crear la cuenta.');
-        this.setState({ loginError: msg });
+          : (Resultado.offline ? Resultado.error : 'No se pudo crear la cuenta, intenta de nuevo.');
+        this.Cambiarestado({ Ingresoerror: Mensaje });
       }
     },
-    recoverEmail: async () => {
-      const email = (s.loginEmail || '').trim().toLowerCase();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        this.setState({ loginError: 'Escribe un correo válido para recuperar tu contraseña.' });
+    Recuperarcorreo: async () => {
+      const Correo = (Estadoactual.Ingresocorreo || '').trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(Correo)) {
+        this.Cambiarestado({ Ingresoerror: 'Escribe un correo válido para recuperar tu contraseña.' });
         return;
       }
-      this.setState({ loginBusy: true, loginError: '', loginNotice: '', loginSuccessMsg: '' });
-      const res = await RecuperarContrasenaApi(email);
-      this.setState({ loginBusy: false });
-      if (res.ok) {
-        this.setState({
-          loginSuccessMsg: 'Si este correo está registrado en MiTecho, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o spam.'
+      this.Cambiarestado({ Ingresoocupado: true, Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' });
+      const Resultado = await Recuperarcontrasenaapi(Correo);
+      this.Cambiarestado({ Ingresoocupado: false });
+      if (Resultado.ok) {
+        this.Cambiarestado({
+          Ingresoexitomensaje: 'Si este correo está registrado en MiTecho, te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o spam.'
         });
-        this.toast('Solicitud procesada.');
+        this.Aviso('Solicitud procesada.');
       } else {
-        this.setState({ loginError: res.error || 'No se pudo enviar el correo de recuperación. Intenta nuevamente.' });
+        this.Cambiarestado({ Ingresoerror: Resultado.offline ? Resultado.error : 'No se pudo enviar el correo de recuperación. Intenta nuevamente.' });
       }
     },
-    obIsLast: obIdx === 2,
-    obCounter: '0' + (obIdx + 1) + ' / 03',
-    obBars: [0, 1, 2].map(k => ({ bg: k <= obIdx ? 'var(--ac)' : 'var(--c2)' })),
-    obNotLast: obIdx < 2,
-    onObScroll: (e) => {
-      const k = Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth);
-      if (k !== s.obIdx) this.setState({ obIdx: k });
-    },
-    obNext: () => {
-      const el = this.obRef.current;
-      if (el) el.scrollTo({ left: (obIdx + 1) * el.clientWidth, behavior: 'smooth' });
-    },
-    skipOnboarding: () => this.afterWelcome(),
-    enterApp: () => this.afterWelcome(),
-    tabIs,
-    tabBg,
-    tabFg,
-    tabGo,
-    heroPrice: m1(shown),
-    modLabel: cfg.tag,
-    creditoM: '$' + m1(c.creditoUsado) + ' M',
-    capM: '$' + m1(c.cap) + ' M',
-    deltaMes: (c.varAvg >= c.varPrev ? '↑ $' : '↓ $') + m1(Math.abs(c.varAvg - c.varPrev) * c.tope * c.factor / cfg.fin) + ' M',
-    finW: (c.creditoUsado / Math.max(1, c.precio) * 100) + '%',
-    finPct: Math.round(c.creditoUsado / Math.max(1, c.precio) * 100) + '%',
-    subW: (subUsed / Math.max(1, c.precio) * 100) + '%',
-    ownPct: Math.round(own / Math.max(1, c.precio) * 100) + '%',
-    ownM: '$' + m1(own) + ' M',
-    hasSub: subUsed > 0,
-    subM: '$' + m1(subUsed) + ' M',
-    subLabel: c.subMcyS ? 'Caja + Mi Casa Ya' : 'de Caja',
-    ciTitle: 'Cuota inicial ' + Math.round((1 - cfg.fin) * 100) + '%',
-    ciRatio: '$' + m1(c.cash) + ' M / $' + m1(c.ci) + ' M',
-    ciBarW: (ciPct * 100) + '%',
-    ciPct: Math.round(ciPct * 100) + '%',
-    ciMonths: monthsLeft ? (s.ahorroMes ? 'Te faltan ' + monthsLeft + ' meses ahorrando ' + cop(s.ahorroMes) + ' al mes.' : 'Te faltan ' + cop(c.falta) + '. Define tu ahorro mensual en el perfil.') : 'Ya tienes tu cuota inicial completa.',
-    ciM: '$' + m1(c.ci) + ' M',
-    ciShare: Math.round(c.ci / Math.max(1, c.precio) * 100) + '%',
-    precioHoyM: '$' + m1(c.precioHoy) + ' M',
-    limitAhorro: c.limitAhorro,
-    streak: Array.from({ length: 14 }, (_, k) => ({ bg: k === 5 ? 'var(--ad)' : k < 12 ? 'var(--ac)' : k === 12 && s.added ? 'var(--ac)' : 'var(--dm)' })),
-    streakLabel: (s.added ? 13 : 12) + ' días',
-    metaW: Math.min(100, todayTotal / Math.max(1, c.metaDiaria) * 100) + '%',
-    hasCash: cashPend > 0,
-    cashMsg: cop(cashPend) + ' en efectivo sin consignar. El banco no los ve.',
-    showAfil,
-    afilShort: 'Afíliate a una Caja y podrías recibir ' + cop(potS * SMMLV) + ' de subsidio.',
-    sensM: '$' + m1(c.sens) + ' M',
-    goIngresos: () => this.setState({ tab: 'ingresos', ingView: 'dia' }),
-    goSim: () => this.setState({ tab: 'simulador', simStep: 'form' }),
-    goSimResult: () => this.setState({ tab: 'simulador', simStep: 'result' }),
-    goPlan: () => this.setState({ tab: 'plan' }),
-    goPerfil: () => this.setState({ panel: 'perfil' }),
-    toastMsg: s.toast,
-    toastY: s.toastOn ? 'translateY(0)' : 'translateY(-140%)',
-    toastO: s.toastOn ? 1 : 0
+    Pestanaes,
+    Pestanafondo,
+    Pestanatexto,
+    Pestanair,
+    Preciodestacado: Formatomillones(Mostrado),
+    Modalidadetiqueta: Configuracion.Etiquetanodo,
+    Creditomillones: '$' + Formatomillones(Calculo.Creditotecho) + ' M',
+    Capacidadcuotamillones: '$' + Formatomillones(Calculo.Capacidadcuota) + ' M',
+    Ingresobase: 'Con ingresos de $' + Formatomillones(Calculo.Ingresototal) + ' M al mes',
+    Financiacionancho: (Calculo.Creditotecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
+    Porcentajefinanciado: Math.round(Calculo.Creditotecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
+    Subsidioancho: (Subsidiousado / Math.max(1, Calculo.Preciotecho) * 100) + '%',
+    Propioporcentaje: Math.round(Propio / Math.max(1, Calculo.Preciotecho) * 100) + '%',
+    Propiomillones: '$' + Formatomillones(Propio) + ' M',
+    Tienesubsidio: Subsidiousado > 0,
+    Subsidiomillones: '$' + Formatomillones(Subsidiousado) + ' M',
+    Subsidioetiqueta: Calculo.Subsidiomicasayasalarios ? 'Caja + Mi Casa Ya' : 'de Caja',
+    Cuotainicialtituloplan: 'Cuota inicial y gastos',
+    Cuotainicialproporcion: '$' + Formatomillones(Necesariotecho - Calculo.Faltatecho) + ' M / $' + Formatomillones(Necesariotecho) + ' M',
+    Techotopevisvisible: Calculo.Techosobretopevis,
+    Techotopevismensaje: Calculo.Techosobretopevis ? Avisotopevis(Calculo, Estadoactual.Ciudad) : '',
+    Cuotainicialbarraancho: (Cuotainicialporcentaje * 100) + '%',
+    Cuotainicialporcentaje: Math.round(Cuotainicialporcentaje * 100) + '%',
+    Cuotainicialmeses: !Calculo.Preciotecho ? 'Completa tus ingresos en tu perfil financiero para calcular tu techo.' : Mesesfaltantes ? (Estadoactual.Ahorromes ? 'Te faltan ' + Mesesfaltantes + ' meses ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes.' : 'Te faltan ' + Formatoenteropesos(Calculo.Faltatecho) + '. Define tu ahorro mensual en el perfil.') : 'Ya tienes tu cuota inicial completa.',
+    Cuotainicialmillones: '$' + Formatomillones(Calculo.Cuotainicialtecho) + ' M',
+    Cuotainicialparte: Math.round(Calculo.Cuotainicialtecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
+    Preciohoymillones: '$' + Formatomillones(Calculo.Preciohoy) + ' M',
+    Limiteahorro: Calculo.Limiteahorro,
+    // Racha real: un cuadro por cada uno de los últimos 14 días, lleno si ese día registró un ingreso o un gasto
+    Racha: Rachadatos.Cuadros.map(Cuadro => ({ Fondo: Cuadro.Lleno ? 'var(--ac)' : Cuadro.Eshoy ? 'var(--ad)' : 'var(--dm)' })),
+    Rachaetiqueta: Rachadatos.Seguidos === 0 ? 'Empieza hoy' : Rachadatos.Seguidos + (Rachadatos.Seguidos === 1 ? ' día' : ' días'),
+    Metaancho: Math.min(100, Totalhoy / Math.max(1, Calculo.Metadiaria) * 100) + '%',
+    Tieneefectivo: Efectivopendiente > 0,
+    Efectivomensaje: Formatoenteropesos(Efectivopendiente) + ' en efectivo sin consignar. El banco no los ve.',
+    Mostrarafiliacion,
+    Afiliacioncorto: 'Afíliate a una Caja y podrías recibir ' + Formatoenteropesos(Potencialsalarios * Salariominimo) + ' de subsidio.',
+    Sensibilidadmillones: '$' + Formatomillones(Calculo.Sensibilidad) + ' M',
+    Iringresos: () => this.Cambiarestado({ Pestana: 'ingresos', Ingresovista: 'dia' }),
+    Irsimulador: () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'form' }),
+    Irresultado: () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'result' }),
+    Irplan: () => this.Cambiarestado({ Pestana: 'plan' }),
+    Irperfil: () => this.Cambiarestado({ Panel: 'perfil' }),
+    Avisomensaje: Estadoactual.Aviso,
+    Avisodesplazamiento: Estadoactual.Avisovisible ? 'translateY(0)' : 'translateY(-140%)',
+    Avisoopacidad: Estadoactual.Avisovisible ? 1 : 0
   };
 }
 

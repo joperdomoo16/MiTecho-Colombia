@@ -1,72 +1,75 @@
 // Revisión automática de los ocho casos financieros de ejemplo contra el motor de cálculo
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+const Archivos = require('fs');
+const Rutas = require('path');
+const Maquinavirtual = require('vm');
 
-const RutaConstantes = path.join(__dirname, '../js/Constantesbancarias.js');
-const RutaMotor = path.join(__dirname, '../js/Motorcalculo.js');
-const RutaCasos = path.join(__dirname, 'Casosprueba.json');
+const Rutaconstantes = Rutas.join(__dirname, '../js/Constantesbancarias.js');
+const Rutamotor = Rutas.join(__dirname, '../js/Motorcalculo.js');
+const Rutacasos = Rutas.join(__dirname, 'Casosprueba.json');
 
-vm.runInThisContext(fs.readFileSync(RutaConstantes, 'utf8'));
-vm.runInThisContext(fs.readFileSync(RutaMotor, 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutaconstantes, 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Historialregistros.js'), 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutamotor, 'utf8'));
 
-const DatosPrueba = JSON.parse(fs.readFileSync(RutaCasos, 'utf8'));
+const Datosprueba = JSON.parse(Archivos.readFileSync(Rutacasos, 'utf8'));
 
-let ErroresTotales = 0;
-console.log('Iniciando revisión de los ' + DatosPrueba.casos.length + ' casos de prueba...\n');
+let Errorestotales = 0;
+console.log('Iniciando revisión de los ' + Datosprueba.casos.length + ' casos de prueba...\n');
 
 // Compara cada caso con los resultados esperados sin margen de error en pesos
-for (const Caso of DatosPrueba.casos) {
+for (const Caso of Datosprueba.casos) {
+  // Estos ocho casos se validaron con el tope del 30%, que hoy es el modo conservador; el 40% se revisa en Verificarinicio.js
   const Entrada = {
     ...Caso.entrada,
-    ciudad: 'Bogotá',
-    tasa_ea: DatosPrueba.parametros.tasa_ea,
-    plazo_meses: DatosPrueba.parametros.plazo_meses
+    Topeconservador: true,
+    Ciudad: 'Bogotá',
+    Tasaanualfija: Datosprueba.parametros.Tasaanualfija,
+    Plazomesesfijo: Datosprueba.parametros.Plazomesesfijo
   };
 
   const Resultado = Calcularcapacidad(Entrada);
   const Esperado = Caso.esperado;
 
-  const DiferenciaPrecio = Math.abs(Resultado.precio_maximo - Esperado.precio_maximo);
-  const DiferenciaCredito = Math.abs(Resultado.credito - Esperado.credito);
-  const DiferenciaCuota = Math.abs(Resultado.cuota_mensual - Esperado.cuota_mensual);
-  const DiferenciaCuotaInicial = Math.abs(Resultado.cuota_inicial - Esperado.cuota_inicial);
-  const DiferenciaGastos = Math.abs(Resultado.gastos_escrituracion - Esperado.gastos_escrituracion);
-  const DiferenciaFaltante = Math.abs(Resultado.faltante_para_cupo_completo - Esperado.faltante_para_cupo_completo);
-  const CoincideEstado = Resultado.estado === Esperado.estado;
-  const CoincideLimitante = Resultado.limitante === Esperado.limitante;
-  const CoincideModalidad = Resultado.modalidad === Esperado.modalidad;
+  const Diferenciaprecio = Math.abs(Resultado.Preciomaximo - Esperado.Preciomaximo);
+  const Diferenciacredito = Math.abs(Resultado.Credito - Esperado.Credito);
+  const Diferenciacuota = Math.abs(Resultado.Cuotamensual - Esperado.Cuotamensual);
+  const Diferenciacuotainicial = Math.abs(Resultado.Cuotainicial - Esperado.Cuotainicial);
+  const Diferenciagastos = Math.abs(Resultado.Gastosescrituracion - Esperado.Gastosescrituracion);
+  const Diferenciafaltante = Math.abs(Resultado.Faltanteparacupocompleto - Esperado.Faltanteparacupocompleto);
+  const Coincideestado = Resultado.Estadocierre === Esperado.Estadocierre;
+  const Coincidelimitante = Resultado.Limitante === Esperado.Limitante;
+  const Coincidemodalidad = Resultado.Modalidad === Esperado.Modalidad;
 
-  const EsCorrecto = DiferenciaPrecio === 0 && DiferenciaCredito === 0 && DiferenciaCuota === 0 &&
-                     DiferenciaCuotaInicial === 0 && DiferenciaGastos === 0 && DiferenciaFaltante === 0 &&
-                     CoincideEstado && CoincideLimitante && CoincideModalidad;
+  const Escorrecto = Diferenciaprecio === 0 && Diferenciacredito === 0 && Diferenciacuota === 0 &&
+                     Diferenciacuotainicial === 0 && Diferenciagastos === 0 && Diferenciafaltante === 0 &&
+                     Coincideestado && Coincidelimitante && Coincidemodalidad;
 
-  if (EsCorrecto) {
-    console.log(`[BIEN] Caso ${Caso.id}: ${Caso.nombre}`);
-    console.log(`       Precio: $${Resultado.precio_maximo.toLocaleString('es-CO')} | Crédito: $${Resultado.credito.toLocaleString('es-CO')} | Estado: ${Resultado.estado}`);
+  if (Escorrecto) {
+    console.log(`[BIEN] Caso ${Caso.id}: ${Caso.Nombre}`);
+    console.log(`       Precio: $${Resultado.Preciomaximo.toLocaleString('es-CO')} | Crédito: $${Resultado.Credito.toLocaleString('es-CO')} | Estado: ${Resultado.Estadocierre}`);
   } else {
-    ErroresTotales++;
-    console.error(`[FALLA] Caso ${Caso.id}: ${Caso.nombre}`);
+    Errorestotales++;
+    console.error(`[FALLA] Caso ${Caso.id}: ${Caso.Nombre}`);
     console.error('       Esperado:', Esperado);
     console.error('       Obtenido:', {
-      precio: Resultado.precio_maximo,
-      credito: Resultado.credito,
-      cuota: Resultado.cuota_mensual,
-      ci: Resultado.cuota_inicial,
-      gastos: Resultado.gastos_escrituracion,
-      falta: Resultado.faltante_para_cupo_completo,
-      estado: Resultado.estado,
-      limitante: Resultado.limitante,
-      modalidad: Resultado.modalidad
+      Precio: Resultado.Preciomaximo,
+      Credito: Resultado.Credito,
+      Cuota: Resultado.Cuotamensual,
+      Cuotainicial: Resultado.Cuotainicial,
+      Gastos: Resultado.Gastosescrituracion,
+      Falta: Resultado.Faltanteparacupocompleto,
+      Estadocierre: Resultado.Estadocierre,
+      Limitante: Resultado.Limitante,
+      Modalidad: Resultado.Modalidad
     });
   }
 }
 
-if (ErroresTotales === 0) {
+if (Errorestotales === 0) {
   console.log('\nREVISIÓN FINANCIERA EXITOSA: Todos los casos pasaron con 0 pesos de diferencia.');
   process.exit(0);
 } else {
-  console.error(`\nREVISIÓN FALLIDA: Se presentaron ${ErroresTotales} diferencias.`);
+  console.error(`\nREVISIÓN FALLIDA: Se presentaron ${Errorestotales} diferencias.`);
   process.exit(1);
 }

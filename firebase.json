@@ -10,16 +10,24 @@
       "test/**",
       "tienda/**",
       "correos/**",
-      "siterecuperacion/**",
       "dist/**",
       "css/**",
       "js/**",
       "vistas/**",
       "index.html",
-      "*.apk",
-      "*.js",
       "*.json",
-      "*.md"
+      "*.md",
+      "Preparardist.js",
+      "assets/fuentes/**",
+      "assets/proyectos/**",
+      "assets/Logoglyphgrande.webp",
+      "assets/Logoapp.webp",
+      "MiTecho.apk",
+      "supabase/**",
+      "hojacalculo/**",
+      "assets/tutorial/**",
+      "**/*.gs",
+      "*.apk"
     ],
     "cleanUrls": true,
     "trailingSlash": false,
@@ -73,6 +81,21 @@
         "source": "/sitiolegal",
         "destination": "/",
         "type": 301
+      },
+      {
+        "source": "/Terminosdeuso.html",
+        "destination": "/Terminosdeuso",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Terminosdeuso.html",
+        "destination": "/Terminosdeuso",
+        "type": 301
+      },
+      {
+        "source": "/sitiolegal/Terminosdeuso",
+        "destination": "/Terminosdeuso",
+        "type": 301
       }
     ],
     "rewrites": [
@@ -93,6 +116,14 @@
         "destination": "/sitiolegal/Eliminarcuenta.html"
       },
       {
+        "source": "/Terminosdeuso",
+        "destination": "/sitiolegal/Terminosdeuso.html"
+      },
+      {
+        "source": "/terminos-de-uso",
+        "destination": "/sitiolegal/Terminosdeuso.html"
+      },
+      {
         "source": "/politica-de-privacidad",
         "destination": "/sitiolegal/Politicadeprivacidad.html"
       },
@@ -101,27 +132,69 @@
         "destination": "/sitiolegal/Eliminarcuenta.html"
       },
       {
-        "source": "**",
-        "destination": "/sitiolegal/404.html"
+        "source": "/Restablecercontrasena",
+        "destination": "/siterecuperacion/index.html"
+      },
+      {
+        "source": "/Correoconfirmado",
+        "destination": "/siterecuperacion/Correoconfirmado.html"
       }
     ],
     "headers": [
       {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tbliwiawziexlziqqcji.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Strict-Transport-Security",
+            "value": "max-age=31536000; includeSubDomains"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(), microphone=(), geolocation=(), payment=()"
+          }
+        ]
+      },
+      {
         "source": "/",
         "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
         ]
       },
       {
-        "source": "/@(Politicadeprivacidad|Eliminarcuenta|Transparenciayprivacidad)*",
+        "source": "/@(Politicadeprivacidad|Eliminarcuenta|Terminosdeuso|Transparenciayprivacidad|Restablecercontrasena|Correoconfirmado)*",
         "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
         ]
       },
       {
-        "source": "/sitiolegal/**",
+        "source": "/@(sitiolegal|siterecuperacion)/**",
         "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
         ]
       }
     ]

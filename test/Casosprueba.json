@@ -5,9 +5,9 @@
   "tolerancia_cop": 1000,
   "parametros": {
     "smmlv": 1750905,
-    "tasa_ea": 0.1135,
+    "Tasaanualfija": 0.1135,
     "tasa_mv": 0.008999269422,
-    "plazo_meses": 240,
+    "Plazomesesfijo": 240,
     "pct_cuota_sobre_ingreso_libre": 0.3,
     "financiacion_max_vis": 0.8,
     "financiacion_max_no_vis": 0.7,
@@ -18,286 +18,331 @@
   "casos": [
     {
       "id": "A",
-      "nombre": "Hogar de 1,5 SMMLV con subsidio alto",
+      "Nombre": "Hogar de 1,5 SMMLV con subsidio alto",
       "entrada": {
-        "solicitantes": [{ "rol": "titular", "ingreso_mensual": 2600000 }],
-        "cuotas_deudas_activas": 0,
-        "ahorro_y_cesantias": 5000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 2600000
+          }
+        ],
+        "Cuotasdeudasactivas": 0,
+        "Ahorroycesantias": 5000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 2600000,
-        "ingreso_hogar_smmlv": 1.48,
-        "ingreso_libre": 2600000,
-        "endeudamiento_pct": 0.0,
-        "cuota_maxima": 780000,
-        "credito_por_capacidad": 76579246,
-        "subsidio_caja_elegible": true,
-        "subsidio_caja_aplicado": 52527150,
-        "recursos_propios": 57527150,
-        "modalidad": "VIS",
-        "limitante": "capacidad_pago",
-        "precio_maximo": 130200384,
-        "credito": 76579246,
-        "financiacion_pct": 58.8,
-        "cuota_inicial": 53621138,
-        "gastos_escrituracion": 3906012,
-        "cuota_mensual": 780000,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 0,
-        "estado": "cierre_completo"
+        "Ingresohogar": 2600000,
+        "Ingresohogarsalarios": 1.48,
+        "Ingresolibre": 2600000,
+        "Endeudamientoporcentaje": 0,
+        "Cuotamaxima": 780000,
+        "Creditoporcapacidad": 76579246,
+        "Subsidiocajaelegible": true,
+        "Subsidiocajaaplicado": 52527150,
+        "Recursospropios": 57527150,
+        "Modalidad": "VIS",
+        "Limitante": "capacidad_pago",
+        "Preciomaximo": 130200384,
+        "Credito": 76579246,
+        "Financiacionporcentaje": 58.8,
+        "Cuotainicial": 53621138,
+        "Gastosescrituracion": 3906012,
+        "Cuotamensual": 780000,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 0,
+        "Estadocierre": "cierre_completo"
       }
     },
     {
       "id": "B",
-      "nombre": "Pareja de 3 SMMLV con deudas",
+      "Nombre": "Pareja de 3 SMMLV con deudas",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 3200000 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 2100000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 3200000
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 2100000
+          }
         ],
-        "cuotas_deudas_activas": 530000,
-        "ahorro_y_cesantias": 12000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 530000,
+        "Ahorroycesantias": 12000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 5300000,
-        "ingreso_hogar_smmlv": 3.03,
-        "ingreso_libre": 4770000,
-        "endeudamiento_pct": 10.0,
-        "cuota_maxima": 1431000,
-        "credito_por_capacidad": 140493464,
-        "subsidio_caja_elegible": true,
-        "subsidio_caja_aplicado": 35018100,
-        "recursos_propios": 47018100,
-        "modalidad": "VIS",
-        "limitante": "capacidad_pago",
-        "precio_maximo": 182050062,
-        "credito": 140493464,
-        "financiacion_pct": 77.2,
-        "cuota_inicial": 41556598,
-        "gastos_escrituracion": 5461502,
-        "cuota_mensual": 1431000,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 0,
-        "estado": "cierre_completo"
+        "Ingresohogar": 5300000,
+        "Ingresohogarsalarios": 3.03,
+        "Ingresolibre": 4770000,
+        "Endeudamientoporcentaje": 10,
+        "Cuotamaxima": 1431000,
+        "Creditoporcapacidad": 140493464,
+        "Subsidiocajaelegible": true,
+        "Subsidiocajaaplicado": 35018100,
+        "Recursospropios": 47018100,
+        "Modalidad": "VIS",
+        "Limitante": "capacidad_pago",
+        "Preciomaximo": 182050062,
+        "Credito": 140493464,
+        "Financiacionporcentaje": 77.2,
+        "Cuotainicial": 41556598,
+        "Gastosescrituracion": 5461502,
+        "Cuotamensual": 1431000,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 0,
+        "Estadocierre": "cierre_completo"
       }
     },
     {
       "id": "C1",
-      "nombre": "Borde: exactamente 4 SMMLV",
+      "Nombre": "Borde: exactamente 4 SMMLV",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 4003620 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 3000000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 4003620
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 3000000
+          }
         ],
-        "cuotas_deudas_activas": 400000,
-        "ahorro_y_cesantias": 15000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 400000,
+        "Ahorroycesantias": 15000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 7003620,
-        "ingreso_hogar_smmlv": 4.0,
-        "ingreso_libre": 6603620,
-        "endeudamiento_pct": 5.7,
-        "cuota_maxima": 1981086,
-        "credito_por_capacidad": 194500093,
-        "subsidio_caja_elegible": true,
-        "subsidio_caja_aplicado": 35018100,
-        "recursos_propios": 50018100,
-        "modalidad": "VIS",
-        "limitante": "recursos_propios",
-        "precio_maximo": 217470000,
-        "credito": 173976000,
-        "financiacion_pct": 80.0,
-        "cuota_inicial": 43494000,
-        "gastos_escrituracion": 6524100,
-        "cuota_mensual": 1772037,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 5900677,
-        "estado": "falta_cuota_inicial"
+        "Ingresohogar": 7003620,
+        "Ingresohogarsalarios": 4,
+        "Ingresolibre": 6603620,
+        "Endeudamientoporcentaje": 5.7,
+        "Cuotamaxima": 1981086,
+        "Creditoporcapacidad": 194500093,
+        "Subsidiocajaelegible": true,
+        "Subsidiocajaaplicado": 35018100,
+        "Recursospropios": 50018100,
+        "Modalidad": "VIS",
+        "Limitante": "recursos_propios",
+        "Preciomaximo": 217470000,
+        "Credito": 173976000,
+        "Financiacionporcentaje": 80,
+        "Cuotainicial": 43494000,
+        "Gastosescrituracion": 6524100,
+        "Cuotamensual": 1772037,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 5900677,
+        "Estadocierre": "falta_cuota_inicial"
       }
     },
     {
       "id": "C2",
-      "nombre": "Borde: 4 SMMLV + $1",
+      "Nombre": "Borde: 4 SMMLV + $1",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 4003621 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 3000000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 4003621
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 3000000
+          }
         ],
-        "cuotas_deudas_activas": 400000,
-        "ahorro_y_cesantias": 15000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 400000,
+        "Ahorroycesantias": 15000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 7003621,
-        "ingreso_hogar_smmlv": 4.0,
-        "ingreso_libre": 6603621,
-        "endeudamiento_pct": 5.7,
-        "cuota_maxima": 1981086,
-        "credito_por_capacidad": 194500093,
-        "subsidio_caja_elegible": false,
-        "subsidio_caja_aplicado": 0,
-        "recursos_propios": 15000000,
-        "modalidad": "VIS",
-        "limitante": "recursos_propios",
-        "precio_maximo": 65217391,
-        "credito": 52173913,
-        "financiacion_pct": 80.0,
-        "cuota_inicial": 13043478,
-        "gastos_escrituracion": 1956522,
-        "cuota_mensual": 531419,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 40918777,
-        "estado": "falta_cuota_inicial"
+        "Ingresohogar": 7003621,
+        "Ingresohogarsalarios": 4,
+        "Ingresolibre": 6603621,
+        "Endeudamientoporcentaje": 5.7,
+        "Cuotamaxima": 1981086,
+        "Creditoporcapacidad": 194500093,
+        "Subsidiocajaelegible": false,
+        "Subsidiocajaaplicado": 0,
+        "Recursospropios": 15000000,
+        "Modalidad": "VIS",
+        "Limitante": "recursos_propios",
+        "Preciomaximo": 65217391,
+        "Credito": 52173913,
+        "Financiacionporcentaje": 80,
+        "Cuotainicial": 13043478,
+        "Gastosescrituracion": 1956522,
+        "Cuotamensual": 531419,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 40918777,
+        "Estadocierre": "falta_cuota_inicial"
       }
     },
     {
       "id": "D",
-      "nombre": "Carlos y Diana (PDF corregido)",
+      "Nombre": "Carlos y Diana (PDF corregido)",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 6037000 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 3000000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 6037000
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 3000000
+          }
         ],
-        "cuotas_deudas_activas": 1910000,
-        "ahorro_y_cesantias": 32000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 1910000,
+        "Ahorroycesantias": 32000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 9037000,
-        "ingreso_hogar_smmlv": 5.16,
-        "ingreso_libre": 7127000,
-        "endeudamiento_pct": 21.1,
-        "cuota_maxima": 2138100,
-        "credito_por_capacidad": 209915496,
-        "subsidio_caja_elegible": false,
-        "subsidio_caja_aplicado": 0,
-        "recursos_propios": 32000000,
-        "modalidad": "VIS",
-        "limitante": "recursos_propios",
-        "precio_maximo": 139130435,
-        "credito": 111304348,
-        "financiacion_pct": 80.0,
-        "cuota_inicial": 27826087,
-        "gastos_escrituracion": 4173913,
-        "cuota_mensual": 1133693,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 28350705,
-        "estado": "falta_cuota_inicial"
+        "Ingresohogar": 9037000,
+        "Ingresohogarsalarios": 5.16,
+        "Ingresolibre": 7127000,
+        "Endeudamientoporcentaje": 21.1,
+        "Cuotamaxima": 2138100,
+        "Creditoporcapacidad": 209915496,
+        "Subsidiocajaelegible": false,
+        "Subsidiocajaaplicado": 0,
+        "Recursospropios": 32000000,
+        "Modalidad": "VIS",
+        "Limitante": "recursos_propios",
+        "Preciomaximo": 139130435,
+        "Credito": 111304348,
+        "Financiacionporcentaje": 80,
+        "Cuotainicial": 27826087,
+        "Gastosescrituracion": 4173913,
+        "Cuotamensual": 1133693,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 28350705,
+        "Estadocierre": "falta_cuota_inicial"
       }
     },
     {
       "id": "E",
-      "nombre": "El tope VIS limita el precio",
+      "Nombre": "El tope VIS limita el precio",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 4200000 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 2700000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 4200000
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 2700000
+          }
         ],
-        "cuotas_deudas_activas": 0,
-        "ahorro_y_cesantias": 40000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 0,
+        "Ahorroycesantias": 40000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 6900000,
-        "ingreso_hogar_smmlv": 3.94,
-        "ingreso_libre": 6900000,
-        "endeudamiento_pct": 0.0,
-        "cuota_maxima": 2070000,
-        "credito_por_capacidad": 203229538,
-        "subsidio_caja_elegible": true,
-        "subsidio_caja_aplicado": 35018100,
-        "recursos_propios": 75018100,
-        "modalidad": "VIS",
-        "limitante": "tope_vis",
-        "precio_maximo": 262635750,
-        "credito": 195496723,
-        "financiacion_pct": 74.4,
-        "cuota_inicial": 67139027,
-        "gastos_escrituracion": 7879073,
-        "cuota_mensual": 1991237,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 0,
-        "estado": "limitado_tope_vis"
+        "Ingresohogar": 6900000,
+        "Ingresohogarsalarios": 3.94,
+        "Ingresolibre": 6900000,
+        "Endeudamientoporcentaje": 0,
+        "Cuotamaxima": 2070000,
+        "Creditoporcapacidad": 203229538,
+        "Subsidiocajaelegible": true,
+        "Subsidiocajaaplicado": 35018100,
+        "Recursospropios": 75018100,
+        "Modalidad": "VIS",
+        "Limitante": "tope_vis",
+        "Preciomaximo": 262635750,
+        "Credito": 195496723,
+        "Financiacionporcentaje": 74.4,
+        "Cuotainicial": 67139027,
+        "Gastosescrituracion": 7879073,
+        "Cuotamensual": 1991237,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 0,
+        "Estadocierre": "limitado_tope_vis"
       }
     },
     {
       "id": "F",
-      "nombre": "Supera el tope VIS: pasa a No VIS",
+      "Nombre": "Supera el tope VIS: pasa a No VIS",
       "entrada": {
-        "solicitantes": [
-          { "rol": "titular", "ingreso_mensual": 9000000 },
-          { "rol": "segundo_solicitante", "ingreso_mensual": 6000000 }
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 9000000
+          },
+          {
+            "Rol": "segundo_solicitante",
+            "Ingresomensual": 6000000
+          }
         ],
-        "cuotas_deudas_activas": 1000000,
-        "ahorro_y_cesantias": 120000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Cuotasdeudasactivas": 1000000,
+        "Ahorroycesantias": 120000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 15000000,
-        "ingreso_hogar_smmlv": 8.57,
-        "ingreso_libre": 14000000,
-        "endeudamiento_pct": 6.7,
-        "cuota_maxima": 4200000,
-        "credito_por_capacidad": 412349788,
-        "subsidio_caja_elegible": false,
-        "subsidio_caja_aplicado": 0,
-        "recursos_propios": 120000000,
-        "modalidad": "NO_VIS",
-        "limitante": "recursos_propios",
-        "precio_maximo": 363636364,
-        "credito": 254545455,
-        "financiacion_pct": 70.0,
-        "cuota_inicial": 109090909,
-        "gastos_escrituracion": 10909091,
-        "cuota_mensual": 2592680,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 74393471,
-        "estado": "falta_cuota_inicial"
+        "Ingresohogar": 15000000,
+        "Ingresohogarsalarios": 8.57,
+        "Ingresolibre": 14000000,
+        "Endeudamientoporcentaje": 6.7,
+        "Cuotamaxima": 4200000,
+        "Creditoporcapacidad": 412349788,
+        "Subsidiocajaelegible": false,
+        "Subsidiocajaaplicado": 0,
+        "Recursospropios": 120000000,
+        "Modalidad": "NO_VIS",
+        "Limitante": "recursos_propios",
+        "Preciomaximo": 363636364,
+        "Credito": 254545455,
+        "Financiacionporcentaje": 70,
+        "Cuotainicial": 109090909,
+        "Gastosescrituracion": 10909091,
+        "Cuotamensual": 2592680,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 74393471,
+        "Estadocierre": "falta_cuota_inicial"
       }
     },
     {
       "id": "G",
-      "nombre": "Deudas mayores que el ingreso",
+      "Nombre": "Deudas mayores que el ingreso",
       "entrada": {
-        "solicitantes": [{ "rol": "titular", "ingreso_mensual": 3000000 }],
-        "cuotas_deudas_activas": 3200000,
-        "ahorro_y_cesantias": 10000000,
-        "afiliado_caja": true,
-        "sisben": false
+        "Solicitantes": [
+          {
+            "Rol": "titular",
+            "Ingresomensual": 3000000
+          }
+        ],
+        "Cuotasdeudasactivas": 3200000,
+        "Ahorroycesantias": 10000000,
+        "Afiliadocaja": true,
+        "Sisben": false
       },
       "esperado": {
-        "ingreso_hogar": 3000000,
-        "ingreso_hogar_smmlv": 1.71,
-        "ingreso_libre": -200000,
-        "endeudamiento_pct": 106.7,
-        "cuota_maxima": 0,
-        "credito_por_capacidad": 0,
-        "subsidio_caja_elegible": true,
-        "subsidio_caja_aplicado": 0,
-        "recursos_propios": 10000000,
-        "modalidad": null,
-        "limitante": "sin_capacidad",
-        "precio_maximo": 0,
-        "credito": 0,
-        "financiacion_pct": 0,
-        "cuota_inicial": 0,
-        "gastos_escrituracion": 0,
-        "cuota_mensual": 0,
-        "margen_despues_cierre": 0,
-        "faltante_para_cupo_completo": 0,
-        "estado": "sin_capacidad"
+        "Ingresohogar": 3000000,
+        "Ingresohogarsalarios": 1.71,
+        "Ingresolibre": -200000,
+        "Endeudamientoporcentaje": 106.7,
+        "Cuotamaxima": 0,
+        "Creditoporcapacidad": 0,
+        "Subsidiocajaelegible": true,
+        "Subsidiocajaaplicado": 0,
+        "Recursospropios": 10000000,
+        "Modalidad": null,
+        "Limitante": "sin_capacidad",
+        "Preciomaximo": 0,
+        "Credito": 0,
+        "Financiacionporcentaje": 0,
+        "Cuotainicial": 0,
+        "Gastosescrituracion": 0,
+        "Cuotamensual": 0,
+        "Margendespuescierre": 0,
+        "Faltanteparacupocompleto": 0,
+        "Estadocierre": "sin_capacidad"
       }
     }
   ]
 }
-

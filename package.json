@@ -1,17 +1,19 @@
 {
   "name": "mitecho",
   "version": "1.0.0",
-  "description": "MiTecho Colombia - App Móvil Oficial",
+  "description": "MiTecho Colombia - App oficial para celular",
   "private": true,
   "scripts": {
-    "test": "node test/Verificarmodulos.js && node test/Verificarcasos.js && node test/Verificarpdf.js"
+    "test": "node test/Verificarmodulos.js && node test/Verificarcasos.js && node test/Verificarpdf.js && node test/Verificarreporte.js && node test/Verificarinicio.js && node test/Verificarseguridad.js && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON test/Verificarplazos.js && node test/Verificardist.js && node test/Verificarhosting.js && node test/Verificartutorial.js"
   },
   "dependencies": {
+    "@capacitor-community/admob": "8.2.1",
     "@capacitor/android": "^8.5.2",
     "@capacitor/core": "^8.5.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.5.2"
+    "@capacitor/cli": "^8.5.2",
+    "clean-css": "5.3.3",
+    "terser": "5.51.2"
   }
 }
-

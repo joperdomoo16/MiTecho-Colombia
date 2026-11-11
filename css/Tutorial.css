@@ -1,0 +1,31 @@
+/* Recorrido guiado: el foco oscurece todo menos la parte iluminada, la tarjeta explica y la hoja final cierra */
+.tutorial-capa { position: absolute; inset: 0; z-index: 60; }
+.tutorial-capa--oscura { background: rgba(11, 12, 10, .72); }
+.tutorial-foco {
+  position: absolute; z-index: 61; display: block; border-radius: 22px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(11, 12, 10, .72), 0 0 0 2px var(--ac);
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+}
+.tutorial-tarjeta {
+  position: absolute; z-index: 62; left: 16px; right: 16px; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 12px; padding: 16px;
+  background: var(--cd); border: 1px solid var(--ln); border-radius: 22px; box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+}
+.tutorial-flecha { position: absolute; width: 16px; height: 16px; background: var(--cd); transform: rotate(45deg); }
+.tutorial-cuerpo { display: flex; gap: 12px; align-items: flex-start; }
+.tutorial-cuerpo img { flex: none; width: 56px; height: 56px; }
+.tutorial-cuerpo h2, .tutorial-hoja h2 { margin: 0 0 4px; font: 700 17px/1.25 'Familjen Grotesk', sans-serif; color: var(--ik); }
+.tutorial-cuerpo p, .tutorial-hoja p { margin: 0; font: 400 13.5px/1.45 'Hanken Grotesk', sans-serif; color: var(--mu); }
+.tutorial-pie { display: flex; align-items: center; gap: 8px; }
+.tutorial-contador { flex: 1; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; color: var(--mu); }
+.tutorial-saltar { height: 40px; padding: 0 12px; border: none; background: transparent; color: var(--mu); font: 600 13.5px 'Familjen Grotesk', sans-serif; cursor: pointer; }
+.tutorial-siguiente { height: 40px; padding: 0 20px; border: none; border-radius: 20px; background: var(--ac); color: var(--oa); font: 700 14px 'Familjen Grotesk', sans-serif; cursor: pointer; }
+.tutorial-hoja {
+  position: absolute; z-index: 62; left: 0; right: 0; bottom: 0; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  padding: 26px 24px calc(22px + var(--sab-eff, 0px)); background: var(--cd); border-radius: 28px 28px 0 0;
+}
+.tutorial-hoja img { width: 112px; height: 112px; margin-bottom: 4px; }
+.tutorial-hoja .tutorial-siguiente { width: 100%; height: 50px; border-radius: 25px; margin-top: 10px; font-size: 15px; }
+.tutorial-cerrar { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border: none; border-radius: 17px; background: var(--c2); color: var(--ik); font: 400 20px/1 sans-serif; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .tutorial-foco { transition: none; } }

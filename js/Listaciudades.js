@@ -35,4 +35,3 @@ const Directoriociudades = [
   ["Yumbo","Valle del Cauca"],["Zipaquirá","Cundinamarca"]
 ];
 
-const CITIES = Directoriociudades;

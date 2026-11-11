@@ -4,6 +4,10 @@ a { color: #4E6E00; }
 a:hover { color: #0B0C0A; }
 button { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; color: inherit; }
 input { font: inherit; }
+/* Nada de la app se selecciona ni se copia, y tocar no deja el cuadro azul; en los campos sí se escribe y se pega */
+html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.m1 input, .m1 textarea { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+.m1 button:focus:not(:focus-visible), .m1 a:focus:not(:focus-visible), .m1 [role="checkbox"]:focus:not(:focus-visible), #mt-pdf-viewer button:focus:not(:focus-visible) { outline: none; }
 /* Marco base e indicadores de estado superior */
 .m3k { height:40px; color:var(--mu); font:600 13px 'Familjen Grotesk',sans-serif; }
 .m1 { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px 16px; box-sizing:border-box; --bg:#0B0C0A; --cd:#16180F; --c2:#24271C; --ln:rgba(255,255,255,.07); --ik:#F2F4EC; --mu:#A3A898; --fa:#6F7466; --ac:#D4FF3A; --oa:#0B0C0A; --at:#D4FF3A; --al:#FF6A2B; --dk:#1C1E15; --di:#A3A898; --fb:#F2F4EC; --of:#0B0C0A; --dm:#2A2D22; --ad:#5E6B2A; }
@@ -24,7 +28,8 @@ input { font: inherit; }
 @media (max-width: 960px), (max-height: 600px), (hover: none) and (pointer: coarse) {
   :root {
     --sat-eff: max(var(--sat, 0px), env(safe-area-inset-top, 0px));
-    --sab-eff: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px));
+    /* Si hay un anuncio abajo, todo lo que va pegado al borde inferior sube su altura */
+    --sab-eff: calc(max(var(--sab, 0px), env(safe-area-inset-bottom, 0px)) + var(--alto-anuncio, 0px));
     --sal-eff: max(var(--sal, 0px), env(safe-area-inset-left, 0px));
     --sar-eff: max(var(--sar, 0px), env(safe-area-inset-right, 0px));
   }
@@ -76,4 +81,16 @@ input { font: inherit; }
   .m7m, .m33, .mbo, .mcc, .mcq { font-size: clamp(50px, 14dvh, 76px) !important; }
   .m1a, .m28, .m5j, .m65 { font-size: clamp(24px, 6.5dvh, 34px) !important; }
   .mdu { height: 56px !important; }
+}
+
+/* Celulares angostos (320 a 360 px): el monto y el ingreso no se pegan, la barra superior no toca el borde y el botón + cabe */
+.m7n { flex-wrap: wrap; gap: 4px 12px; }
+@media (max-width: 360px) {
+  .m77 { gap: 8px; }
+  .m7c { gap: 6px; min-width: 0; }
+  .m7e { padding: 0 10px; min-width: 0; }
+  .m7f { max-width: 82px; }
+  .mdu { padding: 0 6px !important; }
+  .mdu > button:not(.mdw) { padding: 0 8px !important; }
+  .mdw { width: 44px; height: 44px; }
 }

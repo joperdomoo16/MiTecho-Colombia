@@ -1,9 +1,17 @@
 # Perfil de arranque para optimizar el inicio en frío en dispositivos Android de gama media y baja
-HSPLco/mitecho/app/MainActivity;-><init>()V
-HSPLco/mitecho/app/MainActivity;->onCreate(Landroid/os/Bundle;)V
-HSPLco/mitecho/app/MainActivity;->onResume()V
-HSPLco/mitecho/app/MainActivity;->onWindowFocusChanged(Z)V
-HSPLco/mitecho/app/MainActivity;->applySystemBars(Ljava/lang/String;ZLjava/lang/String;ZZ)V
-HSPLco/mitecho/app/MainActivity;->pushInsetsToWebView()V
-Lco/mitecho/app/MainActivity;
-
+HSPLco/mitecho/app/ActividadPrincipal;-><init>()V
+HSPLco/mitecho/app/ActividadPrincipal;->onCreate(Landroid/os/Bundle;)V
+HSPLco/mitecho/app/ActividadPrincipal;->onResume()V
+HSPLco/mitecho/app/ActividadPrincipal;->onWindowFocusChanged(Z)V
+HSPLco/mitecho/app/ActividadPrincipal;->prepararClienteGoogle()V
+HSPLco/mitecho/app/ActividadPrincipal;->aplicarBarrasSistema()V
+HSPLco/mitecho/app/ActividadPrincipal;->enviarMargenesInterfaz()V
+HSPLco/mitecho/app/ActividadPrincipal;->ejecutarEnInterfaz(Ljava/lang/String;)V
+HSPLco/mitecho/app/PuenteNativo;-><init>(Lco/mitecho/app/ActividadPrincipal;)V
+HSPLco/mitecho/app/PuenteNativo;->aplicarBarras(Ljava/lang/String;ZLjava/lang/String;ZZ)V
+HSPLco/mitecho/app/PuenteNativo;->leerSeguro(Ljava/lang/String;)Ljava/lang/String;
+HSPLco/mitecho/app/AlmacenSeguro;-><init>(Landroid/content/Context;)V
+HSPLco/mitecho/app/AlmacenSeguro;->leer(Ljava/lang/String;)Ljava/lang/String;
+Lco/mitecho/app/ActividadPrincipal;
+Lco/mitecho/app/PuenteNativo;
+Lco/mitecho/app/AlmacenSeguro;

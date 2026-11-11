@@ -51,80 +51,12 @@ footer{max-width:860px;margin:0 auto;padding:24px 16px 48px;color:var(--fa);font
 .btn-copiar:hover{border-color:var(--at);color:var(--ik)}
 .btn-copiar.copiado{border-color:var(--ac);color:var(--at)}
 </style>
-<script>
-/* Enlaces de correo y botones "Copiar" (igual en las tres páginas legales).
-   - Celular: el enlace mailto: abre la app de correo del teléfono.
-   - Computador: abre la redacción de Gmail en otra pestaña (Chrome sin cliente
-     de correo configurado no hace nada con mailto:). Si el navegador bloquea la
-     pestaña, se usa mailto: como respaldo. */
-(function () {
-  var CORREO = 'rumoriastudio@gmail.com';
-  var esMovil = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-    (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
-
-  function leerMailto(href) {
-    var resto = href.replace(/^mailto:/i, '');
-    var i = resto.indexOf('?');
-    var datos = { para: decodeURIComponent(i < 0 ? resto : resto.slice(0, i)) || CORREO, asunto: '', cuerpo: '' };
-    if (i >= 0) resto.slice(i + 1).split('&').forEach(function (par) {
-      var j = par.indexOf('=');
-      var clave = (j < 0 ? par : par.slice(0, j)).toLowerCase();
-      var valor = j < 0 ? '' : decodeURIComponent(par.slice(j + 1));
-      if (clave === 'subject') datos.asunto = valor;
-      if (clave === 'body') datos.cuerpo = valor;
-    });
-    return datos;
-  }
-
-  function urlGmail(d) {
-    return 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(d.para) +
-      (d.asunto ? '&su=' + encodeURIComponent(d.asunto) : '') +
-      (d.cuerpo ? '&body=' + encodeURIComponent(d.cuerpo) : '');
-  }
-
-  function avisar(btn, texto) {
-    var original = btn.getAttribute('data-texto') || btn.textContent;
-    btn.setAttribute('data-texto', original);
-    btn.textContent = texto;
-    btn.classList.add('copiado');
-    clearTimeout(btn._t);
-    btn._t = setTimeout(function () { btn.textContent = original; btn.classList.remove('copiado'); }, 2000);
-  }
-
-  function copiar(texto, btn) {
-    function respaldo() {
-      var t = document.createElement('textarea');
-      t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-      document.body.appendChild(t); t.select();
-      var ok = false; try { ok = document.execCommand('copy'); } catch (err) {}
-      document.body.removeChild(t);
-      avisar(btn, ok ? '¡Copiado!' : 'Copia manual');
-    }
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(texto).then(function () { avisar(btn, '¡Copiado!'); }, respaldo);
-    } else { respaldo(); }
-  }
-
-  document.addEventListener('click', function (e) {
-    if (!e.target || !e.target.closest) return;
-    var btn = e.target.closest('.btn-copiar');
-    if (btn) { e.preventDefault(); copiar(btn.getAttribute('data-copiar') || CORREO, btn); return; }
-
-    var a = e.target.closest('a[href^="mailto:"]');
-    if (!a || esMovil || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    var href = a.getAttribute('href');
-    var ventana = window.open(urlGmail(leerMailto(href)), '_blank');
-    if (ventana) { try { ventana.opener = null; } catch (err) {} }
-    else { window.location.href = href; }
-  });
-})();
-</script>
+<script src="/sitiolegal/Correolegal.js" defer></script>
 </head>
 <body>
 <header class="hero"><div class="in">
   <a class="brand" href="/">
-    <img src="../assets/Logoglyph.png" alt="MiTecho">
+    <img src="../assets/Logoglyph.webp" width="128" height="128" alt="MiTecho">
     <b>MiTecho</b>
   </a>
   <span class="flag"></span>
@@ -132,7 +64,7 @@ footer{max-width:860px;margin:0 auto;padding:24px 16px 48px;color:var(--fa);font
   <h1>Transparencia y Privacidad</h1>
   <p class="lead">Documentación oficial, términos de tratamiento de datos personales y procedimiento para la eliminación de cuenta en MiTecho.</p>
   <div class="meta">
-    <span class="chip">Versión 1.0</span>
+    <span class="chip">Versión 1.2</span>
     <span class="chip">Ley 1581 de 2012</span>
     <span class="chip">Decreto 1377 de 2013</span>
     <span class="chip">Google Play &amp; App Store Ready</span>
@@ -155,6 +87,12 @@ footer{max-width:860px;margin:0 auto;padding:24px 16px 48px;color:var(--fa);font
         <td>Régimen de Protección de Datos Personales de Colombia</td>
         <td>Android, iOS y Web</td>
         <td><a class="btn" href="/Politicadeprivacidad">Ver Política de Privacidad</a></td>
+      </tr>
+      <tr>
+        <td><b>Términos de uso</b></td>
+        <td>Estatuto del Consumidor (Ley 1480 de 2011) y leyes de Colombia</td>
+        <td>Android, iOS y Web</td>
+        <td><a class="btn" href="/Terminosdeuso">Ver Términos de Uso</a></td>
       </tr>
     </table></div>
   </section>

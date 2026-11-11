@@ -1,344 +1,380 @@
 // Preparación de los datos para pantallas secundarias, ventanas desplegables, recordatorios y metas
 
-function Generarvaloresadicionales(c, cfg, sel, ctx) {
-const s = this.state, isUvr = s.rate === 'uvr' && s.mod !== 'leasing' && c.entK !== 'caja';
-    const tg = (on) => ({ track: on ? 'var(--ac)' : 'var(--c2)', knob: on ? 'var(--oa)' : 'var(--mu)', x: on ? 'translateX(22px)' : 'none' });
-    const factorShort = c.factor.toLocaleString('es-CO', { maximumFractionDigits: 1 });
-    const eaFmt = pctFmt(c.ea) + (isUvr ? ' + UVR' : ' E.A.');
-    const objP = c.obj, credObj = Math.min(c.credito, objP * cfg.fin), ciObj = objP - credObj, gastosObj = objP * cfg.gastos;
-    const totalObj = ciObj + gastosObj, faltaObj = Math.max(0, totalObj - c.cash), mensual = faltaObj / (s.ciPlazo || 24);
-    const mesesRitmo = s.ahorroMes > 0 ? Math.ceil(faltaObj / s.ahorroMes) : null;
-    let p8Msg, p8Ok = false;
-    if (faltaObj <= 0) { p8Msg = 'Ya tienes la cuota inicial y los gastos para esta vivienda.'; p8Ok = true; }
-    else if (s.ahorroMes >= mensual) { p8Msg = 'Vas bien: ahorrando ' + cop(s.ahorroMes) + ' al mes llegas en ' + mesesRitmo + ' meses.'; p8Ok = true; }
-    else p8Msg = (s.ahorroMes > 0 ? 'Hoy ahorras ' + cop(s.ahorroMes) + ': te faltan ' + cop(mensual - s.ahorroMes) + ' más al mes. A tu ritmo llegas en ' + mesesRitmo + ' meses.' : 'Aún no registras ahorro mensual. Defínelo en tu perfil.');
-    const sal = s.tipo === 'variable' ? 0 : s.fijo, prima = sal, ces = sal, intCes = ces * 0.12;
-    const anoFijoV = c.fijoP * 12, anoVarV = c.varAvg * 12, total = anoFijoV + anoVarV + prima + ces + intCes;
-    const aporte = (prima + ces) * (s.anoPct ?? 50) / 100;
-    const mSin = s.ahorroMes > 0 ? Math.ceil(c.falta / s.ahorroMes) : null, mCon = (s.ahorroMes + aporte / 12) > 0 ? Math.ceil(c.falta / (s.ahorroMes + aporte / 12)) : null;
-    const tIng = 1400 * UVT, tPat = 4500 * UVT, consig = total * 0.9;
-    const rRows = [['Ingresos brutos del año', total, tIng, '1.400 UVT'], ['Consignaciones y depósitos', consig, tIng, '1.400 UVT'], ['Patrimonio (tu ahorro)', s.ahorro || 0, tPat, '4.500 UVT']];
-    const obliged = rRows.some(r => r[1] >= r[2]);
+// [clave, nombre en la ficha, plazo que se le explica a la persona]
+const Tipossoporte = [
+  ['soporte', 'Soporte técnico', 'Fallas o preguntas sobre la app. Respondemos en máximo 15 días hábiles.'],
+  ['consulta', 'Consulta de mis datos', 'Saber qué datos tenemos y cómo los usamos. Respondemos en máximo 10 días hábiles.'],
+  ['reclamo', 'Reclamo sobre mis datos', 'Corregir, borrar o revocar tu autorización. Respondemos en máximo 15 días hábiles.']
+];
+
+const Numerosayuda = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiuno', 'veintidos'];
+
+function Generarvaloresadicionales(Calculo, Configuracion, Seleccion, Contexto) {
+const Estadoactual = this.Estadocomponente, Esuvr = Estadoactual.Tasatipo === 'uvr' && Estadoactual.Modalidadelegida !== 'leasing' && Calculo.Entidadclave !== 'caja';
+    const Interruptor = (Activo) => ({ Riel: Activo ? 'var(--ac)' : 'var(--c2)', Perilla: Activo ? 'var(--oa)' : 'var(--mu)', Posicion: Activo ? 'translateX(22px)' : 'none' });
+    const Factorcorto = Calculo.Factor.toLocaleString('es-CO', { maximumFractionDigits: 1 });
+    const Tasaanualtexto = Formatoporcentaje(Calculo.Tasaanual) + (Esuvr ? ' + UVR' : ' E.A.');
+    const Objetivoporcentaje = Calculo.Objetivo, Creditoobjetivo = Math.min(Calculo.Creditoporcapacidad, Objetivoporcentaje * Configuracion.Financiacion), Cuotainicialobjetivo = Objetivoporcentaje - Creditoobjetivo, Gastosobjetivo = Objetivoporcentaje * Configuracion.Gastos;
+    const Totalobjetivo = Cuotainicialobjetivo + Gastosobjetivo, Faltaobjetivo = Math.max(0, Totalobjetivo - Calculo.Efectivo), Mensual = Faltaobjetivo / (Estadoactual.Cuotainicialplazo || 24);
+    const Mesesritmo = Estadoactual.Ahorromes > 0 ? Math.ceil(Faltaobjetivo / Estadoactual.Ahorromes) : null;
+    let Cierremensaje, Cierrelisto = false;
+    if (Faltaobjetivo <= 0) { Cierremensaje = 'Ya tienes la cuota inicial y los gastos para esta vivienda.'; Cierrelisto = true; }
+    else if (Estadoactual.Ahorromes >= Mensual) { Cierremensaje = 'Vas bien: ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes llegas en ' + Mesesritmo + ' meses.'; Cierrelisto = true; }
+    else Cierremensaje = (Estadoactual.Ahorromes > 0 ? 'Hoy ahorras ' + Formatoenteropesos(Estadoactual.Ahorromes) + ': te faltan ' + Formatoenteropesos(Mensual - Estadoactual.Ahorromes) + ' más al mes. A tu ritmo llegas en ' + Mesesritmo + ' meses.' : 'Aún no registras ahorro mensual. Defínelo en tu perfil.');
+    const Salario = Estadoactual.Tipo === 'variable' ? 0 : Estadoactual.Fijo, Prima = Salario, Cesantias = Salario, Interescesantias = Cesantias * 0.12;
+    const Anualfijovalor = Calculo.Fijopromedio * 12, Anualvariablevalor = Calculo.Variablepromedio * 12, Total = Anualfijovalor + Anualvariablevalor + Prima + Cesantias + Interescesantias;
+    const Aporte = (Prima + Cesantias) * (Estadoactual.Anualporcentaje ?? 50) / 100;
+    const Mesessin = Estadoactual.Ahorromes > 0 ? Math.ceil(Calculo.Faltatecho / Estadoactual.Ahorromes) : null, Mesconsignacion = (Estadoactual.Ahorromes + Aporte / 12) > 0 ? Math.ceil(Calculo.Faltatecho / (Estadoactual.Ahorromes + Aporte / 12)) : null;
+    const Totalingreso = 1400 * Unidadtributaria, Topepatrimonio = 4500 * Unidadtributaria, Consignado = Total;
+    const Recordatoriofilas = [['Ingresos brutos del año', Total, Totalingreso, '1.400 UVT'], ['Consignaciones (si todo llega a tu cuenta)', Consignado, Totalingreso, '1.400 UVT'], ['Patrimonio (tu ahorro)', Calculo.Ahorrohogar || 0, Topepatrimonio, '4.500 UVT']];
+    const Obligado = Recordatoriofilas.some(Fila => Fila[1] >= Fila[2]);
 
     return {
-      factorShort,
-      eaFmt,
-      plazoFmt: c.plazo + ' años',
-      sensCredFmt: cop(c.sensCred),
-      avgNLabel: c.N + ' meses',
-      ipcFmt: pctFmt(IPC),
-      factorLabel: '× ' + factorShort + ' CRÉDITO (' + eaFmt + ', ' + c.plazo + ' AÑOS)',
-      openHelpCond: () => this.setState({ help: true, helpOpen: 11 }),
-      openHelpPareja: () => this.setState({ help: true, helpOpen: 12 }),
-      openHelpPlazo: () => this.setState({ help: true, helpOpen: 21 }),
-      closeHelp: () => this.setState({ help: false }),
-      contactSupportHelp: () => {
-        clearTimeout(this._supTimer);
-        this.setState({
-          supportOpen: true,
-          supNombre: s.supNombre || s.nombre || '',
-          supEmail: s.supEmail || s.email || s.loginEmail || '',
-          supAsunto: '',
-          supDesc: '',
-          supErr: '',
-          supSent: false,
-          supBusy: false,
-          supY: 0,
-          supDragging: false,
-          supAnim: false
+      Factorcorto,
+      Tasaanualtexto,
+      Plazotexto: Calculo.Plazo + ' años',
+      Sensibilidadcreditotexto: Formatoenteropesos(Calculo.Sensibilidadcredito),
+      Promediomesesetiqueta: Calculo.N + ' meses',
+      Ipctexto: Formatoporcentaje(Inflacionanual),
+      Factoretiqueta: '× ' + Factorcorto + ' CRÉDITO (' + Tasaanualtexto + ', ' + Calculo.Plazo + ' AÑOS)',
+      // Los botones "Entender" abren Ayuda en su pregunta y la pantalla baja sola hasta ella
+      Abrirayudacifra: () => this.Cambiarestado({ Ayuda: true, Ayudaabierta: 0, Ayudadesplazar: true }),
+      Abrirayudacondiciones: () => this.Cambiarestado({ Ayuda: true, Ayudaabierta: 11, Ayudadesplazar: true }),
+      Abrirayudapareja: () => this.Cambiarestado({ Ayuda: true, Ayudaabierta: 12, Ayudadesplazar: true }),
+      Abrirayudaplazo: () => this.Cambiarestado({ Ayuda: true, Ayudaabierta: 21, Ayudadesplazar: true }),
+      Cerrarayuda: () => this.Cambiarestado({ Ayuda: false }),
+      Abrirprodesdeayuda: () => { this.Cambiarestado({ Ayuda: false }); this.Abrirpro(); },
+      Contactarsoporteayuda: () => {
+        clearTimeout(this.Soportetemporizador);
+        this.Cambiarestado({
+          Soporteabierto: true,
+          Soportenombre: Estadoactual.Soportenombre || Estadoactual.Nombre || '',
+          Soportecorreo: Estadoactual.Soportecorreo || Estadoactual.Correo || Estadoactual.Ingresocorreo || '',
+          Soportetipo: 'soporte',
+          Soporteasunto: '',
+          Soportedescripcion: '',
+          Soporteradicado: '',
+          Soportefechamaxima: '',
+          Soporteerror: '',
+          Soporteenviado: false,
+          Soporteocupado: false,
+          Soportedesplazamiento: 0,
+          Soportearrastrando: false,
+          Soporteanimado: false
         });
-        this._supTimer = setTimeout(() => this.setState({ supAnim: true }), 25);
+        this.Soportetemporizador = setTimeout(() => this.Cambiarestado({ Soporteanimado: true }), 25);
       },
-      hasSupportModal: Boolean(s.supportOpen),
-      supDisplay: s.supportOpen ? 'flex' : 'none',
-      supBackdropDisplay: s.supportOpen ? 'block' : 'none',
-      supTransform: s.supAnim ? ('translateY(' + (Math.max(0, s.supY || 0)) + 'px)') : 'translateY(100%)',
-      supTransition: s.supDragging ? 'none' : 'transform .32s cubic-bezier(.22,1,.36,1)',
-      supBackdropOpacity: s.supAnim ? Math.max(0, 1 - (s.supY || 0) / 350) : 0,
-      onSupTouchStart: (e) => {
-        const t = e.nativeEvent ? e.nativeEvent.touches[0] : (e.touches ? e.touches[0] : null);
-        if (!t) return;
-        this._supStartY = t.clientY;
-        this.setState({ supDragging: true });
+      Tienesoporte: Boolean(Estadoactual.Soporteabierto),
+      Soportevisible: Estadoactual.Soporteabierto ? 'flex' : 'none',
+      Soportefondovisible: Estadoactual.Soporteabierto ? 'block' : 'none',
+      Soportetransformacion: Estadoactual.Soporteanimado ? ('translateY(' + (Math.max(0, Estadoactual.Soportedesplazamiento || 0)) + 'px)') : 'translateY(100%)',
+      Soportetransicion: Estadoactual.Soportearrastrando ? 'none' : 'transform .32s cubic-bezier(.22,1,.36,1)',
+      Soportefondoopacidad: Estadoactual.Soporteanimado ? Math.max(0, 1 - (Estadoactual.Soportedesplazamiento || 0) / 350) : 0,
+      Soportetocarinicio: (Elemento) => {
+        const Auxiliar = Elemento.Eventonativo ? Elemento.Eventonativo.touches[0] : (Elemento.touches ? Elemento.touches[0] : null);
+        if (!Auxiliar) return;
+        this.Soporteinicioy = Auxiliar.clientY;
+        this.Cambiarestado({ Soportearrastrando: true });
       },
-      onSupTouchMove: (e) => {
-        if (!this._supStartY) return;
-        const t = e.nativeEvent ? e.nativeEvent.touches[0] : (e.touches ? e.touches[0] : null);
-        if (!t) return;
-        const dy = t.clientY - this._supStartY;
-        if (dy > 0) {
-          this.setState({ supY: dy });
+      Soportetocarmover: (Elemento) => {
+        if (!this.Soporteinicioy) return;
+        const Auxiliar = Elemento.Eventonativo ? Elemento.Eventonativo.touches[0] : (Elemento.touches ? Elemento.touches[0] : null);
+        if (!Auxiliar) return;
+        const Desplazamientoy = Auxiliar.clientY - this.Soporteinicioy;
+        if (Desplazamientoy > 0) {
+          this.Cambiarestado({ Soportedesplazamiento: Desplazamientoy });
         }
       },
-      onSupTouchEnd: () => {
-        const dy = s.supY || 0;
-        this._supStartY = null;
-        if (dy > 90) {
-          this.setState({ supAnim: false, supDragging: false });
-          clearTimeout(this._supTimer);
-          this._supTimer = setTimeout(() => {
-            this.setState({ supportOpen: false, supY: 0, supErr: '', supBusy: false });
+      Soportetocarfin: () => {
+        const Desplazamientoy = Estadoactual.Soportedesplazamiento || 0;
+        this.Soporteinicioy = null;
+        if (Desplazamientoy > 90) {
+          this.Cambiarestado({ Soporteanimado: false, Soportearrastrando: false });
+          clearTimeout(this.Soportetemporizador);
+          this.Soportetemporizador = setTimeout(() => {
+            this.Cambiarestado({ Soporteabierto: false, Soportedesplazamiento: 0, Soporteerror: '', Soporteocupado: false });
           }, 240);
         } else {
-          this.setState({ supY: 0, supDragging: false });
+          this.Cambiarestado({ Soportedesplazamiento: 0, Soportearrastrando: false });
         }
       },
-      closeSupportModal: () => {
-        this.setState({ supAnim: false, supDragging: false });
-        clearTimeout(this._supTimer);
-        this._supTimer = setTimeout(() => {
-          this.setState({ supportOpen: false, supY: 0, supErr: '', supBusy: false });
+      Cerrarsoporte: () => {
+        this.Cambiarestado({ Soporteanimado: false, Soportearrastrando: false });
+        clearTimeout(this.Soportetemporizador);
+        this.Soportetemporizador = setTimeout(() => {
+          this.Cambiarestado({ Soporteabierto: false, Soportedesplazamiento: 0, Soporteerror: '', Soporteocupado: false });
         }, 240);
       },
-      supFormVisible: !s.supSent,
-      supSentVisible: Boolean(s.supSent),
-      supNombreVal: s.supNombre || '',
-      supEmailVal: s.supEmail || '',
-      supAsuntoVal: s.supAsunto || '',
-      supDescVal: s.supDesc || '',
-      supDescCount: ((s.supDesc || '').trim().length) + ' / 500 caracteres · mín. 20',
-      supDescColor: ((s.supDesc || '').trim().length >= 20) ? 'var(--at)' : 'var(--mu)',
-      supErr: s.supErr || '',
-      supBtnText: s.supBusy ? 'Enviando solicitud…' : 'Enviar solicitud',
-      onSupNombre: (e) => this.setState({ supNombre: (e.target.value || '').slice(0, 80), supErr: '' }),
-      onSupEmail: (e) => this.setState({ supEmail: (e.target.value || '').slice(0, 100), supErr: '' }),
-      onSupAsunto: (e) => this.setState({ supAsunto: (e.target.value || '').slice(0, 100), supErr: '' }),
-      onSupDesc: (e) => this.setState({ supDesc: (e.target.value || '').slice(0, 500), supErr: '' }),
-      resetSupportForm: () => this.setState({ supAsunto: '', supDesc: '', supErr: '', supSent: false, supBusy: false }),
-      submitSupportForm: async () => {
-        if (s.supBusy) return;
-        const nombre = (s.supNombre || '').trim();
-        const email = (s.supEmail || '').trim().toLowerCase();
-        const asunto = (s.supAsunto || '').trim();
-        const descripcion = (s.supDesc || '').trim();
-        if (nombre.length < 6) {
-          this.setState({ supErr: 'El nombre debe tener al menos 6 caracteres.' });
+      Soporteformulariovisible: !Estadoactual.Soporteenviado,
+      Soporteenviadovisible: Boolean(Estadoactual.Soporteenviado),
+      Soportenombrevalor: Estadoactual.Soportenombre || '',
+      Soportecorreovalor: Estadoactual.Soportecorreo || '',
+      Soporteasuntovalor: Estadoactual.Soporteasunto || '',
+      Soportedescripcionvalor: Estadoactual.Soportedescripcion || '',
+      Soportedescripcionconteo: ((Estadoactual.Soportedescripcion || '').trim().length) + ' / 500 caracteres · mín. 20',
+      Soportedescripcioncolor: ((Estadoactual.Soportedescripcion || '').trim().length >= 20) ? 'var(--at)' : 'var(--mu)',
+      Soporteerror: Estadoactual.Soporteerror || '',
+      Soportebotontexto: Estadoactual.Soporteocupado ? 'Enviando solicitud…' : 'Enviar solicitud',
+      Escribirsoportenombre: (Elemento) => this.Cambiarestado({ Soportenombre: Textoseguro(Elemento.target.value, 80), Soporteerror: '' }),
+      Escribirsoportecorreo: (Elemento) => this.Cambiarestado({ Soportecorreo: Textoseguro(Elemento.target.value, 100), Soporteerror: '' }),
+      Escribirsoporteasunto: (Elemento) => this.Cambiarestado({ Soporteasunto: Textoseguro(Elemento.target.value, 100), Soporteerror: '' }),
+      Escribirsoportedescripcion: (Elemento) => this.Cambiarestado({ Soportedescripcion: Textoseguro(Elemento.target.value, 500, true), Soporteerror: '' }),
+      // Cada tipo tiene su propio plazo legal de respuesta; el servidor calcula la fecha exacta con los festivos
+      Soportetipofichas: Tipossoporte.map(([Clave, Etiqueta]) => ({ ...Seleccion((Estadoactual.Soportetipo || 'soporte') === Clave), Etiqueta, Alclic: () => this.Cambiarestado({ Soportetipo: Clave, Soporteerror: '' }) })),
+      Soportetipoayuda: (Tipossoporte.find(([Clave]) => Clave === (Estadoactual.Soportetipo || 'soporte')) || Tipossoporte[0])[2],
+      Soporteradicadotexto: Estadoactual.Soporteradicado || '',
+      Soportefechatexto: Estadoactual.Soportefechamaxima ? 'Te respondemos a más tardar el ' + Estadoactual.Soportefechamaxima + '. También te enviamos el número de radicado a tu correo.' : 'También te enviamos el número de radicado a tu correo.',
+      Reiniciarsoporte: () => this.Cambiarestado({ Soportetipo: 'soporte', Soporteasunto: '', Soportedescripcion: '', Soporteerror: '', Soporteenviado: false, Soporteocupado: false, Soporteradicado: '', Soportefechamaxima: '' }),
+      Enviarsoporte: async () => {
+        if (Estadoactual.Soporteocupado) return;
+        const Nombre = (Estadoactual.Soportenombre || '').trim();
+        const Correo = (Estadoactual.Soportecorreo || '').trim().toLowerCase();
+        const Asunto = (Estadoactual.Soporteasunto || '').trim();
+        const Descripcion = (Estadoactual.Soportedescripcion || '').trim();
+        if (Nombre.length < 6) {
+          this.Cambiarestado({ Soporteerror: 'El nombre debe tener al menos 6 caracteres.' });
           return;
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-          this.setState({ supErr: 'Ingresa un correo electrónico válido (ej. nombre@correo.com).' });
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(Correo)) {
+          this.Cambiarestado({ Soporteerror: 'Ingresa un correo electrónico válido (ej. nombre@correo.com).' });
           return;
         }
-        if (asunto.length < 6) {
-          this.setState({ supErr: 'El asunto debe tener al menos 6 caracteres.' });
+        if (Asunto.length < 6) {
+          this.Cambiarestado({ Soporteerror: 'El asunto debe tener al menos 6 caracteres.' });
           return;
         }
-        if (descripcion.length < 20) {
-          this.setState({ supErr: 'La descripción debe tener al menos 20 caracteres para explicar tu solicitud.' });
+        if (Descripcion.length < 20) {
+          this.Cambiarestado({ Soporteerror: 'La descripción debe tener al menos 20 caracteres para explicar tu solicitud.' });
           return;
         }
-        this.setState({ supBusy: true, supErr: '' });
-        if (typeof RegistrarSolicitudSoporteApi === 'function') {
-          await RegistrarSolicitudSoporteApi({ nombre, email, asunto, descripcion, ciudad: s.ciudad });
+        this.Cambiarestado({ Soporteocupado: true, Soporteerror: '' });
+        const Resultado = await Registrarsolicitudsoporteapi({ tipo: Estadoactual.Soportetipo || 'soporte', nombre: Nombre, correo: Correo, asunto: Asunto, descripcion: Descripcion });
+        // Si no llegó el radicado la solicitud no quedó guardada, así que se avisa en vez de dar las gracias
+        if (!Resultado.ok || !Resultado.datos || !Resultado.datos.radicado) {
+          this.Cambiarestado({ Soporteocupado: false, Soporteerror: Resultado.error || 'No pudimos enviar tu solicitud, intenta de nuevo.' });
+          return;
         }
-        this.setState({ supBusy: false, supSent: true });
-        this.toast('Gracias por contactarnos, responderemos tu solicitud lo más pronto posible');
+        this.Cambiarestado({ Soporteocupado: false, Soporteenviado: true, Soporteradicado: String(Resultado.datos.radicado), Soportefechamaxima: String(Resultado.datos.fecha_maxima || '') });
+        this.Aviso('Recibimos tu solicitud. Radicado ' + Resultado.datos.radicado + '.');
       },
-      helpScreen: this.screen === 'app' && Boolean(s.help),
-      help: (() => {
-        const h = {};
-        for (let i = 0; i < 22; i++) {
-          const on = s.helpOpen === i;
-          h['o' + i] = on;
-          h['s' + i] = on ? '−' : '+';
-          h['b' + i] = on ? 'var(--ac)' : 'var(--c2)';
-          h['c' + i] = on ? 'var(--oa)' : 'var(--ik)';
-          h['t' + i] = () => this.setState(st => ({ helpOpen: st.helpOpen === i ? -1 : i }));
+      Ayudapantalla: this.Pantalla === 'app' && Boolean(Estadoactual.Ayuda),
+      Ayuda: (() => {
+        const Ayudavalores = {};
+        // Cada pregunta de ayuda tiene sus claves con el número en letras, por ejemplo Abiertotres
+        for (let Indice = 0; Indice < Numerosayuda.length; Indice++) {
+          const Activo = Estadoactual.Ayudaabierta === Indice;
+          const Numero = Numerosayuda[Indice];
+          Ayudavalores['Abierto' + Numero] = Activo;
+          Ayudavalores['Signo' + Numero] = Activo ? '−' : '+';
+          Ayudavalores['Fondo' + Numero] = Activo ? 'var(--ac)' : 'var(--c2)';
+          Ayudavalores['Color' + Numero] = Activo ? 'var(--oa)' : 'var(--ik)';
+          Ayudavalores['Alternar' + Numero] = () => this.Cambiarestado(Estadoprevio => ({ Ayudaabierta: Estadoprevio.Ayudaabierta === Indice ? -1 : Indice }));
         }
-        return h;
+        return Ayudavalores;
       })(),
-      plazoRecomendadoNota: (() => {
-        const edad = s.edad || 0;
-        const maxLegal = Math.max(5, 75 - edad);
-        const esCaja = (s.entidad === 'caja' || c.entK === 'caja');
-        if (edad > 45 && maxLegal < (s.term || 20)) {
-          return 'Aviso: Por tu edad (' + edad + ' años), el banco limitará tu crédito a máx. ' + maxLegal + ' años (Edad + Plazo ≤ 75).';
+      Plazorecomendadonota: (() => {
+        const Edad = Estadoactual.Edad || 0;
+        const Maximolegal = Math.max(5, 75 - Edad);
+        const Escaja = (Estadoactual.Entidad === 'caja' || Calculo.Entidadclave === 'caja');
+        if (Edad > 45 && Maximolegal < (Estadoactual.Plazoelegido || 20)) {
+          return 'Aviso: Por tu edad (' + Edad + ' años), el banco limitará tu crédito a máx. ' + Maximolegal + ' años (Edad + Plazo ≤ 75).';
         }
-        if (esCaja && (s.term || 20) > 20) {
+        if (Escaja && (Estadoactual.Plazoelegido || 20) > 20) {
           return 'Aviso: Las Cajas de Compensación financian a un plazo máximo de 20 años.';
         }
-        if (s.term === 15) {
+        if (Estadoactual.Plazoelegido === 15) {
           return '15 años: Pagas mucho menos intereses y terminas antes, pero exige una cuota mensual mayor.';
         }
-        if (s.term === 30) {
+        if (Estadoactual.Plazoelegido === 30) {
           return '30 años: Cuota mensual más baja para maximizar tu cupo, aunque pagas más intereses en el tiempo.';
         }
         return 'Recomendado: 20 años · Balance óptimo entre cuota mensual accesible y menores intereses pagados frente a 30 años.';
       })(),
-      ingLabelHelp: s.pareja ? 'Ingreso del hogar (con pareja)' : 'Ingreso mensual',
-      visTopeSmm: c.visTopeS,
-      ingNecFmt: cop(c.ingNec),
-      ...this.entVals(c, sel),
-      openHelpPareja: () => this.setState({ help: true, helpOpen: 12 }),
+      Ingresoetiquetaayuda: Estadoactual.Pareja ? 'Ingreso del hogar (con pareja)' : 'Ingreso mensual',
+      Topevissalariosminimos: Calculo.Topevissalarios,
+      Ingresonecesariotexto: Formatoenteropesos(Calculo.Ingresonecesario),
+      ...this.Entidadvalores(Calculo, Seleccion),
       ...(() => {
-        const pI = s.parejaIng ?? 2400000, pD = s.parejaDeu ?? 300000;
-        const solo = this.calc({ ...s, pareja: false }), juntos = this.calc({ ...s, pareja: true });
-        const dig = (e) => +(e.target.value.replace(/\D/g, '') || 0);
-        const band = (x) => x <= 2 ? 30 : x <= 4 ? 20 : 0;
-        const bSolo = band(solo.smm), bJ = band(juntos.smm);
-        const warn = bJ < bSolo;
-        const subMsg = warn ? 'Juntos ganan ' + juntos.smm.toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' SMMLV: ' + (bJ ? 'el subsidio de Caja bajaría de ' + bSolo + ' a ' + bJ + ' SMMLV.' : 'perderían el subsidio de Caja (tope 4 SMMLV).') : '';
+        const Pagoinicial = Estadoactual.Parejaingreso ?? 2400000, Pagodeudas = Estadoactual.Parejadeudas ?? 300000;
+        const Solo = this.Calcular({ ...Estadoactual, Pareja: false }), Juntos = this.Calcular({ ...Estadoactual, Pareja: true });
+        const Digito = (Elemento) => +(Elemento.target.value.replace(/\D/g, '') || 0);
+        const Franja = (Opcion) => Opcion <= 2 ? 30 : Opcion <= 4 ? 20 : 0;
+        const Barrasolo = Franja(Solo.Salariosminimos), Barrajusta = Franja(Juntos.Salariosminimos);
+        const Advertencia = Barrajusta < Barrasolo;
+        const Subsidiomensaje = Juntos.Subsidiocajasobretope ? 'Juntos ganan más de 4 SMMLV, pero tu subsidio ya está asignado y lo mantenemos en el cálculo. Confirma con tu Caja que la asignación incluye a tu pareja.' : Advertencia ? 'Juntos ganan ' + Juntos.Salariosminimos.toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' SMMLV: ' + (Barrajusta ? 'el subsidio de Caja bajaría de ' + Barrasolo + ' a ' + Barrajusta + ' SMMLV.' : 'perderían el subsidio de Caja (tope 4 SMMLV).') : '';
         return {
-          parejaOn: !!s.pareja,
-          parejaSub: 'Suma ingresos y deudas de un segundo solicitante',
-          pjNombre: s.parejaNombre || '',
-          onPjNombre: (e) => this.setState({ parejaNombre: (e.target.value || '').slice(0, 70) }),
-          pjIngTxt: pI ? cop(pI) : '',
-          pjDeuTxt: pD ? cop(pD) : '',
-          onPjIng: (e) => this.setState({ parejaIng: dig(e) }),
-          onPjDeu: (e) => this.setState({ parejaDeu: dig(e) }),
-          pjSoloM: '$' + m1(solo.precio) + ' M',
-          pjJuntosM: '$' + m1(juntos.precio) + ' M',
-          pjSubWarn: warn && s.mod === 'vis',
-          pjSubMsg: subMsg,
-          pjMiIng: cop(solo.ing),
-          pjSuIng: cop(pI),
-          pjDeuTot: '−' + cop(juntos.deu),
-          pjNeto: cop(juntos.neto),
-          pjSubHelp: warn ? 'Con tus datos: ' + subMsg : 'Con tus datos, sumar ingresos no cambia tu subsidio.'
+          Parejaactiva: Boolean(Estadoactual.Pareja && Estadoactual.Pro),
+          Parejasubtitulo: Estadoactual.Pro ? 'Suma ingresos y deudas de un segundo solicitante' : 'MiTecho Pro · suma ingresos y deudas de otra persona',
+          Parejanombrecampo: Estadoactual.Parejanombre || '',
+          Escribirparejanombre: (Elemento) => this.Cambiarestado({ Parejanombre: Textoseguro(Elemento.target.value, 70) }),
+          Parejaingresotexto: Pagoinicial ? Formatoenteropesos(Pagoinicial) : '',
+          Parejadeudastexto: Pagodeudas ? Formatoenteropesos(Pagodeudas) : '',
+          Escribirparejaingreso: (Elemento) => this.Cambiarestado({ Parejaingreso: Digito(Elemento) }),
+          Escribirparejadeudas: (Elemento) => this.Cambiarestado({ Parejadeudas: Digito(Elemento) }),
+          Parejaahorrotexto: Estadoactual.Parejaahorro ? Formatoenteropesos(Estadoactual.Parejaahorro) : '',
+          Escribirparejaahorro: (Elemento) => this.Cambiarestado({ Parejaahorro: Digito(Elemento) }),
+          Parejaactividadcampo: Estadoactual.Parejaactividad || '',
+          Escribirparejaactividad: (Elemento) => this.Cambiarestado({ Parejaactividad: Textoseguro(Elemento.target.value, 60) }),
+          Parejasolomillones: '$' + Formatomillones(Solo.Preciotecho) + ' M',
+          Parejajuntosmillones: '$' + Formatomillones(Juntos.Preciotecho) + ' M',
+          Parejasubsidioaviso: (Advertencia || Juntos.Subsidiocajasobretope) && Estadoactual.Modalidadelegida === 'vis',
+          Parejasubsidiomensaje: Subsidiomensaje,
+          Parejamiingreso: Formatoenteropesos(Solo.Ingresototal),
+          Parejasuingreso: Formatoenteropesos(Pagoinicial),
+          Parejadeudastotal: '−' + Formatoenteropesos(Juntos.Deudasmes),
+          Parejaneto: Formatoenteropesos(Juntos.Neto),
+          Parejasubsidioayuda: Advertencia ? 'Con tus datos: ' + Subsidiomensaje : 'Con tus datos, sumar ingresos no cambia tu subsidio.'
         };
       })(),
       ...(() => {
-        const a3 = c.fijoP + avgArr(c.hist.slice(-3)), a6 = c.fijoP + avgArr(c.hist.slice(-6));
-        const cA = this.calc({ ...s, flex40: false }), cB = this.calc({ ...s, flex40: true });
-        const cL1 = this.calc({ ...s, opc: 0.01 }, null, 'leasing'), cL30 = this.calc({ ...s, opc: 0.30 }, null, 'leasing');
+        const Ayudauno = Calculo.Fijopromedio + Promediovariable(Calculo.Historial, 3, 0, Estadoactual), Ayudados = Calculo.Fijopromedio + Promediovariable(Calculo.Historial, 6, 0, Estadoactual);
+        const Cuotaa = this.Calcular({ ...Estadoactual, Topeconservador: true }), Cuotab = this.Calcular({ ...Estadoactual, Topeconservador: false });
+        const Cuotaplazouno = this.Calcular({ ...Estadoactual, Opcioncompra: 0.01 }, null, 'leasing'), Cuotaplazotreinta = this.Calcular({ ...Estadoactual, Opcioncompra: 0.30 }, null, 'leasing');
         return {
-          hcAvgT: c.varAvg > 0 ? 'Hoy usas ' + c.N + ' meses: tu ingreso es ' + cop(c.ing1) + (s.pareja ? ' (sin pareja)' : '') : 'No tienes ingresos variables',
-          hcAvgD: c.varAvg > 0 ? 'Si ganas por ventas, turnos o comisiones, el banco no mira tu mejor mes sino el promedio de tus extractos. Con 3 meses tu ingreso sería ' + cop(a3) + ' y con 6 meses ' + cop(a6) + '. Con 6 meses el promedio es más estable; con 3 pesan más los meses recientes.' : 'Con salario fijo el banco toma tu salario mensual. Si empiezas a registrar ingresos variables, aquí verás su promedio de 3 o 6 meses.',
-          hcTopeT: 'Hoy usas ' + Math.round(c.tope * 100) + '%: cuota hasta ' + cop(c.cap),
-          hcTopeD: 'Es la parte de tu ingreso, ya restadas las deudas, que puede ir a la cuota de vivienda. En VIS la ley la fija en 30%. En No VIS y leasing algunos bancos aceptan hasta 40%: con tus datos en ' + MODS[s.mod === 'vis' ? 'novis' : s.mod].label + ' el cupo pasaría de $' + m1(s.mod === 'vis' ? this.calc({ ...s, flex40: false }, null, 'novis').precio : cA.precio) + ' M a $' + m1(s.mod === 'vis' ? this.calc({ ...s, flex40: true }, null, 'novis').precio : cB.precio) + ' M.',
-          hcOpcT: s.mod === 'leasing' ? 'Hoy usas ' + pctFmt(c.opc) + ': pago final de ' + cop(c.opcionCompra) : 'Solo aplica si eliges leasing',
-          hcOpcD: 'En leasing el banco es dueño de la vivienda hasta el final; pagas un canon mensual y, al terminar, la opción de compra para que quede a tu nombre. Entre más alta, menor el canon y mayor el cupo: con tus datos, con 1% tu cupo sería $' + m1(cL1.precio) + ' M y con 30% $' + m1(cL30.precio) + ' M, pero pagarías ' + cop(cL30.opcionCompra) + ' al final.',
-          hcVipD: 'Si el precio de la vivienda queda en 90 salarios mínimos o menos es VIP (vivienda de interés prioritario). Aplican los mismos subsidios que en VIS y suele haber más proyectos con subsidios distritales. ' + (c.isVip ? 'Tu cupo actual está en rango VIP.' : 'Tu cupo actual está por encima del rango VIP.')
+          Ayudapromediotitulo: Calculo.Variablepromedio > 0 ? 'Hoy usas ' + Calculo.N + ' meses: tu ingreso es ' + Formatoenteropesos(Calculo.Ingresotitular) + (Estadoactual.Pareja ? ' (sin pareja)' : '') : 'No tienes ingresos variables',
+          Ayudapromediodetalle: Calculo.Variablepromedio > 0 ? 'Si ganas por ventas, turnos o comisiones, el banco no mira tu mejor mes sino el promedio de tus extractos. Con 3 meses tu ingreso sería ' + Formatoenteropesos(Ayudauno) + ' y con 6 meses ' + Formatoenteropesos(Ayudados) + '. Con 6 meses el promedio es más estable; con 3 pesan más los meses recientes.' : 'Con salario fijo el banco toma tu salario mensual. Si empiezas a registrar ingresos variables, aquí verás su promedio de 3 o 6 meses.',
+          Ayudatopetitulo: 'Hoy usas ' + Math.round(Calculo.Tope * 100) + '%: cuota hasta ' + Formatoenteropesos(Calculo.Capacidadcuota),
+          Ayudatopedetalle: 'Es la parte de tu ingreso, ya restadas las deudas, que puede ir a la cuota de vivienda. La norma permite hasta 40% en VIS (Decreto 257 de 2021) y en No VIS (Decreto 583 de 2025), pero algunos bancos aplican 30% en su estudio. Con tus datos tu techo va de $' + Formatomillones(Cuotaa.Preciotecho) + ' M con 30% a $' + Formatomillones(Cuotab.Preciotecho) + ' M con 40%.',
+          Ayudaopciontitulo: Estadoactual.Modalidadelegida === 'leasing' ? 'Hoy usas ' + Formatoporcentaje(Calculo.Opcioncompra) + ': pago final de ' + Formatoenteropesos(Calculo.Opcioncompra * Calculo.Creditotecho) : 'Solo aplica si eliges leasing',
+          Ayudaopciondetalle: 'En leasing el banco es dueño de la vivienda hasta el final; pagas un canon mensual y, al terminar, la opción de compra para que quede a tu nombre. Entre más alta, menor el canon y mayor el cupo: con tus datos, con 1% tu techo sería $' + Formatomillones(Cuotaplazouno.Preciotecho) + ' M y con 30% $' + Formatomillones(Cuotaplazotreinta.Preciotecho) + ' M, pero pagarías ' + Formatoenteropesos(Cuotaplazotreinta.Opcioncompra * Cuotaplazotreinta.Creditotecho) + ' al final.',
+          Ayudavipdetalle: 'Si el precio de la vivienda queda en 90 salarios mínimos o menos es VIP (vivienda de interés prioritario). Aplican los mismos subsidios que en VIS y suele haber más proyectos con subsidios distritales. ' + (Calculo.Esvip ? 'Tu cupo actual está en rango VIP.' : 'Tu cupo actual está por encima del rango VIP.')
         };
       })(),
-      showAvgSel: c.varAvg > 0,
-      avgOpts: [3, 6].map(n => ({ label: n + ' meses', ...sel(c.N === n), onClick: () => this.setState({ avgN: n }) })),
-      showFlex: s.mod !== 'vis',
-      flexOpts: [[false, '30% estándar'], [true, '40% flexible']].map(([v, l]) => ({ label: l, ...sel(!!s.flex40 === v), onClick: () => this.setState({ flex40: v }) })),
-      isLeasing: s.mod === 'leasing',
-      opcOpts: [0.01, 0.10, 0.30].map(v => ({ label: pctFmt(v), ...sel((s.opc ?? 0.10) === v), onClick: () => this.setState({ opc: v }) })),
-      opcFmt: cop(c.opcionCompra),
-      opcPct: pctFmt(c.opc),
-      isVip: c.isVip,
-      vipTopeFmt: cop(c.vipTope),
-      entOpts: Object.keys(RATES).filter(k => k !== 'caja' || s.caja).map(k => ({ label: k === 'caja' ? (s.cajaNombre || 'Caja') : k === 'fna' ? 'FNA' : RATES[k].label, ...sel(c.entK === k), onClick: () => this.setState({ entidad: k }) })),
-      rateNote: (c.entK === 'fna' ? 'Tasa de referencia FNA 2026 (requiere afiliación por cesantías o ahorro voluntario)' : c.entK === 'caja' ? 'Línea de vivienda de ' + (s.cajaNombre || 'tu Caja') + ' para afiliados: desde 0,9% m.v., en pesos y hasta 20 años. Confirma la tasa con tu Caja' : 'Promedio ponderado Superfinanciera, semana al 23 oct 2026') + ': ' + eaFmt + ' a ' + c.plazo + ' años' + (c.plazo < (s.term || 20) ? ' (limitado por tu edad)' : '') + '.',
-      isUvr,
-      uvrRows: [1, 5, 10].map(y => ({ label: 'Cuota año ' + y, value: cop(c.cuota * Math.pow(1 + IPC, y - 1)) })),
-      uvrEscenarios: (c.proyeccionUvr || []).map(esc => ({
-        label: esc.label || ((esc.ipc * 100).toFixed(1).replace('.', ',') + '%'),
-        ipcFmt: esc.ipcFmt,
-        c1: cop(esc.c1),
-        c10: cop(esc.c10),
-        c240: cop(esc.c240),
-        tEqPct: esc.tEqPct,
-        veredicto: esc.ipc <= 0.0558 ? 'Más barato en UVR' : 'Más barato en Pesos'
+      Mostrarpromedio: Calculo.Variablepromedio > 0,
+      Promedioopciones: [3, 6].map(Numero => ({ Etiqueta: Numero + ' meses', ...Seleccion(Calculo.N === Numero), Alclic: () => this.Cambiarestado({ Promediomeses: Numero }) })),
+      // 40% es la norma vigente; el modo conservador muestra lo que pasaría si el banco aplica 30%
+      Mostrarflexible: true,
+      Flexibleopciones: [[false, '40% norma vigente'], [true, '30% conservador']].map(([Valor, Etiquetatexto]) => ({ Etiqueta: Etiquetatexto, ...Seleccion(!!Estadoactual.Topeconservador === Valor), Alclic: () => this.Cambiarestado({ Topeconservador: Valor }) })),
+      Esleasing: Estadoactual.Modalidadelegida === 'leasing',
+      Opcioncompraopciones: [0.01, 0.10, 0.30].map(Valor => ({ Etiqueta: Formatoporcentaje(Valor), ...Seleccion((Estadoactual.Opcioncompra ?? 0.10) === Valor), Alclic: () => this.Cambiarestado({ Opcioncompra: Valor }) })),
+      Opcioncompratexto: Formatoenteropesos(Calculo.Opcioncompra * Calculo.Creditotecho),
+      Opcioncompraporcentaje: Formatoporcentaje(Calculo.Opcioncompra),
+      Esvip: Calculo.Esvip,
+      Topeviptexto: Formatoenteropesos(Calculo.Topevip),
+      Entidadopciones: Object.keys(Tasasreferencia).filter(Clave => Clave !== 'caja' || Estadoactual.Caja).map(Clave => ({ Etiqueta: Clave === 'caja' ? (Estadoactual.Cajanombre || 'Caja') : Clave === 'fna' ? 'FNA' : Tasasreferencia[Clave].Etiqueta, ...Seleccion(Calculo.Entidadclave === Clave), Alclic: () => this.Cambiarestado({ Entidad: Clave }) })),
+      Tasanota: Notatasa(Calculo, Estadoactual, Tasaanualtexto),
+      Esuvr,
+      Uvrfilas: [1, 5, 10].map(Anioitem => ({ Etiqueta: 'Cuota año ' + Anioitem, value: Formatoenteropesos(Calculo.Cuotatecho * Math.pow(1 + Inflacionanual, Anioitem - 1)) })),
+      Uvrescenarios: (Calculo.Proyeccionuvr || []).map(Escapar => ({
+        Etiqueta: Escapar.Etiqueta || ((Escapar.Ipc * 100).toFixed(1).replace('.', ',') + '%'),
+        Ipctexto: Escapar.Ipctexto,
+        Cuotainicialuvr: Formatoenteropesos(Escapar.Cuotainicialuvr),
+        Cuotadiezanos: Formatoenteropesos(Escapar.Cuotadiezanos),
+        Cuotaveinteanos: Formatoenteropesos(Escapar.Cuotaveinteanos),
+        Tasaequivalenteporcentaje: Escapar.Tasaequivalenteporcentaje,
+        Veredicto: Escapar.Ipc <= 0.0558 ? 'Más barato en UVR' : 'Más barato en Pesos'
       })),
-      puntoEquilibrioUvr: '5,58% anual',
-      financiarGastosOn: Boolean(s.financiarGastos),
-      toggleFinanciarGastos: () => this.setState({ financiarGastos: !s.financiarGastos }),
-      sisbenOn: s.sisben,
-      sisGrpOpts: [['A1-C8', 'A1 a C8 · 30'], ['C9-D20', 'C9 a D20 · 20']].map(([k, l]) => ({ label: l, ...sel(s.sisbenGrupo === k), onClick: () => this.setState({ sisbenGrupo: k }) })),
-      planIsCi: s.planView === 'ci',
-      planIsDeudas: s.planView !== 'ci',
-      planTitle: s.planView === 'ci' ? 'Cuota inicial' : 'Apagar deudas',
-      planSegs: [['deudas', 'Apagar deudas'], ['ci', 'Cuota inicial']].map(([k, l]) => { const on = (s.planView || 'deudas') === k; return { label: l, bg: on ? 'var(--ik)' : 'transparent', color: on ? 'var(--bg)' : 'var(--mu)', onClick: () => this.setState({ planView: k }) }; }),
-      p8ObjM: '$' + m1(objP) + ' M',
-      p8FaltaM: m1(faltaObj),
-      p8W: (totalObj > 0 ? Math.min(100, c.cash / totalObj * 100) : 100) + '%',
-      p8TengoM: '$' + m1(c.cash) + ' M',
-      p8TotalM: '$' + m1(totalObj) + ' M',
-      p8ObjFmt: cop(objP),
-      p8CredFmt: '−' + cop(credObj),
-      p8CiFmt: cop(ciObj),
-      p8GastosFmt: cop(gastosObj),
-      p8TengoFmt: '−' + cop(c.cash),
-      p8FaltaFmt: cop(faltaObj),
-      p8CupoCorto: c.credito < objP * cfg.fin - 1,
-      p8CupoMsg: 'Con tu ingreso actual el banco te prestaría ' + cop(c.credito) + ', no el ' + Math.round(cfg.fin * 100) + '% de esta vivienda. Para eso necesitas un ingreso de ' + cop(c.ingNec) + ' al mes.',
-      p8Plazos: [12, 24, 36].map(n => ({ label: n + ' meses', ...sel((s.ciPlazo || 24) === n), onClick: () => this.setState({ ciPlazo: n }) })),
-      p8Mensual: cop(mensual),
-      p8Msg,
-      p8MsgBg: p8Ok ? 'var(--ac)' : '#FFD23F',
-      p8PrimasMsg: sal > 0 ? 'Si destinas el ' + (s.anoPct ?? 50) + '% de tus primas y cesantías, sumas ' + cop(aporte) + ' al año a tu cuota inicial.' : 'Sin contrato laboral no recibes primas ni cesantías. Mira tu año completo en Mi Año.',
-      goAno: () => this.setState({ tab: 'ingresos', ingView: 'ano' }),
-      anoIngM: m1(total),
-      anoFijo: cop(anoFijoV),
-      anoVar: cop(anoVarV),
-      anoPrest: sal > 0,
-      anoNoPrest: sal <= 0,
-      anoPrima: cop(prima),
-      anoCes: cop(ces),
-      anoIntCes: cop(intCes),
-      anoTotal: cop(total),
-      anoPctOpts: [0, 25, 50, 75, 100].map(v => ({ label: v + '%', ...sel((s.anoPct ?? 50) === v), onClick: () => this.setState({ anoPct: v }) })),
-      anoAporte: cop(aporte),
-      anoAporteMsg: c.falta <= 0 ? 'Tu cuota inicial ya está cubierta.' : !aporte ? 'Sin aporte de primas ni cesantías.' : mSin ? 'Completas tu cuota inicial ' + Math.max(0, mSin - mCon) + ' meses antes (en ' + mCon + ' meses).' : 'Con este aporte completas tu cuota inicial en ' + mCon + ' meses.',
-      rentaRows: rRows.map(([l, v, t, u]) => ({ label: l + ' · tope ' + u, value: cop(v) + ' / ' + cop(t), w: Math.min(100, v / t * 100) + '%', bg: v >= t ? 'var(--al)' : 'var(--ac)' })),
-      rentaBg: obliged ? '#FFD23F' : 'var(--ac)',
-      rentaMsg: obliged ? 'Superas al menos un tope: deberás declarar renta en 2027, entre agosto y octubre según los últimos dígitos de tu cédula.' : 'Con estos datos no superas los topes de 2026: no estarías obligado a declarar renta en 2027.',
+      Puntoequilibriouvr: '5,58% anual',
+      Financiargastosactivo: Boolean(Estadoactual.Financiargastos),
+      // El motor de la vista solo lee valores, así que los estados del interruptor se calculan aquí
+      Financiargastosriel: Estadoactual.Financiargastos ? 'var(--ac)' : 'var(--c2)',
+      Financiargastosperilla: Estadoactual.Financiargastos ? 'var(--oa)' : 'var(--mu)',
+      Financiargastosposicion: Estadoactual.Financiargastos ? 'translateX(16px)' : 'none',
+      Alternarfinanciargastos: () => this.Cambiarestado({ Financiargastos: !Estadoactual.Financiargastos }),
+      Sisbenactivo: Estadoactual.Sisben,
+      Sisbengrupoopciones: [['A1-C8', 'A1 a C8 · 30'], ['C9-D20', 'C9 a D20 · 20']].map(([Clave, Etiquetatexto]) => ({ Etiqueta: Etiquetatexto, ...Seleccion(Estadoactual.Sisbengrupo === Clave), Alclic: () => this.Cambiarestado({ Sisbengrupo: Clave }) })),
+      Planescuotainicial: Estadoactual.Planvista === 'ci',
+      Planesdeudas: Estadoactual.Planvista !== 'ci',
+      Plantitulo: Estadoactual.Planvista === 'ci' ? 'Cuota inicial' : 'Apagar deudas',
+      Plansegmentos: [['deudas', 'Apagar deudas'], ['ci', 'Cuota inicial']].map(([Clave, Etiquetatexto]) => { const Activo = (Estadoactual.Planvista || 'deudas') === Clave; return { Etiqueta: Etiquetatexto, Fondo: Activo ? 'var(--ik)' : 'transparent', Color: Activo ? 'var(--bg)' : 'var(--mu)', Alclic: () => this.Cambiarestado({ Planvista: Clave }) }; }),
+      Cierreobjetivomillones: '$' + Formatomillones(Objetivoporcentaje) + ' M',
+      Cierrefaltamillones: Formatomillones(Faltaobjetivo),
+      Cierreancho: (Totalobjetivo > 0 ? Math.min(100, Calculo.Efectivo / Totalobjetivo * 100) : 100) + '%',
+      Cierretengomillones: '$' + Formatomillones(Calculo.Efectivo) + ' M',
+      Cierretotalmillones: '$' + Formatomillones(Totalobjetivo) + ' M',
+      Cierreobjetivotexto: Formatoenteropesos(Objetivoporcentaje),
+      Cierrecreditotexto: '−' + Formatoenteropesos(Creditoobjetivo),
+      Cierrecuotainicialtexto: Formatoenteropesos(Cuotainicialobjetivo),
+      Cierregastostexto: Formatoenteropesos(Gastosobjetivo),
+      Cierretengotexto: '−' + Formatoenteropesos(Calculo.Efectivo),
+      Cierrefaltatexto: Formatoenteropesos(Faltaobjetivo),
+      Cierrecupocorto: Calculo.Creditoporcapacidad < Objetivoporcentaje * Configuracion.Financiacion - 1,
+      Cierrecupomensaje: 'Con tu ingreso actual el banco te prestaría ' + Formatoenteropesos(Calculo.Creditoporcapacidad) + ', no el ' + Math.round(Configuracion.Financiacion * 100) + '% de esta vivienda. Para eso necesitas un ingreso de ' + Formatoenteropesos(Calculo.Ingresonecesario) + ' al mes.',
+      Cierreplazos: [12, 24, 36].map(Numero => ({ Etiqueta: Numero + ' meses', ...Seleccion((Estadoactual.Cuotainicialplazo || 24) === Numero), Alclic: () => this.Cambiarestado({ Cuotainicialplazo: Numero }) })),
+      Cierremensual: Formatoenteropesos(Mensual),
+      Cierremensaje,
+      Cierremensajefondo: Cierrelisto ? 'var(--ac)' : '#FFD23F',
+      Cierreprimasmensaje: Salario > 0 ? 'Si destinas el ' + (Estadoactual.Anualporcentaje ?? 50) + '% de tus primas y cesantías, sumas ' + Formatoenteropesos(Aporte) + ' al año a tu cuota inicial.' : 'Sin contrato laboral no recibes primas ni cesantías. Mira tu año completo en Mi Año.',
+      Iranual: () => this.Cambiarestado({ Pestana: 'ingresos', Ingresovista: 'ano' }),
+      Anualingresomillones: Formatomillones(Total),
+      Anualfijo: Formatoenteropesos(Anualfijovalor),
+      Anualvariable: Formatoenteropesos(Anualvariablevalor),
+      Anualprestacional: Salario > 0,
+      Anualnoprestacional: Salario <= 0,
+      Anualprima: Formatoenteropesos(Prima),
+      Anualcesantias: Formatoenteropesos(Cesantias),
+      Anualinterescesantias: Formatoenteropesos(Interescesantias),
+      Anualtotal: Formatoenteropesos(Total),
+      Anualporcentajeopciones: [0, 25, 50, 75, 100].map(Valor => ({ Etiqueta: Valor + '%', ...Seleccion((Estadoactual.Anualporcentaje ?? 50) === Valor), Alclic: () => this.Cambiarestado({ Anualporcentaje: Valor }) })),
+      Anualaporte: Formatoenteropesos(Aporte),
+      Anualaportemensaje: Calculo.Faltatecho <= 0 ? 'Tu cuota inicial ya está cubierta.' : !Aporte ? 'Sin aporte de primas ni cesantías.' : Mesessin ? 'Completas tu cuota inicial ' + Math.max(0, Mesessin - Mesconsignacion) + ' meses antes (en ' + Mesconsignacion + ' meses).' : 'Con este aporte completas tu cuota inicial en ' + Mesconsignacion + ' meses.',
+      Rentafilas: Recordatoriofilas.map(([Etiquetatexto, Valor, Auxiliar, Unidadtope]) => ({ Etiqueta: Etiquetatexto + ' · tope ' + Unidadtope, value: Formatoenteropesos(Valor) + ' / ' + Formatoenteropesos(Auxiliar), Ancho: Math.min(100, Valor / Auxiliar * 100) + '%', Fondo: Valor >= Auxiliar ? 'var(--al)' : 'var(--ac)' })),
+      Rentafondo: Obligado ? '#FFD23F' : 'var(--ac)',
+      Rentamensaje: Obligado ? 'Superas al menos un tope: deberás declarar renta en 2027, entre agosto y octubre según los últimos dígitos de tu cédula.' : 'Con estos datos no superas los topes de 2026: no estarías obligado a declarar renta en 2027.',
       ...(() => {
-        const totIng = (s.fijo || 0) + (s.variable || 0) + (s.pareja ? (s.parejaIng || 0) : 0);
-        const tributaRenta = totIng >= UmbralIngresoRenta;
-        const credEstimado = c.credito || (c.precio * 0.8);
-        const intAno1 = credEstimado * (c.ea || 0.1135);
-        const intDeducibles = Math.min(intAno1, TopeDeduccionInteresesUvt * Unidadtributaria);
-        const ahorroRentaAno = tributaRenta ? Math.round(intDeducibles * 0.19) : 0;
-        const ahorroRentaMes = Math.round(ahorroRentaAno / 12);
-        const superaTopePatrimonio = c.precio >= TopePatrimonioDeclarar;
+        const Totalingresos = (Estadoactual.Fijo || 0) + (Estadoactual.Variable || 0) + (Estadoactual.Pareja ? (Estadoactual.Parejaingreso || 0) : 0);
+        const Tributarenta = Totalingresos >= Umbralingresorenta;
+        const Creditoestimado = Calculo.Creditotecho || (Calculo.Preciotecho * 0.8);
+        const Interesprimeranio = Creditoestimado * (Calculo.Tasaanual || 0.1135);
+        const Interesesdeducibles = Math.min(Interesprimeranio, Topededuccioninteresesuvt * Unidadtributaria);
+        const Ahorrorentaanual = Tributarenta ? Math.round(Interesesdeducibles * 0.19) : 0;
+        const Ahorrorentamensual = Math.round(Ahorrorentaanual / 12);
+        const Superatopepatrimonio = Calculo.Preciotecho >= Topepatrimoniodeclarar;
         return {
-          tributaRenta,
-          ahorroRentaAnoFmt: cop(ahorroRentaAno),
-          ahorroRentaMesFmt: cop(ahorroRentaMes),
-          ahorroRentaMsg: tributaRenta
-            ? 'Por los intereses de tu crédito podrías deducir hasta ' + cop(intDeducibles) + ' al año, ahorrando unos ' + cop(ahorroRentaAno) + '/año en tu impuesto (~' + cop(ahorroRentaMes) + '/mes en retención).'
+          Tributarenta,
+          Ahorrorentaanualtexto: Formatoenteropesos(Ahorrorentaanual),
+          Ahorrorentamensualtexto: Formatoenteropesos(Ahorrorentamensual),
+          Ahorrorentamensaje: Tributarenta
+            ? 'Por los intereses de tu crédito podrías deducir hasta ' + Formatoenteropesos(Interesesdeducibles) + ' al año, ahorrando unos ' + Formatoenteropesos(Ahorrorentaanual) + '/año en tu impuesto (~' + Formatoenteropesos(Ahorrorentamensual) + '/mes en retención).'
             : 'Con tus ingresos actuales no pagas impuesto de renta (aplica desde ~$6,9 M/mes), por lo que la deducción de intereses no te genera ahorro en dinero.',
-          superaTopePatrimonio,
-          alertaPatrimonioMsg: superaTopePatrimonio
-            ? 'Al comprar una vivienda de ' + cop(c.precio) + ' tu patrimonio superará 4.500 UVT (' + cop(TopePatrimonioDeclarar) + '): quedarás obligado a declarar renta ante la DIAN el año siguiente.'
+          Superatopepatrimonio,
+          Alertapatrimoniomensaje: Superatopepatrimonio
+            ? 'Al comprar una vivienda de ' + Formatoenteropesos(Calculo.Preciotecho) + ' tu patrimonio superará 4.500 UVT (' + Formatoenteropesos(Topepatrimoniodeclarar) + '): quedarás obligado a declarar renta ante la DIAN el año siguiente.'
             : ''
         };
       })(),
-      cierreSobrante: cop(Math.max(0, ctx.fixTot + ctx.wk.reduce((a, b) => a + b, 0) - c.deu - ctx.gastosMes)),
-      showAds: !s.pro,
-      openLeadCartera: () => this.toast('Próximamente: convenio de compra de cartera en MiTecho.'),
-      openLeadAfc: () => this.toast('Próximamente: cuentas AFC en MiTecho.'),
-      openLeadAhorro: () => this.toast('Próximamente: ahorro programado en MiTecho.'),
-      hasCs: this.screen === 'app' && Boolean(s.cs),
-      csDisplay: (this.screen === 'app' && s.cs) ? 'flex' : 'none',
-      csBackdropDisplay: (this.screen === 'app' && s.cs) ? 'block' : 'none',
-      hasMenu: this.screen === 'app' && Boolean(s.menu),
-      menuDisplay: (this.screen === 'app' && s.menu) ? 'flex' : 'none',
-      menuBackdropDisplay: (this.screen === 'app' && s.menu) ? 'block' : 'none',
-      isPro: this.screen === 'app' && s.panel === 'pro',
-      proStatus: s.pro ? 'Tu suscripción está activa. Gracias por apoyar MiTecho.' : 'Todo lo que necesitas para llegar a tu vivienda, sin interrupciones.',
-      proPerks: [
-        { t: 'Sin anuncios', d: 'Ni banners ni videos en ninguna pantalla.' },
-        { t: 'Comparador completo', d: 'Pesos vs. UVR, plazos, entidades y desglose de escrituración sin ver videos.' },
-        { t: 'Reporte PDF ilimitado', d: 'Tu capacidad financiera lista para llevar al banco.' },
-        { t: 'Alertas de subsidios', d: 'Te avisamos cuando abran cupos de Mi Casa Ya o de tu Caja.' },
-        { t: 'Plan de cuota inicial', d: 'Seguimiento mes a mes de tu ahorro con primas y cesantías.' }
+      Cierresobrante: Formatoenteropesos(Math.max(0, Contexto.Fijostotal + Contexto.Semana.reduce((Acumulado, Segundo) => Acumulado + Segundo, 0) - Calculo.Deudasmes - Contexto.Gastosmes)),
+      Mostraranuncios: !Estadoactual.Pro,
+      Abririnterescartera: () => this.Aviso('Próximamente: convenio de compra de cartera en MiTecho.'),
+      Abririnteresafc: () => this.Aviso('Próximamente: cuentas AFC en MiTecho.'),
+      Abririnteresahorro: () => this.Aviso('Próximamente: ahorro programado en MiTecho.'),
+      Tieneconsignacion: this.Pantalla === 'app' && Boolean(Estadoactual.Consignacion),
+      Consignacionvisible: (this.Pantalla === 'app' && Estadoactual.Consignacion) ? 'flex' : 'none',
+      Consignacionfondovisible: (this.Pantalla === 'app' && Estadoactual.Consignacion) ? 'block' : 'none',
+      Tienemenu: this.Pantalla === 'app' && Boolean(Estadoactual.Menu),
+      Menuvisible: (this.Pantalla === 'app' && Estadoactual.Menu) ? 'flex' : 'none',
+      Menufondovisible: (this.Pantalla === 'app' && Estadoactual.Menu) ? 'block' : 'none',
+      Espro: this.Pantalla === 'app' && Estadoactual.Panel === 'pro',
+      Proestado: Estadoactual.Pro ? 'Tu suscripción está activa. Gracias por apoyar MiTecho.' : 'Simula con tu pareja, guarda tu reporte en PDF, compara tasas por banco y usa la app sin anuncios.',
+      Probeneficios: [
+        { Titulo: 'Simulación en pareja o familia', Descripcion: 'Suma los ingresos y deudas de otra persona para ver cuánto podrían comprar juntos.' },
+        { Titulo: 'Reporte PDF de tu simulación', Descripcion: 'Guarda el resumen de tus cifras para preparar tu visita al banco.' },
+        { Titulo: 'Tasas por banco', Descripcion: 'Tu cuota en cada entidad con los datos de la Superintendencia Financiera.' },
+        { Titulo: 'Sin anuncios', Descripcion: 'Ni banners ni videos en ninguna pantalla; el comparador queda abierto.' }
       ],
-      proBtn: s.pro ? 'Cancelar suscripción' : 'Probar 7 días gratis',
-      proBtnBg: s.pro ? 'var(--c2)' : '#FFD23F',
-      proBtnColor: s.pro ? 'var(--ik)' : '#0B0C0A',
-      toggleProPlan: () => {
-        this.setState({ pro: !s.pro });
-        this.toast(s.pro ? 'Suscripción cancelada.' : 'MiTecho Pro activado: 7 días gratis, luego $12.900 al mes.');
+      Probotonuno: Estadoactual.Pro ? 'Administrar en Google Play' : 'Suscribirme',
+      Probotonfondo: Estadoactual.Pro ? 'var(--c2)' : '#FFD23F',
+      Probotoncolor: Estadoactual.Pro ? 'var(--ik)' : '#0B0C0A',
+      // Pro lo activa el servidor cuando Google Play confirme el pago; desde aquí nunca se activa sin pagar
+      Alternarplanpro: () => {
+        if (Estadoactual.Pro) {
+          window.open('https://play.google.com/store/account/subscriptions?package=co.mitecho.app', '_blank', 'noopener');
+          return;
+        }
+        this.Aviso('La suscripción con Google Play estará disponible cuando MiTecho esté publicada en la tienda.');
       },
-      sources: [
-        { k: 'Salario mínimo 2026', v: cop(SMMLV), f: 'Decreto 1469 de 2025' },
-        { k: 'UVT 2026', v: cop(UVT), f: 'Resolución DIAN 000238 de 2025' },
-        { k: 'Tope VIS en ' + s.ciudad, v: c.visTopeS + ' SMMLV · ' + cop(c.visTope), f: '135 SMMLV general; 150 SMMLV en Bogotá, Medellín, Cali, Barranquilla, Bucaramanga, Cartagena, Cúcuta y sus áreas' },
-        { k: 'Tope VIP', v: '90 SMMLV · ' + cop(90 * SMMLV), f: 'Todo el país' },
-        { k: 'Subsidio Caja de compensación', v: '30 / 20 SMMLV', f: 'Hogar hasta 2 SMMLV / de 2 a 4 SMMLV, afiliado' },
-        { k: 'Mi Casa Ya', v: '30 / 20 SMMLV', f: 'Sisbén A1–C8 / C9–D20. Con Caja y hasta 2 SMMLV: 20 SMMLV (total 50). Sujeto a cupos' },
-        { k: 'Tasa promedio en pesos', v: 'VIS 14,35% · No VIS 15,46%', f: 'Superfinanciera, semana al 23 oct 2026' },
-        { k: 'Cuota máxima', v: '30% del ingreso', f: 'VIS por ley; No VIS y leasing hasta 40% según el banco' },
-        { k: 'Financiación', v: 'No VIS 70% · VIS 80%', f: 'Leasing habitacional hasta 80%–90%; opción de compra 1%–30%' },
-        { k: 'IPC para proyección UVR', v: pctFmt(IPC), f: 'Variación certificada por el DANE para la UVT 2026' },
-        { k: 'Crédito con Caja de compensación', v: 'Desde 0,9% m.v.', f: 'Líneas para afiliados, en pesos, plazo hasta 20 años; tasa según perfil' }
+      Fuentes: [
+        { Clave: 'Salario mínimo 2026', Valor: Formatoenteropesos(Salariominimo), Formactual: 'Decreto 1469 de 2025' },
+        { Clave: 'UVT 2026', Valor: Formatoenteropesos(Unidadtributaria), Formactual: 'Resolución DIAN 000238 de 2025' },
+        { Clave: 'Tope VIS en ' + Estadoactual.Ciudad, Valor: Calculo.Topevissalarios + ' SMMLV · ' + Formatoenteropesos(Calculo.Topevis), Formactual: '135 SMMLV general; 150 SMMLV en Bogotá, Medellín, Cali, Barranquilla, Bucaramanga, Cartagena, Cúcuta y sus áreas' },
+        { Clave: 'Tope VIP', Valor: '90 SMMLV · ' + Formatoenteropesos(90 * Salariominimo), Formactual: 'Todo el país' },
+        { Clave: 'Subsidio Caja de compensación', Valor: '30 / 20 SMMLV', Formactual: 'Hogar hasta 2 SMMLV / de 2 a 4 SMMLV, afiliado' },
+        { Clave: 'Mi Casa Ya', Valor: '30 / 20 SMMLV', Formactual: 'Sisbén A1–C8 / C9–D20. Con Caja y hasta 2 SMMLV: 20 SMMLV (total 50). Sujeto a cupos' },
+        { Clave: 'Tasa usada en pesos', Valor: 'VIS ' + Formatoporcentaje(this.Calcular({ ...Estadoactual, Entidad: 'promedio', Tasatipo: 'pesos' }, null, 'vis').Tasaanual) + ' · No VIS ' + Formatoporcentaje(this.Calcular({ ...Estadoactual, Entidad: 'promedio', Tasatipo: 'pesos' }, null, 'novis').Tasaanual), Formactual: (typeof Tasasmercadoactual !== 'undefined' && Tasasmercadoactual ? 'Promedio de la Superintendencia Financiera al ' + Fechatasasreferencia + ', más 0,5 puntos de margen prudente' : 'Valores de referencia al ' + Fechatasasreferencia + '; se actualizan al conectarte') },
+        { Clave: 'Cuota máxima', Valor: '40% del ingreso', Formactual: 'VIS (Decreto 257 de 2021) y No VIS (Decreto 583 de 2025); modo conservador 30%' },
+        { Clave: 'Financiación', Valor: 'No VIS 70% · VIS 80%', Formactual: 'Leasing habitacional hasta 80%–90%; opción de compra 1%–30%' },
+        { Clave: 'IPC para proyección UVR', Valor: Formatoporcentaje(Inflacionanual), Formactual: 'Variación certificada por el DANE para la UVT 2026' },
+        { Clave: 'Crédito con Caja de compensación', Valor: 'Desde 0,9% m.v.', Formactual: 'Líneas para afiliados, en pesos, plazo hasta 20 años; tasa según perfil' }
       ]
     };
   

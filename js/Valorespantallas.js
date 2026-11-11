@@ -1,21 +1,25 @@
 // Coordinador que reúne los datos listos para mostrar en todas las pantallas de la aplicación
 
 function Generarvalorespantallas() {
-  const c = this.calc(), cfg = c.cfg, dark = this.T === 'oscuro';
-  const sel = (on) => ({ bg: on ? 'var(--ac)' : 'transparent', color: on ? 'var(--oa)' : 'var(--ik)', border: on ? 'var(--ac)' : 'var(--ln)', sub: on ? 'var(--oa)' : 'var(--mu)' });
-  const chipSel = (on) => ({ bg: on ? 'var(--ik)' : 'transparent', color: on ? 'var(--bg)' : 'var(--ik)', border: on ? 'var(--ik)' : 'var(--ln)' });
+  const Calculo = this.Calcular(), Configuracion = Calculo.Configuracion, Oscuroactivo = this.Temaactual === 'oscuro';
+  const Seleccion = (Activo) => ({ Fondo: Activo ? 'var(--ac)' : 'transparent', Color: Activo ? 'var(--oa)' : 'var(--ik)', Borde: Activo ? 'var(--ac)' : 'var(--ln)', Subtexto: Activo ? 'var(--oa)' : 'var(--mu)' });
+  const Fichaseleccion = (Activo) => ({ Fondo: Activo ? 'var(--ik)' : 'transparent', Color: Activo ? 'var(--bg)' : 'var(--ik)', Borde: Activo ? 'var(--ik)' : 'var(--ln)' });
 
-  const valsInicio = Generarvaloresinicio.call(this, c, cfg, sel, dark);
-  const valsIngresos = Generarvaloresingresos.call(this, c, cfg, sel, chipSel);
-  const valsSimulador = Generarvaloressimulador.call(this, c, cfg, sel, chipSel);
+  const Valoresiniciovista = Generarvaloresinicio.call(this, Calculo, Configuracion, Seleccion, Oscuroactivo);
+  const Valoresingresosvista = Generarvaloresingresos.call(this, Calculo, Configuracion, Seleccion, Fichaseleccion);
+  const Valoressimuladorvista = Generarvaloressimulador.call(this, Calculo, Configuracion, Seleccion, Fichaseleccion);
 
   return {
-    ...valsInicio,
-    ...valsIngresos,
-    ...valsSimulador,
-    ...this.extraVals(c, cfg, sel, { fixTot: valsIngresos.fixTot, wk: valsIngresos.wk, gastosMes: valsIngresos.gastosMes }),
-    ...this.setupVals(c, chipSel),
-    ...this.profileVals(c, chipSel, dark),
-    downloadPdf: () => this.generatePdf()
+    ...Valoresiniciovista,
+    ...Valoresingresosvista,
+    ...Valoressimuladorvista,
+    ...this.Valoresextra(Calculo, Configuracion, Seleccion, { Fijostotal: Valoresingresosvista.Fijostotal, Semana: Valoresingresosvista.Semana, Gastosmes: Valoresingresosvista.Gastosmes }),
+    ...this.Cuestionariovalores(Calculo, Fichaseleccion),
+    ...this.Perfilvalores(Calculo, Fichaseleccion, Oscuroactivo),
+    ...Generarvaloresautorizacion.call(this),
+    ...Generarvalorescuenta.call(this),
+    ...Generarvalorestutorial.call(this),
+    ...Generarvalorestasas.call(this, Calculo, Seleccion),
+    Descargarpdf: () => this.Generarpdf()
   };
 }

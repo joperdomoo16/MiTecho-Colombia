@@ -28,3 +28,6 @@ Thumbs.db
 # Firebase local
 .firebase/
 
+# Supabase local
+supabase/.temp/
+

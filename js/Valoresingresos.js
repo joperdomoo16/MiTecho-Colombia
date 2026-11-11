@@ -1,197 +1,200 @@
-// Preparación de los cálculos de ingresos diarios, flujo de la semana, gastos y consignaciones
+// Preparación de los registros de ingresos y gastos: día, semanas del mes, meses y consignaciones.
+// Todo sale de lo que la persona registró, con su fecha; si no hay registros, las vistas quedan vacías
 
-function Generarvaloresingresos(c, cfg, sel, chipSel) {
-  const s = this.state;
-  const todayTotal = s.entries.reduce((a, e) => a + e.monto, 0);
-  const cashPend = s.entries.filter(e => e.medio === 'Efectivo').reduce((a, e) => a + e.monto, 0) + s.cashOld;
-  const exToday = s.expenses.reduce((a, e) => a + e.monto, 0);
-  const exDays = [45000, 30000, 62000, 0, 28000, exToday, null];
-  const gastosMes = 640000 + exToday;
-  const fijoEff = s.tipo === 'variable' ? 0 : s.fijo;
-  const fixTot = fijoEff + s.fixedExtra.reduce((a, f) => a + f.monto, 0);
-  const days = [['L', 27, 212000], ['M', 28, 168000], ['M', 29, 240000], ['J', 30, 0], ['V', 31, 195000], ['S', 1, todayTotal], ['D', 2, null]];
+function Generarvaloresingresos(Calculo, Configuracion, Seleccion, Fichaseleccion) {
+  const Estadoactual = this.Estadocomponente;
+  const Hoy = Hoyregistro(), Mesactual = Hoy.slice(0, 7);
+  const Esgasto = (Estadoactual.Registrotipo || 'ing') === 'egr';
+  const Dias = Ultimosdias(Hoy);
+  const Diaactual = (typeof Estadoactual.Diaseleccionado === 'number' && Estadoactual.Diaseleccionado >= 0 && Estadoactual.Diaseleccionado <= 6) ? Estadoactual.Diaseleccionado : 6;
+  const Fechaelegida = Dias[Diaactual].Fecha, Eshoy = Fechaelegida === Hoy;
+  // Cada registro conserva su posición en la lista guardada, para poder consignarlo después
+  const Ingresosconindice = Estadoactual.Registros.map((Elemento, Indice) => ({ Elemento, Indice }));
+  const Ingresosdia = Ingresosconindice.filter(Item => Fechaderegistro(Item.Elemento) === Fechaelegida);
+  const Gastosdia = Registrosdeldia(Estadoactual.Egresosregistrados, Fechaelegida);
+  const Seleccionmonto = Sumamontos(Ingresosdia.map(Item => Item.Elemento)), Gastoseleccionado = Sumamontos(Gastosdia);
+  const Gastosmes = Sumamontos(Registrosdelmes(Estadoactual.Egresosregistrados, Mesactual));
+  const Variablemes = Sumamontos(Registrosdelmes(Estadoactual.Registros, Mesactual));
+  const Fijoefectivo = Estadoactual.Tipo === 'variable' ? 0 : Estadoactual.Fijo;
+  const Fijostotal = Fijoefectivo + Estadoactual.Ingresosfijosextra.reduce((Acumulado, Fila) => Acumulado + Fila.Monto, 0);
 
-  const curDay = (typeof s.selDay === 'number' && s.selDay >= 0 && s.selDay <= 6) ? s.selDay : 5;
-  const weekDays = days.map(([d, n, amt], i) => {
-    const on = curDay === i, future = amt === null;
-    let diaAmt = amt;
-    if ((s.regKind || 'ing') === 'egr' && !future) diaAmt = exDays[i];
+  const Semanadias = Dias.map((Dia, Indice) => {
+    const Activo = Diaactual === Indice;
+    const Monto = Sumamontos(Registrosdeldia(Esgasto ? Estadoactual.Egresosregistrados : Estadoactual.Registros, Dia.Fecha));
     return {
-      d, n,
-      bg: on ? 'var(--ik)' : 'transparent',
-      border: on ? 'var(--ik)' : 'var(--ln)',
-      color: on ? 'var(--bg)' : future ? 'var(--fa)' : 'var(--ik)',
-      sub: on ? 'var(--bg)' : 'var(--mu)',
-      dot: diaAmt ? (on ? 'var(--ac)' : 'var(--at)') : 'transparent',
-      onClick: () => !future && this.setState({ selDay: i })
+      Diasemana: Dia.Letra, Numerodia: Dia.Numero,
+      Fondo: Activo ? 'var(--ik)' : 'transparent',
+      Borde: Activo ? 'var(--ik)' : 'var(--ln)',
+      Color: Activo ? 'var(--bg)' : 'var(--ik)',
+      Subtexto: Activo ? 'var(--bg)' : 'var(--mu)',
+      Punto: Monto ? (Activo ? 'var(--ac)' : 'var(--at)') : 'transparent',
+      Alclic: () => this.Cambiarestado({ Diaseleccionado: Indice })
     };
   });
 
-  const selAmt = (days[curDay] && days[curDay][2]) || 0;
-  const isToday = curDay === 5;
-  const openCs = (target) => this.setState({ consign: { target, medio: 'Nequi / DaviPlata' } });
-
-  const rowOf = (e, i) => {
-    const cash = e.medio === 'Efectivo';
+  const Abrirconsignacion = (Destinoconsignacion) => this.Cambiarestado({ Consignacion: { target: Destinoconsignacion, Medio: 'Nequi / DaviPlata' } });
+  const Filade = (Elemento, Indice) => {
+    const Efectivo = Elemento.Medio === 'Efectivo';
     return {
-      ini: e.fuente.slice(0, 2).toUpperCase(),
-      concepto: e.concepto,
-      meta: e.consignado ? e.fuente + ' · Efectivo → ' + e.medio + ' · ' + e.hora : e.fuente + ' · ' + e.medio + ' · ' + e.hora,
-      monto: cop(e.monto),
-      cash,
-      done: !!e.consignado,
-      noClick: !cash,
-      cursor: cash ? 'pointer' : 'default',
-      rowBg: cash ? 'rgba(255,106,43,.08)' : 'transparent',
-      onClick: cash ? () => openCs(i) : undefined
+      Inicial: Elemento.Fuente.slice(0, 2).toUpperCase(),
+      Concepto: Elemento.Concepto,
+      Meta: Elemento.Consignado ? Elemento.Fuente + ' · Efectivo → ' + Elemento.Medio + ' · ' + Elemento.Hora : Elemento.Fuente + ' · ' + Elemento.Medio + ' · ' + Elemento.Hora,
+      Monto: Formatoenteropesos(Elemento.Monto),
+      Efectivo,
+      Hecho: !!Elemento.Consignado,
+      Sinclic: !Efectivo,
+      Cursor: Efectivo ? 'pointer' : 'default',
+      Filafondo: Efectivo ? 'rgba(255,106,43,.08)' : 'transparent',
+      Alclic: Efectivo ? () => Abrirconsignacion(Indice) : undefined
     };
   };
+  const Filaanterior = Eshoy && Estadoactual.Efectivoanterior > 0 ? [{ Inicial: 'EF', Concepto: 'Efectivo de días anteriores', Meta: 'Sin consignar · Efectivo', Monto: Formatoenteropesos(Estadoactual.Efectivoanterior), Efectivo: true, Hecho: false, Sinclic: false, Cursor: 'pointer', Filafondo: 'rgba(255,106,43,.08)', Alclic: () => Abrirconsignacion('old') }] : [];
+  const Diaregistros = [...Ingresosdia.map(Item => Filade(Item.Elemento, Item.Indice)).reverse(), ...Filaanterior];
+  const Metaporcentaje = Seleccionmonto / Math.max(1, Calculo.Metadiaria);
 
-  const oldRow = s.cashOld > 0 ? [{ ini: 'EF', concepto: 'Efectivo de días anteriores', meta: 'Ventas del día · 3 registros · Efectivo', monto: cop(s.cashOld), cash: true, done: false, noClick: false, cursor: 'pointer', rowBg: 'rgba(255,106,43,.08)', onClick: () => openCs('old') }] : [];
-  const dayEntries = isToday ? [...s.entries.map(rowOf).reverse(), ...oldRow]
-    : selAmt ? [{ ini: 'VE', concepto: 'Ventas del día', meta: 'Nequi / DaviPlata', monto: cop(selAmt * 0.6), cash: false }, { ini: 'CO', concepto: 'Comisiones', meta: 'Cuenta bancaria', monto: cop(selAmt * 0.4), cash: false }] : [];
-  const metaP = selAmt / Math.max(1, c.metaDiaria);
+  // Semanas del mes en curso y los últimos 6 meses, con lo registrado de verdad
+  const Semana = Semanasdelmes(Estadoactual.Registros, Hoy);
+  const Semanaactual = Math.min(4, Math.floor((Number(Hoy.slice(8, 10)) - 1) / 7));
+  const Anchomaximo = Math.max(1, ...Semana);
+  const Semanabarras = Semana.map((Valor, Indice) => ({ Valorcampo: Valor ? Formatonumero(Valor / 1000) + ' mil' : '—', Etiqueta: 'S' + (Indice + 1), Altura: Estadoactual.Barrasvisibles && Valor ? Math.max(8, Valor / Anchomaximo * 78) + '%' : '0%', Fondo: Indice === Semanaactual ? 'var(--ac)' : 'var(--c2)' }));
+  const Mesesinfo = Ultimosmeses(7, Hoy);
+  const Meses = Calculo.Historial.slice(1).map((Valor, Clave) => [Mesesinfo[Clave + 1].Etiqueta, (Valor || 0) + Calculo.Fijopromedio]);
+  const Promediotres = Calculo.Fijopromedio + Promediovariable(Calculo.Historial, 3, 0, Estadoactual);
+  const Promedioseis = Calculo.Fijopromedio + Promediovariable(Calculo.Historial, 6, 0, Estadoactual);
+  const Mesesusados = Mesesconregistros(Calculo.Historial, Calculo.N);
+  const Mesmaximo = Math.max(1, ...Meses.map(Mesdato => Mesdato[1])) * 1.15;
+  const Mesbarras = Meses.map(([Etiquetatexto, Valor], Indice) => ({ Etiqueta: Etiquetatexto, Altura: Estadoactual.Barrasvisibles ? (Valor / Mesmaximo * 100) + '%' : '0%', Fondo: Indice === Meses.length - 1 ? 'var(--ac)' : Indice >= 3 ? 'var(--ik)' : 'var(--c2)' }));
 
-  const wk = [0.235, 0.277, 0.208, 0.28].map((f, k) => f * s.variable + (k === 3 ? s.added : 0));
-  const wMax = Math.max(1, ...wk);
-  const weekBars = wk.map((v, i) => ({ val: num(v / 1000) + ' mil', label: 'S' + (i + 1), h: s.barsOn ? Math.max(8, v / wMax * 78) + '%' : '0%', bg: i === 3 ? 'var(--ac)' : 'var(--c2)' }));
-  const months = c.hist.slice(1).map((v, k) => [MLAB[k + 1], v + c.fijoP]);
-  const avg3 = c.fijoP + avgArr(c.hist.slice(-3));
-  const avg6 = c.fijoP + avgArr(c.hist.slice(-6));
-  const mMax = Math.max(1, ...months.map(m => m[1])) * 1.15;
-  const monthBars = months.map(([l, v], i) => ({ label: l, h: s.barsOn ? (v / mMax * 100) + '%' : '0%', bg: i >= 3 ? 'var(--ik)' : 'var(--c2)' }));
+  const Consignacionactual = Estadoactual.Consignacion;
+  const Esanterior = Consignacionactual && Consignacionactual.target === 'old';
+  const Entidad = Consignacionactual && !Esanterior ? Estadoactual.Registros[Consignacionactual.target] : null;
+  const Consignacionmonto = Esanterior ? Estadoactual.Efectivoanterior : Entidad ? Entidad.Monto : 0;
 
-  const cs = s.consign;
-  const isOld = cs && cs.target === 'old';
-  const ent = cs && !isOld ? s.entries[cs.target] : null;
-  const csAmt = isOld ? s.cashOld : ent ? ent.monto : 0;
-
-  const FI = ['Salario', 'Pensión', 'Arriendo que recibo', 'Honorarios fijos', 'Otro ingreso fijo'];
-  const CATS = ['Transporte', 'Alimentación', 'Insumos del negocio', 'Servicios públicos', 'Salud', 'Otros'];
-  const EXM = ['Efectivo', 'Nequi / DaviPlata', 'Tarjeta débito'];
-  const fi = s.fiForm, ex = s.exForm;
-  const dig = (e) => +(e.target.value.replace(/\D/g, '') || 0);
-  const hora = () => {
-    const d = new Date();
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const Tiposingresofijo = ['Salario', 'Pensión', 'Arriendo que recibo', 'Honorarios fijos', 'Otro ingreso fijo'];
+  const Categoriasgasto = ['Transporte', 'Alimentación', 'Insumos del negocio', 'Servicios públicos', 'Salud', 'Otros'];
+  const Gastosmediospago = ['Efectivo', 'Nequi / DaviPlata', 'Tarjeta débito'];
+  const Ingresofijoform = Estadoactual.Formularioingresofijo, Gasto = Estadoactual.Formulariogasto;
+  const Digito = (Elemento) => +(Elemento.target.value.replace(/\D/g, '') || 0);
+  const Hora = () => {
+    const Dato = new Date();
+    return String(Dato.getHours()).padStart(2, '0') + ':' + String(Dato.getMinutes()).padStart(2, '0');
   };
-  const ing = (s.regKind || 'ing') === 'ing';
-  const selEx = exDays[curDay] || 0;
-  const egEntries = isToday ? s.expenses.slice().reverse().map(e => ({ ini: e.cat.slice(0, 2).toUpperCase(), concepto: e.nombre || e.cat, meta: (e.nombre ? e.cat + ' · ' : '') + e.medio + ' · ' + e.hora, monto: '−' + cop(e.monto) }))
-    : selEx ? [{ ini: 'TR', concepto: 'Transporte', meta: 'Efectivo', monto: '−' + cop(selEx * 0.4) }, { ini: 'AL', concepto: 'Alimentación', meta: 'Nequi / DaviPlata', monto: '−' + cop(selEx * 0.6) }] : [];
-  const deuSum = s.debts.filter(d => d.on).reduce((a, d) => a + d.cuota, 0);
-  const catBase = { 'Transporte': 186000, 'Alimentación': 240000, 'Insumos del negocio': 150000, 'Servicios públicos': 64000, 'Salud': 0, 'Otros': 0 };
-  s.expenses.forEach(e => { catBase[e.cat] = (catBase[e.cat] || 0) + e.monto; });
-  const catMax = Math.max(1, ...Object.values(catBase));
+  const Ingresototal = (Estadoactual.Registrotipo || 'ing') === 'ing';
+  const Egresoregistros = Gastosdia.slice().reverse().map(Elemento => ({ Inicial: Elemento.Categoria.slice(0, 2).toUpperCase(), Concepto: Elemento.Nombre || Elemento.Categoria, Meta: (Elemento.Nombre ? Elemento.Categoria + ' · ' : '') + Elemento.Medio + ' · ' + Elemento.Hora, Monto: '−' + Formatoenteropesos(Elemento.Monto) }));
+  const Deudasuma = Estadoactual.Deudas.filter(Dato => Dato.Activa).reduce((Acumulado, Dato) => Acumulado + Dato.Cuota, 0);
+  const Categoriabase = { 'Transporte': 0, 'Alimentación': 0, 'Insumos del negocio': 0, 'Servicios públicos': 0, 'Salud': 0, 'Otros': 0 };
+  Registrosdelmes(Estadoactual.Egresosregistrados, Mesactual).forEach(Elemento => { Categoriabase[Elemento.Categoria] = (Categoriabase[Elemento.Categoria] || 0) + Elemento.Monto; });
+  const Categoriamaxima = Math.max(1, ...Object.values(Categoriabase));
 
   return {
-    fixTot,
-    wk,
-    gastosMes,
-    fijoFmt: cop(fixTot),
-    gastosMesFmt: cop(gastosMes),
-    tipoLabel: { fijo: 'Fijo', variable: 'Variable', mixto: 'Mixto' }[s.tipo],
-    tipoLower: { fijo: 'fijo', variable: 'variable', mixto: 'mixto' }[s.tipo],
-    weekDays,
-    dayEntries,
-    dayTitle: isToday ? 'Hoy llevas' : 'Ese día registraste',
-    dayTotal: num(selAmt),
-    dayMetaPct: Math.round(metaP * 100) + '%',
-    dayMetaW: Math.min(100, metaP * 100) + '%',
-    dayMetaMsg: metaP >= 1 ? 'Meta cumplida. Todo lo extra suma a tu cupo.' : 'Te faltan ' + cop(Math.max(0, c.metaDiaria - selAmt)) + ' para el ingreso que necesita tu vivienda.',
-    entryCount: dayEntries.length + ' registros',
-    creditUp: '$' + m1(Math.abs(c.varAvg - c.varPrev) * c.tope * c.factor) + ' millones',
-    creditUpVerb: c.varAvg >= c.varPrev ? 'subió' : 'bajó',
-    weekBars,
-    varTotal: cop(wk.reduce((a, b) => a + b, 0)),
-    deudasFmt: cop(c.deu),
-    flujoNeto: cop(fixTot + wk.reduce((a, b) => a + b, 0) - c.deu - gastosMes),
-    avg3: '$' + m1(avg3) + ' M',
-    avg6: '$' + m1(avg6) + ' M',
-    avgLine: (avg3 / mMax * 100) + '%',
-    monthBars,
-    csFade: cs ? 1 : 0,
-    csPE: cs ? 'auto' : 'none',
-    csY: cs ? 'translateY(0)' : 'translateY(105%)',
-    csConcept: isOld ? 'Efectivo de días anteriores · 3 registros' : ent ? ent.concepto + ' · ' + ent.hora : '',
-    csAmt: num(csAmt),
-    closeConsign: () => this.setState({ consign: null }),
-    csOpts: ['Nequi / DaviPlata', 'Cuenta bancaria'].map(m => {
-      const on = cs && cs.medio === m;
+    Fijostotal,
+    Semana,
+    Gastosmes,
+    Fijotexto: Formatoenteropesos(Fijostotal),
+    Gastosmestexto: Formatoenteropesos(Gastosmes),
+    Tipoetiqueta: { fijo: 'Fijo', variable: 'Variable', mixto: 'Mixto' }[Estadoactual.Tipo],
+    Tipominusculas: { fijo: 'fijo', variable: 'variable', mixto: 'mixto' }[Estadoactual.Tipo],
+    Semanadias,
+    Diaregistros,
+    Diatitulo: Eshoy ? 'Hoy llevas' : 'Ese día registraste',
+    Diatotal: Formatonumero(Seleccionmonto),
+    Diametaporcentaje: Math.round(Metaporcentaje * 100) + '%',
+    Diametaancho: Math.min(100, Metaporcentaje * 100) + '%',
+    Diametamensaje: Metaporcentaje >= 1 ? 'Meta cumplida. Todo lo extra suma a tu cupo.' : 'Te faltan ' + Formatoenteropesos(Math.max(0, Calculo.Metadiaria - Seleccionmonto)) + ' para el ingreso que necesita tu vivienda.',
+    Registroscantidad: Diaregistros.length + (Diaregistros.length === 1 ? ' registro' : ' registros'),
+    Promediomestexto: Formatonumero(Calculo.Fijopromedio + Calculo.Variablepromedio),
+    Mesmensaje: Mesesusados ? 'Promedio de ' + Mesesusados + (Mesesusados === 1 ? ' mes completo' : ' meses completos') + ' con registros. ' + (Math.abs(Calculo.Variablepromedio - Calculo.Variableanterior) < 1 ? 'Tu crédito se mantiene igual que en el período anterior.' : 'Frente al período anterior tu crédito ' + (Calculo.Variablepromedio > Calculo.Variableanterior ? 'subió' : 'bajó') + ' $' + Formatomillones(Math.abs(Calculo.Variablepromedio - Calculo.Variableanterior) * Calculo.Tope * Calculo.Factor) + ' millones.') : (Estadoactual.Tipo === 'fijo' ? 'Con ingreso fijo el promedio es tu salario. Si registras ingresos extra, aquí verás su promedio.' : 'Aún no tienes meses completos registrados: usamos el ingreso variable de tu perfil. Registra tus ingresos para que el promedio sea el de tus extractos.'),
+    Variablemestexto: Formatoenteropesos(Variablemes),
+    Semanabarras,
+    Variabletotal: Formatoenteropesos(Variablemes),
+    Deudastexto: Formatoenteropesos(Calculo.Deudasmes),
+    Flujoneto: Formatoenteropesos(Fijostotal + Variablemes - Calculo.Deudasmes - Gastosmes),
+    Promediotres: '$' + Formatomillones(Promediotres) + ' M',
+    Promedioseis: '$' + Formatomillones(Promedioseis) + ' M',
+    Promediolinea: (Promediotres / Mesmaximo * 100) + '%',
+    Mesbarras,
+    Consignacionopacidad: Consignacionactual ? 1 : 0,
+    Consignacioneventos: Consignacionactual ? 'auto' : 'none',
+    Consignaciondesplazamiento: Consignacionactual ? 'translateY(0)' : 'translateY(105%)',
+    Consignacionconcepto: Esanterior ? 'Efectivo de días anteriores · 3 registros' : Entidad ? Entidad.Concepto + ' · ' + Entidad.Hora : '',
+    Consignacionmonto: Formatonumero(Consignacionmonto),
+    Cerrarconsignacion: () => this.Cambiarestado({ Consignacion: null }),
+    Consignacionopciones: ['Nequi / DaviPlata', 'Cuenta bancaria'].map(Mesdato => {
+      const Activo = Consignacionactual && Consignacionactual.Medio === Mesdato;
       return {
-        label: m,
-        bg: on ? 'var(--ac)' : 'transparent',
-        border: on ? 'var(--ac)' : 'var(--ln)',
-        color: on ? 'var(--oa)' : 'var(--ik)',
-        ring: on ? 'var(--oa)' : 'var(--fa)',
-        dot: on ? 'var(--oa)' : 'transparent',
-        onClick: () => this.setState(st => ({ consign: { ...st.consign, medio: m } }))
+        Etiqueta: Mesdato,
+        Fondo: Activo ? 'var(--ac)' : 'transparent',
+        Borde: Activo ? 'var(--ac)' : 'var(--ln)',
+        Color: Activo ? 'var(--oa)' : 'var(--ik)',
+        Anillo: Activo ? 'var(--oa)' : 'var(--fa)',
+        Punto: Activo ? 'var(--oa)' : 'transparent',
+        Alclic: () => this.Cambiarestado(Estadoprevio => ({ Consignacion: { ...Estadoprevio.Consignacion, Medio: Mesdato } }))
       };
     }),
-    confirmConsign: () => {
-      if (!cs) return;
-      if (isOld) this.setState({ cashOld: 0, consign: null });
-      else this.setState(st => ({ entries: st.entries.map((e, i) => i === cs.target ? { ...e, medio: cs.medio, consignado: true } : e), consign: null }));
-      this.toast(cop(csAmt) + ' consignados en ' + cs.medio + '. Ya cuentan para el banco.');
+    Confirmarconsignacion: () => {
+      if (!Consignacionactual) return;
+      if (Esanterior) this.Cambiarestado({ Efectivoanterior: 0, Consignacion: null });
+      else this.Cambiarestado(Estadoprevio => ({ Registros: Estadoprevio.Registros.map((Elemento, Indice) => Indice === Consignacionactual.target ? { ...Elemento, Medio: Consignacionactual.Medio, Consignado: true } : Elemento), Consignacion: null }));
+      this.Aviso(Formatoenteropesos(Consignacionmonto) + ' consignados en ' + Consignacionactual.Medio + '. Ya cuentan para el banco.');
     },
-    regIng: ing,
-    regEgr: !ing,
-    regKinds: [['ing', 'Ingresos', 'LO QUE ENTRA'], ['egr', 'Egresos', 'LO QUE SALE']].map(([k, l, sub]) => {
-      const on = (s.regKind || 'ing') === k;
+    Registroingreso: Ingresototal,
+    Registroegreso: !Ingresototal,
+    Registrotipos: [['ing', 'Ingresos', 'LO QUE ENTRA'], ['egr', 'Egresos', 'LO QUE SALE']].map(([Clave, Etiquetatexto, Subtexto]) => {
+      const Activo = (Estadoactual.Registrotipo || 'ing') === Clave;
       return {
-        label: l,
-        sub,
-        bg: on ? (k === 'ing' ? 'var(--ac)' : 'var(--al)') : 'var(--cd)',
-        border: on ? 'transparent' : 'var(--ln)',
-        color: on ? (k === 'ing' ? 'var(--oa)' : '#120A05') : 'var(--ik)',
-        onClick: () => this.setState({ regKind: k })
+        Etiqueta: Etiquetatexto,
+        Subtexto,
+        Fondo: Activo ? (Clave === 'ing' ? 'var(--ac)' : 'var(--al)') : 'var(--cd)',
+        Borde: Activo ? 'transparent' : 'var(--ln)',
+        Color: Activo ? (Clave === 'ing' ? 'var(--oa)' : '#120A05') : 'var(--ik)',
+        Alclic: () => this.Cambiarestado({ Registrotipo: Clave })
       };
     }),
-    egDayTitle: isToday ? 'Hoy gastaste' : 'Ese día gastaste',
-    egDayTotal: num(selEx),
-    egDayIng: cop(selAmt),
-    egDayEx: '−' + cop(selEx),
-    egDayNet: cop(selAmt - selEx),
-    egEntries,
-    egCount: egEntries.length + ' gastos',
-    goEgrMes: () => this.setState({ ingView: 'mes', regKind: 'egr' }),
-    egFijosFmt: cop(deuSum),
-    egMesTotal: num(deuSum + gastosMes),
-    egFijosW: (deuSum / Math.max(1, deuSum + gastosMes) * 100) + '%',
-    catRows: CATS.filter(k => catBase[k] > 0).map(k => ({ label: k, monto: cop(catBase[k]), w: s.barsOn ? (catBase[k] / catMax * 100) + '%' : '0%' })),
-    fixTotFmt: cop(fixTot),
-    fixRows: [...(fijoEff ? [{ ini: 'SA', concepto: 'Salario / ingreso fijo', meta: 'Desde tu perfil · cada mes', monto: cop(fijoEff), canRemove: false }] : []),
-      ...s.fixedExtra.map((f, i) => ({ ini: f.name.slice(0, 2).toUpperCase(), concepto: f.name, meta: 'Fijo mensual', monto: cop(f.monto), canRemove: true, onRemove: () => this.setState(st => ({ fixedExtra: st.fixedExtra.filter((_, j) => j !== i) })) }))],
-    sheetFreqs: [['diario', s.sheetKind === 'deuda' ? 'Gasto del día' : 'Del día'], ['fijo', 'Fijo mensual']].map(([k, l]) => {
-      const on = s.sheetFreq === k;
-      return { label: l, bg: on ? 'var(--ik)' : 'transparent', color: on ? 'var(--bg)' : 'var(--mu)', border: on ? 'var(--ik)' : 'var(--ln)', onClick: () => this.setState({ sheetFreq: k, formError: '' }) };
+    Egresodiatitulo: Eshoy ? 'Hoy gastaste' : 'Ese día gastaste',
+    Egresodiatotal: Formatonumero(Gastoseleccionado),
+    Egresodiaingreso: Formatoenteropesos(Seleccionmonto),
+    Egresodiagasto: '−' + Formatoenteropesos(Gastoseleccionado),
+    Egresodianeto: Formatoenteropesos(Seleccionmonto - Gastoseleccionado),
+    Egresoregistros,
+    Egresocantidad: Egresoregistros.length + (Egresoregistros.length === 1 ? ' gasto' : ' gastos'),
+    Iregresosmes: () => this.Cambiarestado({ Ingresovista: 'mes', Registrotipo: 'egr' }),
+    Egresofijostexto: Formatoenteropesos(Deudasuma),
+    Egresomestotal: Formatonumero(Deudasuma + Gastosmes),
+    Egresofijosancho: (Deudasuma / Math.max(1, Deudasuma + Gastosmes) * 100) + '%',
+    Categoriafilas: Categoriasgasto.filter(Clave => Categoriabase[Clave] > 0).map(Clave => ({ Etiqueta: Clave, Monto: Formatoenteropesos(Categoriabase[Clave]), Ancho: Estadoactual.Barrasvisibles ? (Categoriabase[Clave] / Categoriamaxima * 100) + '%' : '0%' })),
+    Fijostotaltexto: Formatoenteropesos(Fijostotal),
+    Fijosfilas: [...(Fijoefectivo ? [{ Inicial: 'SA', Concepto: 'Salario / ingreso fijo', Meta: 'Desde tu perfil · cada mes', Monto: Formatoenteropesos(Fijoefectivo), Puedequitar: false }] : []),
+      ...Estadoactual.Ingresosfijosextra.map((Fila, Indice) => ({ Inicial: Fila.Nombreitem.slice(0, 2).toUpperCase(), Concepto: Fila.Nombreitem, Meta: 'Fijo mensual', Monto: Formatoenteropesos(Fila.Monto), Puedequitar: true, Alquitar: () => this.Cambiarestado(Estadoprevio => ({ Ingresosfijosextra: Estadoprevio.Ingresosfijosextra.filter((Ignorado, Posicionotra) => Posicionotra !== Indice) })) }))],
+    Hojafrecuencias: [['diario', Estadoactual.Hojatipo === 'deuda' ? 'Gasto del día' : 'Del día'], ['fijo', 'Fijo mensual']].map(([Clave, Etiquetatexto]) => {
+      const Activo = Estadoactual.Hojafrecuencia === Clave;
+      return { Etiqueta: Etiquetatexto, Fondo: Activo ? 'var(--ik)' : 'transparent', Color: Activo ? 'var(--bg)' : 'var(--mu)', Borde: Activo ? 'var(--ik)' : 'var(--ln)', Alclic: () => this.Cambiarestado({ Hojafrecuencia: Clave, Formularioerror: '' }) };
     }),
-    fiTipoChips: FI.map(x => ({ label: x, ...chipSel(fi.tipo === x), onClick: () => this.setState({ fiForm: { ...fi, tipo: x } }) })),
-    fiMontoTxt: fi.monto ? num(fi.monto) : '',
-    onFiMonto: (e) => this.setState({ fiForm: { ...fi, monto: dig(e) }, formError: '' }),
-    fiHint: fi.monto ? 'Este ingreso suma $' + m1(fi.monto * c.tope * c.factor / cfg.fin) + ' M al precio de tu vivienda.' : 'Ingresos que llegan igual cada mes: pensión, arriendos, honorarios.',
-    fiSaveLabel: fi.monto ? 'Guardar · ' + cop(fi.monto) + '/mes' : 'Guardar ingreso fijo',
-    saveFixedIncome: () => {
-      if (fi.monto < 1000) { this.setState({ formError: 'Escribe el monto mensual.' }); return; }
-      const fiName = (fi.tipo === 'Otro ingreso fijo' && (fi.nombre || '').trim()) || fi.tipo;
-      this.setState(st => ({ fixedExtra: [...st.fixedExtra, { name: fiName, monto: fi.monto }], sheet: false, fiForm: { ...st.fiForm, monto: 0, nombre: '' } }));
-      this.toast(fiName + ' agregado: +' + cop(fi.monto) + '/mes. Tu techo sube $' + m1(fi.monto * c.tope * c.factor / cfg.fin) + ' M.');
+    Ingresofijotipofichas: Tiposingresofijo.map(Opcion => ({ Etiqueta: Opcion, ...Fichaseleccion(Ingresofijoform.Tipo === Opcion), Alclic: () => this.Cambiarestado({ Formularioingresofijo: { ...Ingresofijoform, Tipo: Opcion } }) })),
+    Ingresofijomontotexto: Ingresofijoform.Monto ? Formatonumero(Ingresofijoform.Monto) : '',
+    Escribiringresofijomonto: (Elemento) => this.Cambiarestado({ Formularioingresofijo: { ...Ingresofijoform, Monto: Digito(Elemento) }, Formularioerror: '' }),
+    Ingresofijopista: Ingresofijoform.Monto ? 'Este ingreso suma $' + Formatomillones(Ingresofijoform.Monto * Calculo.Tope * Calculo.Factor / Configuracion.Financiacion) + ' M al precio de tu vivienda.' : 'Ingresos que llegan igual cada mes: pensión, arriendos, honorarios.',
+    Ingresofijoguardaretiqueta: Ingresofijoform.Monto ? 'Guardar · ' + Formatoenteropesos(Ingresofijoform.Monto) + '/mes' : 'Guardar ingreso fijo',
+    Guardaringresofijo: () => {
+      if (Ingresofijoform.Monto < 1000) { this.Cambiarestado({ Formularioerror: 'Escribe el monto mensual.' }); return; }
+      const Ingresofijonombre = (Ingresofijoform.Tipo === 'Otro ingreso fijo' && (Ingresofijoform.Nombre || '').trim()) || Ingresofijoform.Tipo;
+      this.Cambiarestado(Estadoprevio => ({ Ingresosfijosextra: [...Estadoprevio.Ingresosfijosextra, { Nombreitem: Ingresofijonombre, Monto: Ingresofijoform.Monto }], Hoja: false, Formularioingresofijo: { ...Estadoprevio.Formularioingresofijo, Monto: 0, Nombre: '' } }));
+      this.Aviso(Ingresofijonombre + ' agregado: +' + Formatoenteropesos(Ingresofijoform.Monto) + '/mes. Tu techo sube $' + Formatomillones(Ingresofijoform.Monto * Calculo.Tope * Calculo.Factor / Configuracion.Financiacion) + ' M.');
     },
-    exMontoTxt: ex.monto ? num(ex.monto) : '',
-    onExMonto: (e) => this.setState({ exForm: { ...ex, monto: dig(e) }, formError: '' }),
-    exCatChips: CATS.map(x => ({ label: x, ...chipSel(ex.cat === x), onClick: () => this.setState({ exForm: { ...ex, cat: x } }) })),
-    exMedioChips: EXM.map(x => ({ label: x, ...chipSel(ex.medio === x), onClick: () => this.setState({ exForm: { ...ex, medio: x } }) })),
-    exSaveLabel: ex.monto ? 'Guardar gasto · −' + cop(ex.monto) : 'Guardar gasto',
-    saveExpense: () => {
-      if (ex.monto < 500) { this.setState({ formError: 'Escribe cuánto gastaste.' }); return; }
-      this.setState(st => ({ expenses: [...st.expenses, { cat: ex.cat, nombre: ex.cat === 'Otros' ? (ex.nombre || '').trim() : '', medio: ex.medio, monto: ex.monto, hora: hora() }], sheet: false, selDay: 5, regKind: 'egr', exForm: { ...st.exForm, monto: 0, nombre: '' } }));
-      this.toast('Gasto de ' + cop(ex.monto) + ' en ' + ((ex.cat === 'Otros' && (ex.nombre || '').trim()) || ex.cat.toLowerCase()) + ' registrado.');
+    Gastomontotexto: Gasto.Monto ? Formatonumero(Gasto.Monto) : '',
+    Escribirgastomonto: (Elemento) => this.Cambiarestado({ Formulariogasto: { ...Gasto, Monto: Digito(Elemento) }, Formularioerror: '' }),
+    Gastocategoriafichas: Categoriasgasto.map(Opcion => ({ Etiqueta: Opcion, ...Fichaseleccion(Gasto.Categoria === Opcion), Alclic: () => this.Cambiarestado({ Formulariogasto: { ...Gasto, Categoria: Opcion } }) })),
+    Gastomediofichas: Gastosmediospago.map(Opcion => ({ Etiqueta: Opcion, ...Fichaseleccion(Gasto.Medio === Opcion), Alclic: () => this.Cambiarestado({ Formulariogasto: { ...Gasto, Medio: Opcion } }) })),
+    Gastoguardaretiqueta: Gasto.Monto ? 'Guardar gasto · −' + Formatoenteropesos(Gasto.Monto) : 'Guardar gasto',
+    Guardargasto: () => {
+      if (Gasto.Monto < 500) { this.Cambiarestado({ Formularioerror: 'Escribe cuánto gastaste.' }); return; }
+      this.Cambiarestado(Estadoprevio => ({ Diasregistrados: Marcardiaregistro(Estadoprevio.Diasregistrados), Egresosregistrados: [...Estadoprevio.Egresosregistrados, { Fecha: Hoyregistro(), Categoria: Gasto.Categoria, Nombre: Gasto.Categoria === 'Otros' ? (Gasto.Nombre || '').trim() : '', Medio: Gasto.Medio, Monto: Gasto.Monto, Hora: Hora() }], Hoja: false, Diaseleccionado: 6, Registrotipo: 'egr', Formulariogasto: { ...Estadoprevio.Formulariogasto, Monto: 0, Nombre: '' } }));
+      this.Aviso('Gasto de ' + Formatoenteropesos(Gasto.Monto) + ' en ' + ((Gasto.Categoria === 'Otros' && (Gasto.Nombre || '').trim()) || Gasto.Categoria.toLowerCase()) + ' registrado.');
     },
-    ingCode: (s.ingView || 'dia') === 'dia' ? 'P5 · MI DÍA' : (s.ingView || 'dia') === 'mes' ? 'P6 · MI MES' : 'P7 · MI AÑO',
-    ingSegs: [['dia', 'Día', ''], ['mes', 'Mes', ''], ['ano', 'Año', 'F2']].map(([k, l, t]) => ({ label: l, tag: t, bg: (s.ingView || 'dia') === k ? 'var(--ik)' : 'transparent', color: (s.ingView || 'dia') === k ? 'var(--bg)' : 'var(--mu)', onClick: () => this.setState({ ingView: k }) })),
-    ingIsDia: (s.ingView || 'dia') === 'dia',
-    ingIsMes: (s.ingView || 'dia') === 'mes',
-    ingIsAno: (s.ingView || 'dia') === 'ano'
+    Ingresocodigo: (Estadoactual.Ingresovista || 'dia') === 'dia' ? 'P5 · MI DÍA' : (Estadoactual.Ingresovista || 'dia') === 'mes' ? 'P6 · MI MES' : 'P7 · MI AÑO',
+    Ingresosegmentos: [['dia', 'Día', ''], ['mes', 'Mes', ''], ['ano', 'Año', 'F2']].map(([Clave, Etiquetatexto, Auxiliar]) => ({ Etiqueta: Etiquetatexto, Etiquetanodo: Auxiliar, Fondo: (Estadoactual.Ingresovista || 'dia') === Clave ? 'var(--ik)' : 'transparent', Color: (Estadoactual.Ingresovista || 'dia') === Clave ? 'var(--bg)' : 'var(--mu)', Alclic: () => this.Cambiarestado({ Ingresovista: Clave }) })),
+    Ingresoesdia: (Estadoactual.Ingresovista || 'dia') === 'dia',
+    Ingresoesmes: (Estadoactual.Ingresovista || 'dia') === 'mes',
+    Ingresoesanual: (Estadoactual.Ingresovista || 'dia') === 'ano'
   };
 }
 

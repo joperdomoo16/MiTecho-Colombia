@@ -66,9 +66,13 @@ a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important
 [data-ogsc] .t1{color:#F2F4EC!important}
 [data-ogsc] .t2{color:#C9CDBF!important}
 [data-ogsc] .t3{color:#A3A898!important}
+/* Gmail en el celular (modo oscuro) invierte el color del texto pero no el degradado de la franja azul.
+   Estas dos capas solo se activan en Gmail (u + .body) y devuelven al texto su color original. */
+u + .body .gm-screen{background:#000;mix-blend-mode:screen}
+u + .body .gm-diff{background:#000;mix-blend-mode:difference}
 </style>
 </head>
-<body class="bg" style="margin:0;padding:0;background-color:#EBEEE3;">
+<body class="body bg" style="margin:0;padding:0;background-color:#EBEEE3;">
 <div style="display:none;max-height:0;max-width:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#EBEEE3;opacity:0;">Somos RumoriaStudio, creadores de MiTecho. Confirma tu correo para activar tu cuenta y guardar tus simulaciones. El enlace vence en 24 horas.&#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; &#8199;&#65279;&#847; </div>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="bg" bgcolor="#EBEEE3" style="background-color:#EBEEE3;">
 <tr><td align="center" class="outer" style="padding:32px 12px 40px;">
@@ -78,10 +82,10 @@ a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important
 <tr><td class="plano px" bgcolor="#12274A" style="background-color:#12274A;border-radius:16px 16px 0 0;padding:28px 40px 34px;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
     <td style="padding-right:10px;vertical-align:middle;"><img src="https://tbliwiawziexlziqqcji.supabase.co/storage/v1/object/public/publico/logo-glyph.png" width="44" height="37" alt="" style="display:block;width:44px;height:auto;"></td>
-    <td style="vertical-align:middle;font-family:'Familjen Grotesk','Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:21px;line-height:24px;font-weight:700;letter-spacing:-0.3px;color:#F2F4EC;">MiTecho<br><span style="font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:12px;line-height:16px;font-weight:600;letter-spacing:0;color:#A3A898;">Un producto de RumoriaStudio</span></td>
+    <td style="vertical-align:middle;font-family:'Familjen Grotesk','Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:21px;line-height:24px;font-weight:700;letter-spacing:-0.3px;color:#F2F4EC;"><div class="gm-screen"><div class="gm-diff">MiTecho<br><span style="font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:12px;line-height:16px;font-weight:600;letter-spacing:0;color:#A3A898;">Un producto de RumoriaStudio</span></div></div></td>
   </tr></table>
-  <h1 class="h1" style="margin:40px 0 0;font-family:'Familjen Grotesk','Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:38px;line-height:42px;font-weight:700;letter-spacing:-1px;color:#F2F4EC;">Confirma tu correo</h1>
-  <p style="margin:12px 0 0;font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:16px;line-height:24px;color:#C9CDBF;">Hola {{ if .Data.nombre }}{{ .Data.nombre }}{{ else }}futuro propietario{{ end }}, confirma que esta dirección es tuya para activar tu cuenta y guardar tus simulaciones:</p><p style="margin:14px 0 0;"><span style="display:inline-block;padding:6px 11px;border-radius:8px;background-color:#0B1A39;border:1px solid #3A4D70;font-family:'IBM Plex Mono',Consolas,'Courier New',monospace;font-size:14px;line-height:20px;font-weight:500;color:#F2F4EC;">{{ .Email }}</span></p>
+  <div class="gm-screen"><div class="gm-diff"><h1 class="h1" style="margin:40px 0 0;font-family:'Familjen Grotesk','Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:38px;line-height:42px;font-weight:700;letter-spacing:-1px;color:#F2F4EC;">Confirma tu correo</h1></div></div>
+  <div class="gm-screen"><div class="gm-diff"><p style="margin:12px 0 0;font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:16px;line-height:24px;color:#C9CDBF;">Hola {{ if .Data.nombre }}{{ .Data.nombre }}{{ else }}futuro propietario{{ end }}, confirma que esta dirección es tuya para activar tu cuenta y guardar tus simulaciones:</p></div></div><div class="gm-screen"><div class="gm-diff"><p style="margin:14px 0 0;"><span style="display:inline-block;padding:6px 11px;border-radius:8px;background-color:#0B1A39;border:1px solid #3A4D70;font-family:'IBM Plex Mono',Consolas,'Courier New',monospace;font-size:14px;line-height:20px;font-weight:500;color:#F2F4EC;">{{ .Email }}</span></p></div></div>
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" class="btn-t" style="margin-top:28px;"><tr><td align="center" style="border-radius:12px;" bgcolor="#D4FF3A">
     <!--[if mso]>
     <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ .ConfirmationURL }}" style="height:52px;v-text-anchor:middle;width:230px;" arcsize="23%" stroke="f" fillcolor="#D4FF3A">
@@ -92,7 +96,7 @@ a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important
     <a href="{{ .ConfirmationURL }}" class="btn-a" style="display:inline-block;background-color:#D4FF3A;color:#0B0C0A;font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:16px;line-height:20px;font-weight:600;padding:16px 30px;border-radius:12px;text-decoration:none;">Confirmar mi correo</a>
     <!--<![endif]-->
   </td></tr></table>
-  <p style="margin:14px 0 0;font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:13px;line-height:19px;color:#A3A898;">El enlace vence en 24 horas.</p>
+  <div class="gm-screen"><div class="gm-diff"><p style="margin:14px 0 0;font-family:'Hanken Grotesk',Arial,Helvetica,sans-serif;font-size:13px;line-height:19px;color:#A3A898;">El enlace vence en 24 horas.</p></div></div>
 </td></tr>
 <!-- Cuerpo en papel -->
 <tr><td class="papel" bgcolor="#F9FAF5" style="background-color:#F9FAF5;border-radius:0 0 16px 16px;">

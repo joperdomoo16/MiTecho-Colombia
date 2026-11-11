@@ -4,4 +4,8 @@
     <string name="title_activity_main">MiTecho</string>
     <string name="package_name">co.mitecho.app</string>
     <string name="custom_url_scheme">co.mitecho.app</string>
+    <!-- Identificador público del cliente web de Google para pedir el token de inicio de sesión -->
+    <string name="id_cliente_web_google" translatable="false">76574046298-n64bp6m7kbr66iqpud7sve52q90j0q6v.apps.googleusercontent.com</string>
+    <!-- ID de prueba de Google: no cobra ni cuenta impresiones. Reemplazar por el ID real de AdMob al publicar -->
+    <string name="admob_app_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
 </resources>
