@@ -1,0 +1,39 @@
+# Dependencias y entorno
+node_modules/
+.npm/
+
+# Salidas de empaquetado web
+dist/
+
+# Archivos de entorno y configuración local
+.env
+.env.local
+*.local
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Microservicio Java: clases compiladas
+siterecuperacion/bin/
+siterecuperacion/*.class
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Archivos de registro
+*.log
+
+# Firebase local
+.firebase/
+
+# Supabase local
+supabase/.temp/
+
+# Llaves de firma y paquetes compilados de Android
+*.jks
+*.keystore
+*.aab
+*.apk
+
