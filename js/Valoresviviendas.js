@@ -28,7 +28,9 @@ function Generarvaloresviviendas(Calculo) {
     const Cuotainicialproyecto = Math.max(0, Proyecto.Precioproyecto - Creditoproyecto);
     const Subsidioproyecto = Modalidadproyecto === 'novis' ? 0 : Math.min(Cuotainicialproyecto, (Calculoproyecto.Subsidiocajamonto || 0) + (Calculoproyecto.Subsidiomicasayamonto || 0));
     const Faltaproyecto = Math.max(0, Cuotainicialproyecto + Gastosproyecto - Subsidioproyecto - Calculoproyecto.Ahorrohogar);
-    const Estadoprevio = !Bancoaprueba ? 2 : Faltaproyecto > 1 ? 1 : 0;
+    let Estadoprevio = 0;
+    if (!Bancoaprueba) Estadoprevio = 2;
+    else if (Faltaproyecto > 1) Estadoprevio = 1;
 
     let Superaaccion = 'Prueba cambios en Simular';
     let Alsuperar = () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'form' });

@@ -64,11 +64,15 @@ function Generarvalorestipovivienda(Calculo, Seleccion) {
     Avisotexto = 'Tu presupuesto de ' + Techovis + ' está por debajo del tope VIS de ' + Ciudad + ' (' + Topetexto + '). El banco presta hasta el 80%' + (Consubsidio ? ' y puedes usar subsidio de vivienda.' : '. Con ingresos mayores a 4 SMMLV no aplica el subsidio, pero sigue siendo VIS.');
   }
 
+  let Tipochiptexto = 'Vivienda VIS';
+  if (Elegido === 'leasing') Tipochiptexto = 'Leasing';
+  else if (Cuentanovis) Tipochiptexto = 'Vivienda No VIS';
+
   return {
     Tiporecomendado: Recomendado,
     Tipochipvisible: Contecho,
-    Tipochiptexto: Elegido === 'leasing' ? 'Leasing' : Cuentanovis ? 'Vivienda No VIS' : 'Vivienda VIS',
-    Tipochipetiqueta: (Elegido === 'leasing' ? 'Leasing' : Cuentanovis ? 'Vivienda No VIS' : 'Vivienda VIS') + ': qué significa',
+    Tipochiptexto,
+    Tipochipetiqueta: Tipochiptexto + ': qué significa',
     Abrirtipovivienda: () => this.Cambiarestado({ Tipoviviendaabierto: true }),
     Cerrartipovivienda: () => this.Cambiarestado({ Tipoviviendaabierto: false }),
     Tipoviviendavisible: this.Pantalla === 'app' && Boolean(Estadoactual.Tipoviviendaabierto),

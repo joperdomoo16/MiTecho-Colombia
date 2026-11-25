@@ -1,10 +1,15 @@
-// Preparación de los datos del perfil del usuario, entidades financieras y configuración inicial
+// Pantalla de perfil del usuario, recordatorios diarios y formulario detallado de Caja o FNA
 
-function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
-  const Estadoactual = this.Estadocomponente, Recordatorio = Estadoactual.Recordatorios;
+function Generarvaloresperfil(Calculo, Fichaseleccion) {
+  const Estadoactual = this.Estadocomponente;
+  const Recordatorio = Estadoactual.Recordatorios;
   const Digitos = (Elemento, Maximo) => Limpiardigitos(Elemento.target.value, Maximo);
   const Partes = Estadoactual.Nombre.trim().split(/\s+/).filter(Boolean);
-  const Interruptor = (Activo) => ({ Riel: Activo ? 'var(--ac)' : 'var(--c2)', Perilla: Activo ? 'var(--oa)' : 'var(--mu)', Posicion: Activo ? 'translateX(22px)' : 'none' });
+  const Interruptor = (Activo) => ({
+    Riel: Activo ? 'var(--ac)' : 'var(--c2)',
+    Perilla: Activo ? 'var(--oa)' : 'var(--mu)',
+    Posicion: Activo ? 'translateX(22px)' : 'none'
+  });
   const Fijarrecordatorio = (Cambios) => this.Cambiarestado(Estadoprevio => ({ Recordatorios: { ...Estadoprevio.Recordatorios, ...Cambios } }));
   const Horasrecordatorio = ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'];
   const Fotosegura = Imagensegura(Estadoactual.Avatarimagen);
@@ -12,7 +17,9 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
   const Invitado = Boolean(Estadoactual.Invitado);
   const Primernombre = Partes[0] || (Invitado ? 'Invitado' : 'Hola');
   const Etiquetastipo = { fijo: 'Salario fijo', variable: 'Ingresos que cambian', mixto: 'Las dos cosas' };
-  const Ingresomensual = (Estadoactual.Tipo === 'variable' ? 0 : (Estadoactual.Fijo || 0)) + (Estadoactual.Tipo === 'fijo' ? 0 : (Estadoactual.Variable || 0));
+  const Fijovalor = Estadoactual.Tipo === 'variable' ? 0 : (Estadoactual.Fijo || 0);
+  const Variablevalor = Estadoactual.Tipo === 'fijo' ? 0 : (Estadoactual.Variable || 0);
+  const Ingresomensual = Fijovalor + Variablevalor;
   const Deudasactivas = (Estadoactual.Deudas || []).filter(Dato => Dato.Activa !== false);
   const Sumadeudas = Deudasactivas.reduce((Suma, Dato) => Suma + (Dato.Cuota || 0), 0);
 
@@ -24,22 +31,52 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
   if ((Estadoactual.Ahorro || 0) > 0 || (Estadoactual.Ahorromes || 0) > 0) Completos++; else Faltantes.push('tu ahorro');
   if (Estadoactual.Caja || Estadoactual.Sisben) Completos++; else Faltantes.push('tus datos de Caja y subsidios');
   const Avance = Math.round(Completos / 5 * 100);
-  const Siguientedato = !Estadoactual.Caja && !Estadoactual.Sisben ? 'subsidios' : (!Estadoactual.Nombre || !Estadoactual.Edad ? 'personales' : Ingresomensual <= 0 ? 'ingresos' : 'ahorro');
+
+  let Siguientedato = 'ahorro';
+  if (!Estadoactual.Caja && !Estadoactual.Sisben) Siguientedato = 'subsidios';
+  else if (!Estadoactual.Nombre || !Estadoactual.Edad) Siguientedato = 'personales';
+  else if (Ingresomensual <= 0) Siguientedato = 'ingresos';
+
   const Avancetexto = Avance >= 100
     ? 'Tu perfil está completo: todos tus datos entran en el cálculo.'
     : 'Agrega ' + Faltantes[Faltantes.length - 1] + ' para que tu presupuesto sea más preciso.';
 
   const Horabonita = (Recordatorio.Hora || '8:00 PM').replace('PM', 'p. m.').replace('AM', 'a. m.');
   const Activosdias = (Recordatorio.Dias || []).filter(Boolean).length;
-  const Avisosresumenhora = !Recordatorio.Diario ? 'Recordatorio apagado · tocar para ajustar'
-    : (Activosdias >= 7 ? 'Todos los días' : Activosdias + ' días a la semana') + ' a las ' + Horabonita;
+  let Avisosresumenhora = 'Recordatorio apagado · da clic para ajustar';
+  if (Recordatorio.Diario) {
+    const Frecuenciatexto = Activosdias >= 7 ? 'Todos los días' : Activosdias + ' días a la semana';
+    Avisosresumenhora = Frecuenciatexto + ' a las ' + Horabonita;
+  }
 
   const Datospersonales = [Estadoactual.Nombre ? Partes[0] : '', Estadoactual.Edad ? Estadoactual.Edad + ' años' : '', Estadoactual.Ciudad || 'Bogotá'].filter(Boolean).join(' · ');
-  const Ingresotextoresumen = Ingresomensual > 0 ? Formatoenteropesos(Ingresomensual) + ' al mes' + (Estadoactual.Tipo !== 'fijo' ? ' (promedio)' : '') : 'Sin registrar';
+  let Ingresotextoresumen = 'Sin registrar';
+  if (Ingresomensual > 0) {
+    Ingresotextoresumen = Formatoenteropesos(Ingresomensual) + ' al mes' + (Estadoactual.Tipo !== 'fijo' ? ' (promedio)' : '');
+  }
   const Ahorroresumentexto = (Estadoactual.Ahorro || 0) > 0 || (Estadoactual.Ahorromes || 0) > 0
-    ? Formatoenteropesos(Estadoactual.Ahorro || 0) + ' · ahorras ' + Formatoenteropesos(Estadoactual.Ahorromes || 0) + ' al mes' : 'Sin ahorros registrados';
-  const Cajasubsidio = Estadoactual.Caja ? (Estadoactual.Cajanombre || 'Afiliado a Caja') + (Estadoactual.Sisben ? ' · Sisbén' : '') : (Estadoactual.Sisben ? 'Sin Caja · con Sisbén' : 'Sin afiliación');
+    ? Formatoenteropesos(Estadoactual.Ahorro || 0) + ' · ahorras ' + Formatoenteropesos(Estadoactual.Ahorromes || 0) + ' al mes'
+    : 'Sin ahorros registrados';
+
+  let Cajasubsidio = 'Sin afiliación';
+  if (Estadoactual.Caja) {
+    Cajasubsidio = (Estadoactual.Cajanombre || 'Afiliado a Caja') + (Estadoactual.Sisben ? ' · Sisbén' : '');
+  } else if (Estadoactual.Sisben) {
+    Cajasubsidio = 'Sin Caja · con Sisbén';
+  }
   const Titulosdato = { personales: 'Datos personales', ingresos: 'Ingresos', ahorro: 'Ahorro y vivienda' };
+
+  let Edadpista = 'Tu edad define el plazo máximo del crédito.';
+  if (Estadoactual.Edad && Estadoactual.Edad < 18) {
+    Edadpista = 'MiTecho es solo para mayores de 18 años.';
+  } else if (Estadoactual.Edad) {
+    Edadpista = 'Con ' + Estadoactual.Edad + ' años, el plazo máximo de tu crédito sería de unos ' + Plazomaximo + ' años.';
+  }
+
+  const Busqueda = Normalizartexto(Estadoactual.Ciudadbusqueda.trim());
+  const Filtradas = Busqueda
+    ? Directoriociudades.filter(([Nombreciudad, Dato]) => Normalizartexto(Nombreciudad).includes(Busqueda) || Normalizartexto(Dato).includes(Busqueda))
+    : Directoriociudades;
 
   return {
     Esperfil: this.Pantalla === 'app' && Estadoactual.Panel === 'perfil',
@@ -77,7 +114,7 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
     Perfildatoahorro: Estadoactual.Perfildato === 'ahorro',
     Cerrarperfildato: () => this.Cambiarestado({ Perfildato: '', Ciudadabierta: false }),
     Diarioclase: Recordatorio.Diario ? 'is-activo' : '',
-    Avisosresumenhora: Avisosresumenhora,
+    Avisosresumenhora,
     Abrirpanelrecordatorios: () => this.Cambiarestado({ Panel: 'rem' }),
     Volveraperfil: () => this.Cambiarestado({ Panel: 'perfil' }),
     Verbienvenidaotrarez: () => this.Cambiarestado({ Panel: null, Ayuda: false, Pestana: 'inicio', Tutorialvisto: false, Tutorialpaso: 0, Tutorialcaja: null, Consejosvistos: {}, Consejopaso: 0 }),
@@ -86,7 +123,6 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
     Primernombre,
     Nombrecompletousuario: Estadoactual.Nombre || 'Sin nombre',
     Iniciales: ((Partes[0] || '?')[0] + (Partes[1] ? Partes[1][0] : '')).toUpperCase(),
-    // Sin nombre no se pone un signo de pregunta en la foto
     Coniniciales: Boolean(Partes[0]),
     Sininiciales: !Partes[0],
     Ciudad: Estadoactual.Ciudad,
@@ -95,9 +131,8 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
     Perfilnombre: Estadoactual.Nombre,
     Escribirperfilnombre: (Elemento) => this.Cambiarestado({ Nombre: Textoseguro(Elemento.target.value, 70) }),
     Perfiledad: Estadoactual.Edad ? String(Estadoactual.Edad) : '',
-    Escribirperfiledad: (Elemento) => this.Cambiarestado({ Edad: Digitos(Elemento, Limitesfinancieros.EdadMax) }),
-    // La app es solo para mayores de edad, como dice la política
-    Edadpista: Estadoactual.Edad && Estadoactual.Edad < 18 ? 'MiTecho es solo para mayores de 18 años.' : Estadoactual.Edad ? 'Con ' + Estadoactual.Edad + ' años, el plazo máximo de tu crédito sería de unos ' + Plazomaximo + ' años.' : 'Tu edad define el plazo máximo del crédito.',
+    Escribirperfiledad: (Elemento) => this.Cambiarestado({ Edad: Digitos(Elemento, Limitesfinancieros.Edadmaxima) }),
+    Edadpista,
     Ciudadabierta: Estadoactual.Ciudadabierta,
     Ciudadbusqueda: Estadoactual.Ciudadbusqueda,
     Ciudadflecha: Estadoactual.Ciudadabierta ? 'rotate(180deg)' : 'none',
@@ -105,63 +140,65 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
     Ciudaddepartamento: (Directoriociudades.find(Opcion => Opcion[0] === Estadoactual.Ciudad) || ['', 'Colombia'])[1],
     Alternarciudad: () => this.Cambiarestado({ Ciudadabierta: !Estadoactual.Ciudadabierta, Ciudadbusqueda: '' }),
     Escribirciudad: (Elemento) => this.Cambiarestado({ Ciudadbusqueda: Textoseguro(Elemento.target.value, 40) }),
-    ...(() => {
-      const Busqueda = Normalizartexto(Estadoactual.Ciudadbusqueda.trim());
-      const Filtradas = Busqueda ? Directoriociudades.filter(([Nombreciudad, Dato]) => Normalizartexto(Nombreciudad).includes(Busqueda) || Normalizartexto(Dato).includes(Busqueda)) : Directoriociudades;
+    Ciudadconteo: Filtradas.length + (Filtradas.length === 1 ? ' CIUDAD' : ' CIUDADES'),
+    Ciudadvacia: Filtradas.length === 0,
+    Ciudadlista: Filtradas.map(([Nombreciudad, Dato]) => {
+      const Seleccionada = Nombreciudad === Estadoactual.Ciudad;
       return {
-        Ciudadconteo: Filtradas.length + (Filtradas.length === 1 ? ' CIUDAD' : ' CIUDADES'),
-        Ciudadvacia: Filtradas.length === 0,
-        Ciudadlista: Filtradas.map(([Nombreciudad, Dato]) => {
-          const Seleccion = Nombreciudad === Estadoactual.Ciudad;
-          return {
-            Nombreitem: Nombreciudad,
-            Departamento: Dato,
-            Seleccion,
-            Fondo: Seleccion ? 'var(--ac)' : 'transparent',
-            Color: Seleccion ? 'var(--oa)' : 'var(--ik)',
-            Subtexto: Seleccion ? 'rgba(11,12,10,.65)' : 'var(--mu)',
-            Alclic: () => this.Cambiarestado({ Ciudad: Nombreciudad, Ciudadabierta: false, Ciudadbusqueda: '' })
-          };
-        })
+        Nombreitem: Nombreciudad,
+        Departamento: Dato,
+        Seleccion: Seleccionada,
+        Fondo: Seleccionada ? 'var(--ac)' : 'transparent',
+        Color: Seleccionada ? 'var(--oa)' : 'var(--ik)',
+        Subtexto: Seleccionada ? 'rgba(11,12,10,.65)' : 'var(--mu)',
+        Alclic: () => this.Cambiarestado({ Ciudad: Nombreciudad, Ciudadabierta: false, Ciudadbusqueda: '' })
       };
-    })(),
-    Perfiltipofichas: [['fijo', 'Salario fijo'], ['variable', 'Ingresos que cambian'], ['mixto', 'Las dos cosas']].map(([Clave, Etiquetatexto]) => ({ Etiqueta: Etiquetatexto, ...Fichaseleccion(Estadoactual.Tipo === Clave), Alclic: () => this.Cambiarestado({ Tipo: Clave, Usarautomatico: true }) })),
+    }),
+    Perfiltipofichas: [['fijo', 'Salario fijo'], ['variable', 'Ingresos que cambian'], ['mixto', 'Las dos cosas']].map(([Clave, Etiquetatexto]) => ({
+      Etiqueta: Etiquetatexto,
+      ...Fichaseleccion(Estadoactual.Tipo === Clave),
+      Alclic: () => this.Cambiarestado({ Tipo: Clave, Usarautomatico: true })
+    })),
     Perfilmostrarfijo: Estadoactual.Tipo !== 'variable',
     Perfilmostrarvariable: Estadoactual.Tipo !== 'fijo',
     Perfilfijo: Estadoactual.Fijo ? Formatoenteropesos(Estadoactual.Fijo) : '',
-    Escribirperfilfijo: (Elemento) => this.Cambiarestado({ Fijo: Digitos(Elemento, Limitesfinancieros.IngresoMensual), Usarautomatico: true }),
+    Escribirperfilfijo: (Elemento) => this.Cambiarestado({ Fijo: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Usarautomatico: true }),
     Perfilvariable: Estadoactual.Variable ? Formatoenteropesos(Estadoactual.Variable) : '',
-    Escribirperfilvariable: (Elemento) => this.Cambiarestado({ Variable: Digitos(Elemento, Limitesfinancieros.IngresoMensual), Usarautomatico: true }),
-    Perfilingresototal: Formatoenteropesos((Estadoactual.Tipo === 'variable' ? 0 : Estadoactual.Fijo) + (Estadoactual.Tipo === 'fijo' ? 0 : Estadoactual.Variable)),
+    Escribirperfilvariable: (Elemento) => this.Cambiarestado({ Variable: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Usarautomatico: true }),
+    Perfilingresototal: Formatoenteropesos(Ingresomensual),
     Perfilahorro: Estadoactual.Ahorro ? Formatoenteropesos(Estadoactual.Ahorro) : '',
     Escribirperfilahorro: (Elemento) => this.Cambiarestado({ Ahorro: Digitos(Elemento, Limitesfinancieros.Ahorro) }),
     Perfilahorromes: Estadoactual.Ahorromes ? Formatoenteropesos(Estadoactual.Ahorromes) : '',
-    Escribirperfilahorromes: (Elemento) => this.Cambiarestado({ Ahorromes: Digitos(Elemento, Limitesfinancieros.AhorroMensual) }),
+    Escribirperfilahorromes: (Elemento) => this.Cambiarestado({ Ahorromes: Digitos(Elemento, Limitesfinancieros.Ahorromensual) }),
     Perfilobjetivo: Estadoactual.Objetivousuario ? Formatoenteropesos(Estadoactual.Objetivousuario) : '',
-    Escribirperfilobjetivo: (Elemento) => this.Cambiarestado({ Objetivousuario: Digitos(Elemento, Limitesfinancieros.ViviendaObjetivo) }),
+    Escribirperfilobjetivo: (Elemento) => this.Cambiarestado({ Objetivousuario: Digitos(Elemento, Limitesfinancieros.Viviendaobjetivo) }),
     Perfilmetainfo: 'Con esta vivienda tu meta diaria es ' + Formatoenteropesos(Calculo.Metadiaria) + ': (ingreso necesario ' + Formatoenteropesos(Calculo.Ingresonecesario) + ' − ingresos fijos ' + Formatoenteropesos(Calculo.Fijopromedio) + ') ÷ 26 días.',
     Cajaactiva: Estadoactual.Caja,
     Alternarcaja: () => this.Cambiarestado({ Caja: !Estadoactual.Caja }),
     Cajariel: Interruptor(Estadoactual.Caja).Riel,
     Cajaperilla: Interruptor(Estadoactual.Caja).Perilla,
     Cajaposicion: Interruptor(Estadoactual.Caja).Posicion,
-    Cajafichas: ['Compensar', 'Colsubsidio', 'Cafam', 'Comfama', 'Comfenalco', 'Comfandi', 'Cajacopi', 'Otra'].map(Opcion => ({ Etiqueta: Opcion, ...Fichaseleccion(Estadoactual.Cajanombre === Opcion), Alclic: () => this.Cambiarestado({ Cajanombre: Opcion }) })),
+    Cajafichas: ['Compensar', 'Colsubsidio', 'Cafam', 'Comfama', 'Comfenalco', 'Comfandi', 'Cajacopi', 'Otra'].map(Opcion => ({
+      Etiqueta: Opcion,
+      ...Fichaseleccion(Estadoactual.Cajanombre === Opcion),
+      Alclic: () => this.Cambiarestado({ Cajanombre: Opcion })
+    })),
     Alternarsisben: () => this.Cambiarestado({ Sisben: !Estadoactual.Sisben }),
     Sisbenriel: Interruptor(Estadoactual.Sisben).Riel,
     Sisbenperilla: Interruptor(Estadoactual.Sisben).Perilla,
     Sisbenposicion: Interruptor(Estadoactual.Sisben).Posicion,
     Perfildeudascantidad: Estadoactual.Deudas.length ? Estadoactual.Deudas.length + (Estadoactual.Deudas.length === 1 ? ' deuda registrada' : ' deudas registradas') : 'Sin deudas registradas',
-    Perfildeudassuma: Formatoenteropesos(Estadoactual.Deudas.filter(Dato => Dato.Activa !== false).reduce((Acumulado, Dato) => Acumulado + Dato.Cuota, 0)) + ' al mes en el cálculo',
+    Perfildeudassuma: Formatoenteropesos(Sumadeudas) + ' al mes en el cálculo',
     Perfilirdeudas: () => this.Cambiarestado({ Panel: null, Pestana: 'plan' }),
     Alternardiario: () => {
-      const NuevoActivo = !Recordatorio.Diario;
-      Fijarrecordatorio({ Diario: NuevoActivo });
+      const Nuevoactivo = !Recordatorio.Diario;
+      Fijarrecordatorio({ Diario: Nuevoactivo });
       if (window.Puentenativo) {
-        if (NuevoActivo && typeof window.Puentenativo.solicitarPermisoNotificaciones === 'function') {
+        if (Nuevoactivo && typeof window.Puentenativo.solicitarPermisoNotificaciones === 'function') {
           window.Puentenativo.solicitarPermisoNotificaciones();
         }
         if (typeof window.Puentenativo.programarRecordatorioRacha === 'function') {
-          window.Puentenativo.programarRecordatorioRacha(NuevoActivo, Recordatorio.Hora || '20:00');
+          window.Puentenativo.programarRecordatorioRacha(Nuevoactivo, Recordatorio.Hora || '20:00');
         }
       }
     },
@@ -176,7 +213,11 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
         }
       }
     })),
-    Diafichas: ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((Etiquetatexto, Indice) => ({ Etiqueta: Etiquetatexto, ...Fichaseleccion(Boolean(Recordatorio.Dias[Indice])), Alclic: () => Fijarrecordatorio({ Dias: Recordatorio.Dias.map((Valor, Posicionotra) => Posicionotra === Indice ? !Valor : Valor) }) })),
+    Diafichas: ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((Etiquetatexto, Indice) => ({
+      Etiqueta: Etiquetatexto,
+      ...Fichaseleccion(Boolean(Recordatorio.Dias[Indice])),
+      Alclic: () => Fijarrecordatorio({ Dias: Recordatorio.Dias.map((Valor, Posicionotra) => Posicionotra === Indice ? !Valor : Valor) })
+    })),
     Recordatoriointerruptores: [
       ['Efectivo', 'Efectivo sin consignar', 'Aviso diario si tienes efectivo pendiente por consignar'],
       ['Semanal', 'Resumen semanal', 'Los lunes: cuánto subió tu techo'],
@@ -192,41 +233,80 @@ function Generarvaloresperfil(Calculo, Fichaseleccion, Oscuroactivo) {
         Fijarrecordatorio({ [Clave]: Nuevo });
         if (Clave === 'Efectivo' && window.Puentenativo && typeof window.Puentenativo.actualizarEstadoEfectivo === 'function') {
           const Regs = Estadoactual.Registros || [];
-          const Efectivopendiente = Regs.filter(E => !E.Consignado && E.Medio === 'Efectivo').reduce((Acc, E) => Acc + (E.Monto || 0), 0) + (Estadoactual.Efectivoanterior || 0);
+          const Efectivopendiente = Regs.filter(Item => !Item.Consignado && Item.Medio === 'Efectivo').reduce((Acc, Item) => Acc + (Item.Monto || 0), 0) + (Estadoactual.Efectivoanterior || 0);
           window.Puentenativo.actualizarEstadoEfectivo(Nuevo && Efectivopendiente > 0);
         }
       }
     }))
   };
-
 }
 
 function Generarvaloresentidades(Calculo, Seleccion) {
-  const Estadoactual = this.Estadocomponente, Pestana = Estadoactual.Entidadpestana === 'fna' ? 'fna' : 'caja', E = (Estadoactual.Infoentidad || {})[Pestana] || {};
-  const Fijar = (Clave, Valor) => this.Cambiarestado(Estadoprevio => ({ Infoentidad: { ...(Estadoprevio.Infoentidad || {}), [Pestana]: { ...((Estadoprevio.Infoentidad || {})[Pestana] || {}), [Clave]: Valor } } }));
-  const Campodinero = (Clave, Etiqueta, Pista, Maximo = Limitesfinancieros.Ahorro) => ({ Escampo: true, Etiqueta, Valorcampo: E[Clave] ? Formatoenteropesos(E[Clave]) : '', Modoteclado: 'numeric', Ejemplo: '$0', Pista: Pista || '', Alescribir: (Elemento) => Fijar(Clave, Limpiardigitos(Elemento.target.value, Maximo)) });
-  const Camponumero = (Clave, Etiqueta, Ejemplo, Pista, Decimal, Maximo = Limitesfinancieros.MesesAfiliacionMax) => ({ Escampo: true, Etiqueta, Valorcampo: E[Clave] ? String(E[Clave]).replace('.', ',') : '', Modoteclado: Decimal ? 'decimal' : 'numeric', Ejemplo, Pista: Pista || '', Alescribir: (Elemento) => Fijar(Clave, Decimal ? Limpiardecimal(Elemento.target.value, Maximo, 2) : Limpiardigitos(Elemento.target.value, Maximo)) });
-  const Campotexto = (Clave, Etiqueta, Ejemplo) => ({ Escampo: true, Etiqueta, Valorcampo: E[Clave] || '', Modoteclado: 'text', Ejemplo, Pista: '', Alescribir: (Elemento) => Fijar(Clave, Textoseguro(Elemento.target.value, 20)) });
-  const Fichas = (Clave, Etiqueta, Opciones) => ({ Esfichas: true, Etiqueta, Opciones: Opciones.map(Objeto => ({ Etiqueta: Objeto, ...Seleccion(E[Clave] === Objeto), Alclic: () => Fijar(Clave, E[Clave] === Objeto ? '' : Objeto) })) });
-  const Esfna = Pestana === 'fna', Nombreitem = Esfna ? 'FNA' : (Estadoactual.Cajanombre || 'tu Caja');
-  let Afiliacionestado = {}, Subsidioestado = {};
-  if (E.Meses > 0 && E.Mesesrequeridos > 0) {
-    const Filtradas = E.Mesesrequeridos - E.Meses;
-    if (Filtradas <= 0) Afiliacionestado = { status: 'Cumples el tiempo mínimo (' + E.Meses + ' de ' + E.Mesesrequeridos + ' meses).', Estadofondo: 'var(--ac)' };
-    else { const Dato = new Date(); Dato.setMonth(Dato.getMonth() + Filtradas); Afiliacionestado = { status: 'Te faltan ' + Filtradas + (Filtradas === 1 ? ' mes' : ' meses') + ': lo cumples en ' + Dato.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }) + '.', Estadofondo: '#FFD23F' }; }
-  } else if (E.Meses > 0 || E.Mesesrequeridos > 0) Afiliacionestado = { status: 'Escribe ' + (E.Meses > 0 ? 'el tiempo mínimo que te pide la entidad' : 'tus meses de afiliación') + ' para saber si ya cumples.', Estadofondo: 'var(--c2)' };
-  const Valormes = Mesesvigencia(E.Vencesubsidio);
-  if (E.Vencesubsidio && Valormes === null) Subsidioestado = { status: 'Escribe la vigencia como mes/año, por ejemplo 12/2027.', Estadofondo: 'var(--c2)' };
-  else if (Valormes !== null && Valormes < 0) Subsidioestado = { status: 'Tu subsidio venció. No lo sumamos a tu cuota inicial; pregunta en ' + Nombreitem + ' si puedes prorrogarlo.', Estadofondo: 'var(--al)' };
-  else if (Valormes !== null && Valormes <= 3) Subsidioestado = { status: 'Tu subsidio vence en ' + (Valormes <= 0 ? 'este mes' : Valormes + (Valormes === 1 ? ' mes' : ' meses')) + '. Úsalo antes o pide una prórroga.', Estadofondo: '#FFD23F' };
-  else if (Valormes !== null) Subsidioestado = { status: 'Vigente por ' + Valormes + ' meses más.', Estadofondo: 'var(--ac)' };
+  const Estadoactual = this.Estadocomponente;
+  const Pestana = Estadoactual.Entidadpestana === 'fna' ? 'fna' : 'caja';
+  const Entidadactual = (Estadoactual.Infoentidad || {})[Pestana] || {};
+  const Fijar = (Clave, Valor) => this.Cambiarestado(Estadoprevio => ({
+    Infoentidad: {
+      ...(Estadoprevio.Infoentidad || {}),
+      [Pestana]: { ...((Estadoprevio.Infoentidad || {})[Pestana] || {}), [Clave]: Valor }
+    }
+  }));
+  const Campodinero = (Clave, Etiqueta, Pista, Maximo = Limitesfinancieros.Ahorro) => ({
+    Escampo: true, Etiqueta, Valorcampo: Entidadactual[Clave] ? Formatoenteropesos(Entidadactual[Clave]) : '',
+    Modoteclado: 'numeric', Ejemplo: '$0', Pista: Pista || '',
+    Alescribir: (Elemento) => Fijar(Clave, Limpiardigitos(Elemento.target.value, Maximo))
+  });
+  const Camponumero = (Clave, Etiqueta, Ejemplo, Pista, Decimal, Maximo = Limitesfinancieros.Mesesafiliacionmaximo) => ({
+    Escampo: true, Etiqueta, Valorcampo: Entidadactual[Clave] ? String(Entidadactual[Clave]).replace('.', ',') : '',
+    Modoteclado: Decimal ? 'decimal' : 'numeric', Ejemplo, Pista: Pista || '',
+    Alescribir: (Elemento) => Fijar(Clave, Decimal ? Limpiardecimal(Elemento.target.value, Maximo, 2) : Limpiardigitos(Elemento.target.value, Maximo))
+  });
+  const Campotexto = (Clave, Etiqueta, Ejemplo) => ({
+    Escampo: true, Etiqueta, Valorcampo: Entidadactual[Clave] || '', Modoteclado: 'text', Ejemplo, Pista: '',
+    Alescribir: (Elemento) => Fijar(Clave, Textoseguro(Elemento.target.value, 20))
+  });
+  const Fichas = (Clave, Etiqueta, Opciones) => ({
+    Esfichas: true, Etiqueta,
+    Opciones: Opciones.map(Objeto => ({ Etiqueta: Objeto, ...Seleccion(Entidadactual[Clave] === Objeto), Alclic: () => Fijar(Clave, Entidadactual[Clave] === Objeto ? '' : Objeto) }))
+  });
+
+  const Esfna = Pestana === 'fna';
+  const Nombreitem = Esfna ? 'FNA' : (Estadoactual.Cajanombre || 'tu Caja');
+  let Afiliacionestado = {};
+  let Subsidioestado = {};
+
+  if (Entidadactual.Meses > 0 && Entidadactual.Mesesrequeridos > 0) {
+    const Restantes = Entidadactual.Mesesrequeridos - Entidadactual.Meses;
+    if (Restantes <= 0) {
+      Afiliacionestado = { Estadotexto: 'Cumples el tiempo mínimo (' + Entidadactual.Meses + ' de ' + Entidadactual.Mesesrequeridos + ' meses).', Estadofondo: 'var(--ac)' };
+    } else {
+      const Dato = new Date();
+      Dato.setMonth(Dato.getMonth() + Restantes);
+      Afiliacionestado = { Estadotexto: 'Te faltan ' + Restantes + (Restantes === 1 ? ' mes' : ' meses') + ': lo cumples en ' + Dato.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' }) + '.', Estadofondo: '#FFD23F' };
+    }
+  } else if (Entidadactual.Meses > 0 || Entidadactual.Mesesrequeridos > 0) {
+    const Faltante = Entidadactual.Meses > 0 ? 'el tiempo mínimo que te pide la entidad' : 'tus meses de afiliación';
+    Afiliacionestado = { Estadotexto: 'Escribe ' + Faltante + ' para saber si ya cumples.', Estadofondo: 'var(--c2)' };
+  }
+
+  const Valormes = Mesesvigencia(Entidadactual.Vencesubsidio);
+  if (Entidadactual.Vencesubsidio && Valormes === null) {
+    Subsidioestado = { Estadotexto: 'Escribe la vigencia como mes/año, por ejemplo 12/2027.', Estadofondo: 'var(--c2)' };
+  } else if (Valormes !== null && Valormes < 0) {
+    Subsidioestado = { Estadotexto: 'Tu subsidio venció. No lo sumamos a tu cuota inicial; pregunta en ' + Nombreitem + ' si puedes prorrogarlo.', Estadofondo: 'var(--al)' };
+  } else if (Valormes !== null && Valormes <= 3) {
+    const Plazovence = Valormes <= 0 ? 'este mes' : Valormes + (Valormes === 1 ? ' mes' : ' meses');
+    Subsidioestado = { Estadotexto: 'Tu subsidio vence en ' + Plazovence + '. Úsalo antes o pide una prórroga.', Estadofondo: '#FFD23F' };
+  } else if (Valormes !== null) {
+    Subsidioestado = { Estadotexto: 'Vigente por ' + Valormes + ' meses más.', Estadofondo: 'var(--ac)' };
+  }
 
   const Secciones = [
     {
       Numeroseccion: '01', Titulo: 'Afiliación', Descripcioncorta: Esfna ? 'Cómo ahorras en el Fondo Nacional del Ahorro.' : 'Tu vínculo con ' + Nombreitem + '.', Campos: [
         Fichas('Vinculo', 'TIPO DE VINCULACIÓN', Esfna ? ['Cesantías', 'Ahorro voluntario (AVC)', 'Ambos'] : ['Dependiente', 'Independiente', 'Pensionado']),
-        Camponumero('Meses', 'MESES DE AFILIACIÓN', '0', '', false, Limitesfinancieros.MesesAfiliacionMax),
-        Camponumero('Mesesrequeridos', 'TIEMPO MÍNIMO QUE TE PIDE (MESES)', '0', Esfna ? 'Pregúntalo en el FNA: es el ahorro mínimo antes de pedir crédito.' : 'Pregúntalo en ' + Nombreitem + ': es la afiliación mínima para postularte al subsidio.', false, Limitesfinancieros.MesesAfiliacionMax)], ...Afiliacionestado
+        Camponumero('Meses', 'MESES DE AFILIACIÓN', '0', '', false, Limitesfinancieros.Mesesafiliacionmaximo),
+        Camponumero('Mesesrequeridos', 'TIEMPO MÍNIMO QUE TE PIDE (MESES)', '0', Esfna ? 'Pregúntalo en el FNA: es el ahorro mínimo antes de pedir crédito.' : 'Pregúntalo en ' + Nombreitem + ': es la afiliación mínima para postularte al subsidio.', false, Limitesfinancieros.Mesesafiliacionmaximo)], ...Afiliacionestado
     },
     {
       Numeroseccion: '02', Titulo: 'Ahorro en la entidad', Descripcioncorta: 'Saldos que puedes usar para la cuota inicial. No los incluyas si ya los sumaste en "Ahorro para cuota inicial".', Campos: [
@@ -241,10 +321,10 @@ function Generarvaloresentidades(Calculo, Seleccion) {
     },
     {
       Numeroseccion: '04', Titulo: 'Crédito preaprobado', Descripcioncorta: 'Si ' + Nombreitem + ' ya te preaprobó un crédito, escribe sus condiciones. Se usan cuando eliges esta entidad en Simular.', Campos: [
-        Campodinero('Monto', 'MONTO PREAPROBADO', '', Limitesfinancieros.CreditoPreaprobado),
-        Camponumero('Tasa', 'TASA E.A. (%)', '0,0', '', true, Limitesfinancieros.TasaEAMax),
-        Camponumero('Plazo', 'PLAZO (AÑOS)', '0', '', false, Limitesfinancieros.PlazoAniosMax),
-        Camponumero('Financiacion', 'FINANCIACIÓN (% DEL INMUEBLE)', '0', 'Hasta 80% en VIS; el FNA puede financiar más en VIS y VIP.', false, Limitesfinancieros.FinanciacionMax)]
+        Campodinero('Monto', 'MONTO PREAPROBADO', '', Limitesfinancieros.Creditopreaprobado),
+        Camponumero('Tasa', 'TASA E.A. (%)', '0,0', '', true, Limitesfinancieros.Tasaeamaxima),
+        Camponumero('Plazo', 'PLAZO (AÑOS)', '0', '', false, Limitesfinancieros.Plazoaniosmaximo),
+        Camponumero('Financiacion', 'FINANCIACIÓN (% DEL INMUEBLE)', '0', 'Hasta 80% en VIS; el FNA puede financiar más en VIS y VIP.', false, Limitesfinancieros.Financiacionmaxima)]
     }
   ];
 
@@ -254,14 +334,32 @@ function Generarvaloresentidades(Calculo, Seleccion) {
   const Usando = [];
   if (Calculo.Ahorroentidad > 0) Usando.push('Sumamos ' + Formatoenteropesos(Calculo.Ahorroentidad) + ' de cesantías y ahorros a tu cuota inicial');
   const Infoentidades = Estadoactual.Infoentidad || {};
-  ['caja', 'fna'].forEach(Clave => { const Objeto = Infoentidades[Clave] || {}; if (Objeto.Meses > 0 && Objeto.Mesesrequeridos > Objeto.Meses) Usando.push('Aún no cumples el tiempo mínimo en ' + (Clave === 'fna' ? 'el FNA' : (Estadoactual.Cajanombre || 'tu Caja')) + ': ' + (Clave === 'fna' ? 'el crédito' : 'el subsidio') + ' podría no aplicar todavía'); });
+  ['caja', 'fna'].forEach(Clave => {
+    const Objeto = Infoentidades[Clave] || {};
+    if (Objeto.Meses > 0 && Objeto.Mesesrequeridos > Objeto.Meses) {
+      const Quien = Clave === 'fna' ? 'el FNA' : (Estadoactual.Cajanombre || 'tu Caja');
+      const Producto = Clave === 'fna' ? 'el crédito' : 'el subsidio';
+      Usando.push('Aún no cumples el tiempo mínimo en ' + Quien + ': ' + Producto + ' podría no aplicar todavía');
+    }
+  });
   if (Calculo.Subsidiocajareal) Usando.push('Usamos tu subsidio asignado por la Caja');
   if (Calculo.Subsidiofnareal) Usando.push('Usamos tu subsidio asignado con el FNA');
-  if (Calculo.Preaprobadomonto || Calculo.Preaprobadotasa) Usando.push('Simular usa el crédito preaprobado de ' + (Calculo.Entidadclave === 'fna' ? 'FNA' : Estadoactual.Cajanombre || 'tu Caja'));
-  else if (Llenos(E) && (E.Monto || E.Tasa)) Usando.push('Elige ' + Nombreitem + ' en Simular para usar su crédito preaprobado');
+  if (Calculo.Preaprobadomonto || Calculo.Preaprobadotasa) {
+    Usando.push('Simular usa el crédito preaprobado de ' + (Calculo.Entidadclave === 'fna' ? 'FNA' : Estadoactual.Cajanombre || 'tu Caja'));
+  } else if (Llenos(Entidadactual) && (Entidadactual.Monto || Entidadactual.Tasa)) {
+    Usando.push('Elige ' + Nombreitem + ' en Simular para usar su crédito preaprobado');
+  }
 
   return {
-    Entidadpestanas: [['caja', Estadoactual.Cajanombre ? 'Caja · ' + Estadoactual.Cajanombre : 'Caja de compensación'], ['fna', 'Fondo Nacional del Ahorro']].map(([Clave, Etiquetatexto]) => { const Activo = Pestana === Clave; return { Etiqueta: Etiquetatexto, Fondo: Activo ? 'var(--ik)' : 'transparent', Color: Activo ? 'var(--bg)' : 'var(--mu)', Alclic: () => this.Cambiarestado({ Entidadpestana: Clave }) }; }),
+    Entidadpestanas: [['caja', Estadoactual.Cajanombre ? 'Caja · ' + Estadoactual.Cajanombre : 'Caja de compensación'], ['fna', 'Fondo Nacional del Ahorro']].map(([Clave, Etiquetatexto]) => {
+      const Activo = Pestana === Clave;
+      return {
+        Etiqueta: Etiquetatexto,
+        Fondo: Activo ? 'var(--ik)' : 'transparent',
+        Color: Activo ? 'var(--bg)' : 'var(--mu)',
+        Alclic: () => this.Cambiarestado({ Entidadpestana: Clave })
+      };
+    }),
     Entidadsecciones: Secciones,
     Entidadpestananombre: Nombreitem,
     Entidadprecisionetiqueta: Totaldatos ? Totaldatos + ' DE ' + (Clavesentidad.length * 2) + ' DATOS' : 'ESTIMADO GENERAL',

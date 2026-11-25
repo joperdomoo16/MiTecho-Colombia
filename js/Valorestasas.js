@@ -26,7 +26,7 @@ function Leertasaescrita(Texto) {
 
 function Generarvalorestasas(Calculo, Seleccion) {
   const Estadoactual = this.Estadocomponente;
-  const Desbloqueadotasas = Boolean(Estadoactual.Desbloqueadotasas);
+  const Desbloqueadotasas = Boolean(Estadoactual.Desbloqueadotasas || Estadoactual.Pro);
   const Anunciosvistos = Number(Estadoactual.Anunciostasas || 0);
   const Disponibles = Productostasas.filter(Clave => Entidadesdelproducto(Clave).Entidades.length);
   const Elegido = Estadoactual.Tasasproducto && Disponibles.includes(Estadoactual.Tasasproducto)
@@ -94,6 +94,9 @@ function Generarvalorestasas(Calculo, Seleccion) {
       }
       const Expandida = Abierta === Fila.Nombre;
       const Diferencia = Fila.Cuota - Masbaja;
+      let Notafila = '';
+      if (Fila.Pocosdatos) Notafila = 'Pocos datos';
+      else if (Fila.Sinreporte) Notafila = 'Sin datos recientes';
       return {
         Nombre: Fila.Nombre,
         Puesto: String(Filas.indexOf(Fila) + 1),
@@ -102,7 +105,7 @@ function Generarvalorestasas(Calculo, Seleccion) {
         Tasa: Formatoporcentaje(Fila.Tasa) + (Esuvr ? ' + UVR' : ' E.A.'),
         Ancho: Math.round(Fila.Cuota / Cuotamaxima * 100) + '%',
         Esmasbaja: Credito > 0 && Filas.length > 1 && Filas.indexOf(Fila) === 0,
-        Nota: Fila.Pocosdatos ? 'Pocos datos' : Fila.Sinreporte ? 'Sin datos recientes' : '',
+        Nota: Notafila,
         Tienenota: Boolean(Fila.Pocosdatos || Fila.Sinreporte),
         Expandida,
         Abiertaetiqueta: Expandida ? 'true' : 'false',

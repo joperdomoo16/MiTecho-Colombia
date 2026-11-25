@@ -26,11 +26,20 @@ function Detallespasos(Estadoactual, Calculo) {
   const Meses = Math.round(Calculo.Plazo * 12);
   const Cuotas = Calculo.Creditotecho > 0 ? Datos.Entidades.map(Entidad => Cuotaconcredito(Calculo.Creditotecho, Entidad.Tasa, Meses)) : [];
   const Diferencia = Cuotas.length > 1 ? Math.max(...Cuotas) - Math.min(...Cuotas) : 0;
+  let Detalledeudas = 'Opcional · mira cuánto pesan tus deudas';
+  if (!Deudas.length) Detalledeudas = 'Opcional · no tienes deudas registradas';
+  else if (Subida >= 1e5) Detalledeudas = 'Opcional · terminar tus deudas lo sube hasta $' + Formatomillones(Subida) + ' M';
+
+  let Detalleviviendas = 'Mira proyectos de referencia en otras ciudades';
+  if (Alcanzables.length) {
+    Detalleviviendas = Alcanzables.length + (Alcanzables.length === 1 ? ' proyecto' : ' proyectos') + ' de referencia en ' + Ciudad;
+  } else if (Proyectosciudad.length) {
+    Detalleviviendas = 'Mira los proyectos de referencia en ' + Ciudad;
+  }
+
   return {
-    Deudas: !Deudas.length ? 'Opcional · no tienes deudas registradas'
-      : Subida >= 1e5 ? 'Opcional · terminar tus deudas lo sube hasta $' + Formatomillones(Subida) + ' M' : 'Opcional · mira cuánto pesan tus deudas',
-    Viviendas: Alcanzables.length ? Alcanzables.length + (Alcanzables.length === 1 ? ' proyecto' : ' proyectos') + ' de referencia en ' + Ciudad
-      : Proyectosciudad.length ? 'Mira los proyectos de referencia en ' + Ciudad : 'Mira proyectos de referencia en otras ciudades',
+    Deudas: Detalledeudas,
+    Viviendas: Detalleviviendas,
     Bancos: Diferencia >= 1000 ? 'Tu cuota puede cambiar hasta ' + Formatoenteropesos(Diferencia) + ' al mes' : 'Mira la tasa y la cuota de cada banco'
   };
 }
@@ -44,7 +53,9 @@ function Generarvaloresplan(Calculo, Tiporecomendado) {
   const Tiene = Math.max(0, Necesario - Falta);
   const Porcentaje = Necesario > 0 ? Math.min(100, Math.round(Tiene / Necesario * 100)) : 0;
   const Ahorrolisto = Tienepresupuesto && Falta <= 0;
-  const Actual = !Tienepresupuesto ? 1 : !Ahorrolisto ? 2 : 4;
+  let Actual = 4;
+  if (!Tienepresupuesto) Actual = 1;
+  else if (!Ahorrolisto) Actual = 2;
 
   const Guardado = Number(Estadoactual.Cuotainicialplazo) || 18;
   const Plazo = Plazosahorro.reduce((Mejor, Opcion) => Math.abs(Opcion - Guardado) < Math.abs(Mejor - Guardado) ? Opcion : Mejor);
@@ -57,13 +68,23 @@ function Generarvaloresplan(Calculo, Tiporecomendado) {
 
   const Detalles = Detallespasos.call(this, Estadoactual, Calculo);
   const Vivienda = Estadoactual.Objetivousuario > 0 ? ' para la vivienda de $' + Formatomillones(Calculo.Objetivo) + ' M que buscas' : '';
+  let Subtitulopasouno = 'Completa tus ingresos para calcularlo';
+  let Destinopasouno = { Panel: 'perfil' };
+  if (Tienepresupuesto) {
+    Subtitulopasouno = 'Hasta $' + Formatomillones(Calculo.Preciotecho) + ' M para tu vivienda';
+    Destinopasouno = { Pestana: 'inicio' };
+  } else if (Calculo.Ingresototal > 0) {
+    Subtitulopasouno = 'Tus deudas se llevan todo tu ingreso';
+    Destinopasouno = { Panel: 'deudas' };
+  }
+
+  let Subtitulopasodos = 'Primero conoce tu presupuesto';
+  if (Actual === 2) Subtitulopasodos = 'Tienes $' + Formatomillones(Tiene) + ' M de $' + Formatomillones(Necesario) + ' M' + Vivienda;
+  else if (Ahorrolisto) Subtitulopasodos = 'Ya tienes la cuota inicial y los gastos' + Vivienda;
+
   const Pasos = [
-    { Titulo: 'Conoce tu presupuesto', Hecho: Tienepresupuesto,
-      Subtitulo: Tienepresupuesto ? 'Hasta $' + Formatomillones(Calculo.Preciotecho) + ' M para tu vivienda' : Calculo.Ingresototal > 0 ? 'Tus deudas se llevan todo tu ingreso' : 'Completa tus ingresos para calcularlo',
-      Ir: () => this.Cambiarestado(Tienepresupuesto ? { Pestana: 'inicio' } : Calculo.Ingresototal > 0 ? { Panel: 'deudas' } : { Panel: 'perfil' }) },
-    { Titulo: 'Junta tu ahorro', Hecho: Ahorrolisto,
-      Subtitulo: Actual === 2 ? 'Tienes $' + Formatomillones(Tiene) + ' M de $' + Formatomillones(Necesario) + ' M' + Vivienda
-        : Ahorrolisto ? 'Ya tienes la cuota inicial y los gastos' + Vivienda : 'Primero conoce tu presupuesto' },
+    { Titulo: 'Conoce tu presupuesto', Hecho: Tienepresupuesto, Subtitulo: Subtitulopasouno, Ir: () => this.Cambiarestado(Destinopasouno) },
+    { Titulo: 'Junta tu ahorro', Hecho: Ahorrolisto, Subtitulo: Subtitulopasodos },
     { Titulo: 'Sube tu presupuesto', Subtitulo: Detalles.Deudas, Ir: () => this.Cambiarestado({ Panel: 'deudas' }) },
     { Titulo: 'Busca vivienda en tu presupuesto', Subtitulo: Detalles.Viviendas, Ir: () => this.Cambiarestado({ Pestana: 'ofertas' }) },
     { Titulo: 'Compara bancos', Subtitulo: Detalles.Bancos, Ir: () => this.Cambiarestado({ Panel: 'tasas' }) },
@@ -74,10 +95,11 @@ function Generarvaloresplan(Calculo, Tiporecomendado) {
     Planintro: 'Tu camino para comprar vivienda, paso a paso. Vas en el paso ' + Actual + '.',
     Planpasos: Pasos.map((Paso, Indice) => {
       const Numero = Indice + 1, Esactual = Numero === Actual, Abierto = Esactual && Numero === 2;
+      const Enlace = !Abierto && Boolean(Paso.Ir);
       return {
         Numero, Titulo: Paso.Titulo, Abierto, Ir: Paso.Ir,
         Subtitulo: Esactual ? 'Estás aquí · ' + Paso.Subtitulo.charAt(0).toLowerCase() + Paso.Subtitulo.slice(1) : Paso.Subtitulo,
-        Enlace: !Abierto && Boolean(Paso.Ir), Fijo: !Abierto && !Paso.Ir,
+        Enlace, Enlaceactual: Enlace && Esactual, Enlacenormal: Enlace && !Esactual, Fijo: !Abierto && !Paso.Ir,
         Hecho: Boolean(Paso.Hecho), Pendiente: !Paso.Hecho, Clase: Esactual ? 'is-actual' : ''
       };
     }),

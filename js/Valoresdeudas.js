@@ -22,13 +22,23 @@ function Generarvaloresdeudas(Calculo) {
   const Marcadas = Deudas.filter(Deuda => Deuda.Activa === false);
   const Subida = Calculo.Preciotecho - Hoy.Preciotecho;
   let Cambio = 'Marca una deuda para ver cuánto sube';
-  if (Marcadas.length) Cambio = Subida >= 1e5 ? '+$' + Formatomillones(Subida) + ' M frente a hoy' : Hoy.Topado ? 'No sube: ya llegaste al tope VIS de ' + Ciudad : 'Por ahora no sube';
+  if (Marcadas.length) {
+    if (Subida >= 1e5) Cambio = '+$' + Formatomillones(Subida) + ' M frente a hoy';
+    else if (Hoy.Topado) Cambio = 'No sube: ya llegaste al tope VIS de ' + Ciudad;
+    else Cambio = 'Por ahora no sube';
+  }
 
-  // Si las marcadas tienen saldo, pagarlas con el ahorro baja lo que queda para la cuota inicial
-  const Saldo = Marcadas.reduce((Suma, Deuda) => Suma + (Deuda.Saldo || 0), 0), Ahorro = Estadoactual.Ahorro || 0;
-  const Aviso = !Saldo ? '' : Ahorro > Saldo
-    ? 'Ojo: si ' + (Marcadas.length === 1 ? 'la pagas' : 'las pagas') + ' con tus ahorros, te quedan $' + Formatomillones(Ahorro - Saldo) + ' M para la cuota inicial. Hoy tienes $' + Formatomillones(Ahorro) + ' M.'
-    : 'Ojo: tus ahorros ($' + Formatomillones(Ahorro) + ' M) no alcanzan para pagar ese saldo de una vez. Puedes abonar mes a mes sin tocar tu ahorro para la vivienda.';
+  const Saldo = Marcadas.reduce((Suma, Deuda) => Suma + (Deuda.Saldo || 0), 0);
+  const Ahorro = Estadoactual.Ahorro || 0;
+  let Aviso = '';
+  if (Saldo > 0) {
+    if (Ahorro > Saldo) {
+      const Pronombre = Marcadas.length === 1 ? 'la pagas' : 'las pagas';
+      Aviso = 'Ojo: si ' + Pronombre + ' con tus ahorros, te quedan $' + Formatomillones(Ahorro - Saldo) + ' M para la cuota inicial. Hoy tienes $' + Formatomillones(Ahorro) + ' M.';
+    } else {
+      Aviso = 'Ojo: tus ahorros ($' + Formatomillones(Ahorro) + ' M) no alcanzan para pagar ese saldo de una vez. Puedes abonar mes a mes sin tocar tu ahorro para la vivienda.';
+    }
+  }
 
   // Más del 25% de los ingresos en deudas es cuando conviene pedir una compra de cartera
   const Proporcion = Hoy.Ingresototal > 0 ? Hoy.Deudasmes / Hoy.Ingresototal : 0;

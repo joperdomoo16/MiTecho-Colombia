@@ -49,7 +49,7 @@ function Generarvaloresayuda(Calculo) {
     { Tema: 'presupuesto', Pregunta: '¿Qué es la cifra grande del Inicio?', Texto: 'Es el precio de la vivienda más cara ($' + Formatomillones(Calculo.Preciotecho) + ' M hoy) que un banco podría financiarte según tu ingreso y tus deudas.' },
     { Tema: 'presupuesto', Pregunta: '¿Cómo calcula el banco mi cuota máxima?', Texto: 'Resta tus deudas mensuales de tus ingresos y deja usar hasta el 40% de ese valor libre (o 30% en modo conservador). Luego multiplica esa cuota por el factor del plazo y la tasa (× ' + Factor + ').' },
     { Tema: 'ahorro', Pregunta: '¿Por qué aún no puedo comprar al tope de mi presupuesto?', Texto: 'Además del préstamo del banco, la constructora pide el cierre financiero completo: tu cuota inicial más los gastos de escrituración (' + Formatoenteropesos(Calculo.Gastostecho) + '). Hoy cierras hasta $' + Formatomillones(Calculo.Preciohoy) + ' M.' },
-    { Tema: 'ahorro', Pregunta: '¿Qué es financiar notaría y registro (Ley 2434)?', Texto: 'Permite sumar los gastos de escrituración al crédito hipotecario (disponible en Simular → Tu resultado). Necesitas menos ahorro inicial, aunque la cuota mensual sube un poco.' },
+    { Tema: 'ahorro', Pregunta: '¿Qué es financiar notaría y registro (Ley 2434)?', Texto: 'Permite sumar los gastos de escrituración al crédito hipotecario (disponible en Simular, dentro de Tu resultado). Necesitas menos ahorro inicial, aunque la cuota mensual sube un poco.' },
     { Tema: 'subsidios', Pregunta: '¿Cuánto subsidio da la Caja de Compensación?', Texto: 'En 2026 entrega 30 SMMLV ($52,5 M) si el hogar gana hasta 2 SMMLV, y 20 SMMLV ($35,0 M) entre 2 y 4 SMMLV, únicamente para vivienda VIS.' },
     { Tema: 'subsidios', Pregunta: '¿Qué necesito si trabajo como independiente?', Texto: 'Puedes afiliarte voluntariamente a una Caja aportando el 2% de tus ingresos (con el 0,6% no aplica vivienda). Por ejemplo, Compensar exige 12 meses de aportes antes de postularte.' },
     { Tema: 'subsidios', Pregunta: '¿Para qué sirven los datos de Caja o FNA?', Texto: 'Son opcionales: si ya tienes cesantías en FNA, un subsidio asignado o un crédito preaprobado, MiTecho usa tus valores reales en lugar del promedio general.' },
@@ -60,8 +60,16 @@ function Generarvaloresayuda(Calculo) {
     { Tema: 'registros', Pregunta: '¿Por qué importa el efectivo sin consignar?', Texto: 'El banco confirma ingresos con tus extractos bancarios o billeteras. El efectivo que no consignas en cuenta, Nequi o DaviPlata no queda soportado.' },
     { Tema: 'registros', Pregunta: '¿Cómo se desbloquean las herramientas avanzadas?', Texto: 'Todas las funciones de MiTecho son gratuitas: el comparador por banco, simulación en pareja y reporte PDF se habilitan viendo videos cortos de anuncio.' },
     { Tema: 'datos', Pregunta: '¿Dónde se guardan mis datos y quién los ve?', Texto: 'Tus movimientos diarios se quedan solo en tu celular. Tu perfil financiero se respalda en tu cuenta (o solo en tu celular si entras sin cuenta) bajo la Ley 1581 de 2012.' },
-    { Tema: 'datos', Pregunta: '¿Puedo descargar o borrar todos mis datos?', Texto: 'Sí. En Perfil y ajustes → Cuenta puedes descargar una copia de tus datos o borrar por completo tu cuenta e información cuando quieras.' }
+    { Tema: 'datos', Pregunta: '¿Puedo descargar o borrar todos mis datos?', Texto: 'Sí. En Perfil y ajustes, dentro de Cuenta, puedes descargar una copia de tus datos o borrar por completo tu cuenta e información cuando quieras.' }
   ];
+
+  const Nombrespanelayuda = {
+    perfil: 'Perfil y ajustes',
+    deudas: 'Tus deudas',
+    tasas: 'Comparar bancos',
+    reporte: 'Tu reporte',
+    subsidios: 'Caja y subsidios'
+  };
 
   const Consulta = Normalizartexto((Estadoactual.Ayudabusqueda || '').trim());
   const Temaactivo = Estadoactual.Ayudatema || '';
@@ -78,7 +86,7 @@ function Generarvaloresayuda(Calculo) {
 
   return {
     Ayudapantalla: true,
-    Ayudavolver: Estadoactual.Panel === 'perfil' ? 'Perfil y ajustes' : Estadoactual.Panel === 'deudas' ? 'Tus deudas' : Estadoactual.Panel === 'tasas' ? 'Comparar bancos' : Estadoactual.Panel === 'reporte' ? 'Tu reporte' : Estadoactual.Panel === 'subsidios' ? 'Caja y subsidios' : (Nombrespestanas[this.Pestana] || 'Inicio'),
+    Ayudavolver: Nombrespanelayuda[Estadoactual.Panel] || Nombrespestanas[this.Pestana] || 'Inicio',
     Ayudabusqueda: Estadoactual.Ayudabusqueda || '',
     Escribirayudabusqueda: (Elemento) => this.Cambiarestado({ Ayudabusqueda: Textoseguro(Elemento.target.value, 60), Ayudaabierta: 0 }),
     Ayudatemas: Temasayuda.map(Tema => ({

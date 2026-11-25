@@ -91,7 +91,11 @@ function Generarvaloresmovimientos(Calculo) {
     Movmetaporcentajetexto: Metaporcentaje + '%',
     Movmetaancho: Metaporcentaje + '%',
     Movmetaetiqueta: 'Llevas el ' + Metaporcentaje + '% de la meta ' + (Eshoy ? 'de hoy' : 'de ese día'),
-    Movracha: Seguidos === 0 ? 'Empieza hoy tu racha' : Seguidos === 1 ? '1 día registrando' : Seguidos + ' días seguidos registrando',
+    Movracha: (() => {
+      if (Seguidos === 0) return 'Empieza hoy tu racha';
+      if (Seguidos === 1) return '1 día registrando';
+      return Seguidos + ' días seguidos registrando';
+    })(),
     Movregistrostitulo: Eshoy ? 'Registros de hoy' : 'Registros del ' + Fechalarga(Fechaelegida),
     Movregistros: Ingresosdia.map(Filaingreso),
     Movsinregistros: !Ingresosdia.length,
@@ -106,11 +110,17 @@ function Generarvaloresmovimientos(Calculo) {
     Registraringresodia: Abrirhojadia('ingreso'),
     Movpromediotitulo: 'Tu promedio de los últimos ' + Calculo.N + ' meses',
     Movpromedio: Formatoenteropesos(Promedio),
-    Movbarras: Valoresmes.map((Valor, Indice) => ({
-      Mes: Meses[Indice].Etiqueta.toLowerCase(), Valor: Valor === null ? '—' : Millonesmes(Valor),
-      Altura: Math.max(Valor ? 4 : 0, Math.round((Valor || 0) / Maximo * 110)) + 'px',
-      Clase: Indice === 6 ? 'is-parcial' : Indice === Mejor ? 'is-mejor' : ''
-    })),
+    Movbarras: Valoresmes.map((Valor, Indice) => {
+      let Clase = '';
+      if (Indice === 6) Clase = 'is-parcial';
+      else if (Indice === Mejor) Clase = 'is-mejor';
+      return {
+        Mes: Meses[Indice].Etiqueta.toLowerCase(),
+        Valor: Valor === null ? '—' : Millonesmes(Valor),
+        Altura: Math.max(Valor ? 4 : 0, Math.round((Valor || 0) / Maximo * 110)) + 'px',
+        Clase
+      };
+    }),
     Movbarrasetiqueta: 'Ingresos por mes: ' + Valoresmes.map((Valor, Indice) => Nombremes(Meses[Indice].Clave) + (Indice === 6 ? ' va en ' : ' ') + (Valor === null ? 'sin registros' : Millonesmes(Valor) + ' millones')).join(', '),
     Movbarrasnota: 'Millones de pesos. ' + Mayuscula(Nombremes(Mesactual)) + ' aún no termina: va en $' + Millonesmes(Valoresmes[6] || 0) + ' M.',
     Movmejorvisible: Mejor >= 0,
