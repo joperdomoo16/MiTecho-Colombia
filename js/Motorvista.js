@@ -79,7 +79,9 @@
         if (Objetivo) Nodo.setAttribute('data-ref', Contexto.Referencia(Objetivo));
         continue;
       }
-      let Valor = Completo ? Buscarvalor(Completo[1], Ambitos) : (Crudo.includes('{{') ? Interpolar(Crudo, Ambitos) : Crudo);
+      let Valor = Crudo;
+      if (Completo) Valor = Buscarvalor(Completo[1], Ambitos);
+      else if (Crudo.includes('{{')) Valor = Interpolar(Crudo, Ambitos);
       if (Nombreatributo === 'autofocus') { if (Valor) Nodo.setAttribute('data-autofocus', ''); continue; }
       if (Nombreatributo.startsWith('aria-') && Valor != null) Valor = String(Valor);
       if (Valor === false || Valor == null) continue;

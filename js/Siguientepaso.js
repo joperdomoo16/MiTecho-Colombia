@@ -26,7 +26,7 @@ function Elegirsiguientepaso(Calculo, Tiporecomendado) {
     return { Titulo: 'Baja tus cuotas de deudas', Texto: 'Hoy tus cuotas se llevan todo tu ingreso y el banco no te presta. Cada cuota que termines de pagar sube tu presupuesto.', Accion: 'Ver mis deudas', Ir: Irdeudas };
   }
 
-  // 1. Subsidio: es plata que no se devuelve, va primero si la vivienda es VIS y el hogar gana hasta 4 SMMLV
+  // Prioriza el subsidio en vivienda VIS cuando el hogar gana hasta 4 SMMLV
   if (!Estadoactual.Caja && Calculo.Salariosminimos <= 4 && Tiporecomendado === 'vis') {
     const Potencial = Subsidiopotencial(Calculo.Salariosminimos);
     const Alcanza = Calculo.Faltatecho > 0 && Potencial >= Calculo.Faltatecho ? ': más de lo que te falta' : '';
@@ -36,7 +36,7 @@ function Elegirsiguientepaso(Calculo, Tiporecomendado) {
     return { Titulo: 'Pide un subsidio de vivienda', Texto: 'Si tienes contrato laboral, tu empresa ya te afilió a una Caja: márcala en tu perfil. Si cumples los requisitos, podrías recibir hasta **$' + Formatomillones(Potencial) + ' M**' + Alcanza + '.', Accion: 'Ver si puedo pedirlo', Ir: Irsubsidios };
   }
 
-  // 2. Deudas: si el límite es la cuota que aprueba el banco, la cuota más alta es la que más sube el presupuesto al cerrarla
+  // Si lo que frena es la capacidad mensual, sugiere liberar la cuota más alta
   const Cerrables = (Estadoactual.Deudas || []).filter(Deuda => Deuda.Activa !== false && Deuda.Cuota > 0 && !Egresosnoterminables.includes(Deuda.Corto));
   if (Calculo.Limitante === 'capacidad_pago' && Cerrables.length) {
     const Mayor = Cerrables.reduce((Elegida, Deuda) => Deuda.Cuota > Elegida.Cuota ? Deuda : Elegida);
@@ -47,7 +47,7 @@ function Elegirsiguientepaso(Calculo, Tiporecomendado) {
     }
   }
 
-  // 3. Ahorro: si falta cuota inicial, ahorrar un 20% más al mes adelanta la compra
+  // Cuando falta ahorro para cerrar, propone subir un 20% el aporte mensual
   if (Calculo.Faltatecho > 0) {
     const Falta = Formatoenteropesos(Calculo.Faltatecho), Ahorromes = Estadoactual.Ahorromes || 0;
     if (Ahorromes <= 0) {
@@ -61,7 +61,7 @@ function Elegirsiguientepaso(Calculo, Tiporecomendado) {
     return { Titulo: 'Ya casi completas tu cuota inicial', Texto: 'Te faltan **' + Falta + '**: a tu ritmo de ' + Formatoenteropesos(Ahorromes) + ' al mes la completas en ' + Formatearmeses(Mesesritmo) + '.', Accion: 'Ajustar mi plan', Ir: Irplan };
   }
 
-  // 4. Con la cuota inicial lista, lo que sigue es revisar el crédito y comparar entidades
+  // Con cuota inicial cubierta invita a comparar tasas entre bancos
   return { Titulo: 'Tu cuota inicial está lista', Texto: 'Revisa el detalle de tu crédito y compara la cuota entre entidades antes de ir al banco.', Accion: 'Ver mi resultado', Ir: () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'result' }) };
 }
 

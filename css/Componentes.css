@@ -11,6 +11,13 @@
 .texto-tinta { color:var(--ink); }
 .con-icono { display:flex; align-items:center; gap:8px; }
 
+/* Cifras largas: nunca se salen de su tarjeta ni agrandan la pantalla hacia los lados */
+.heroe, .tarjeta, .heroe-parte, .tarjeta-fila, .sim-detalle, .plan-cifra, .subsidios-heroe { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.heroe-cifra, .mov-cifra, .sim-cuota-cifra, .sim-ingreso-cifra, .plan-cifra-valor, .deudas-heroe-cifra, .tarjeta-cifra,
+.sim-total, .sim-fila-valor, .sim-falta-valor, .mov-fila-monto, .mov-parte-valor, .proyecto-precio, .bancos-cuota-valor, .meta-cifra { max-width: 100%; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.sim-total, .sim-fila-valor, .mov-fila-monto, .proyecto-precio, .bancos-cuota-valor { white-space: normal; text-align: right; }
+.m75, .m3l { overflow-x: hidden; }
+
 /* Tarjetas */
 .tarjeta { background:var(--sf); border:1px solid var(--ln); border-radius:20px; padding:18px; display:flex; flex-direction:column; gap:12px; text-align:left; }
 .tarjeta-icono { width:36px; height:36px; border-radius:12px; background:var(--soft-ac); color:var(--at); display:flex; align-items:center; justify-content:center; flex:none; }

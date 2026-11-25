@@ -1,18 +1,18 @@
-// Conexión de la app del celular con el servidor de cuentas y base de datos en Supabase
+// Cliente HTTP hacia Supabase: cuentas, respaldo del perfil, tasas semanales y trámites legales
 
-// Datos públicos de conexión: la llave de Supabase es la publicable, la seguridad real la dan las reglas RLS
 const Configuracionapi = {
   Urlbase: 'https://tbliwiawziexlziqqcji.supabase.co',
   Claveanonima: 'sb_publishable_97ZjBlve6ihVdxgH2wWchw_b8VDbd_N',
   Tiempoesperams: 8000,
-  // Páginas a las que llevan los enlaces de los correos; también deben estar en Redirect URLs de Supabase
   Urlcorreoconfirmado: 'https://mitecho-co.web.app/Correoconfirmado',
   Urlrestablecer: 'https://mitecho-co.web.app/Restablecercontrasena'
 };
 
 const Mensajesinconexion = 'No pudimos conectarnos en este momento, revisa tu internet e intenta de nuevo.';
 
-// En el celular la sesión queda cifrada en el Keystore; en el computador (pruebas) solo dura mientras la pestaña esté abierta
+// En el celular la sesión va cifrada en el Keystore; en el computador vive solo en memoria RAM mientras corre la pestaña
+const Sesionmemoria = new Map();
+
 function Puentesesion() {
   const Puente = typeof window !== 'undefined' ? window.Puentenativo : null;
   return Puente && typeof Puente.leerSeguro === 'function' ? Puente : null;
@@ -21,11 +21,7 @@ function Puentesesion() {
 function Leerdatosesion(Clave) {
   const Puente = Puentesesion();
   if (Puente) return Puente.leerSeguro(Clave) || null;
-  try {
-    return typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('mitecho.sesion.' + Clave) : null;
-  } catch (Falla) {
-    return null;
-  }
+  return Sesionmemoria.get(Clave) || null;
 }
 
 function Guardardatosesion(Clave, Valor) {
@@ -35,29 +31,27 @@ function Guardardatosesion(Clave, Valor) {
     Puente.guardarSeguro(Clave, String(Valor));
     return;
   }
-  try {
-    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('mitecho.sesion.' + Clave, String(Valor));
-  } catch (Falla) {}
+  Sesionmemoria.set(Clave, String(Valor));
 }
 
 function Borrardatosesion(Clave) {
   const Puente = Puentesesion();
   if (Puente) Puente.borrarSeguro(Clave);
-  try {
-    if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('mitecho.sesion.' + Clave);
-  } catch (Falla) {}
+  Sesionmemoria.delete(Clave);
 }
 
-// Migración única de sesiones guardadas en localStorage hacia el almacén seguro del dispositivo
+// Migra y borra cualquier rastro viejo que haya quedado de primeras versiones
 function Migrarsesionantigua() {
   if (typeof localStorage === 'undefined') return;
   const Antiguas = { token: 'mitecho.auth.token', uid: 'mitecho.auth.uid', correo: 'mitecho.auth.email' };
   for (const Clave in Antiguas) {
-    const Valor = localStorage.getItem(Antiguas[Clave]);
-    if (Valor !== null) {
-      Guardardatosesion(Clave, Valor);
-      localStorage.removeItem(Antiguas[Clave]);
-    }
+    try {
+      const Valor = localStorage.getItem(Antiguas[Clave]);
+      if (Valor !== null) {
+        Guardardatosesion(Clave, Valor);
+        localStorage.removeItem(Antiguas[Clave]);
+      }
+    } catch (Falla) {}
   }
 }
 Migrarsesionantigua();
@@ -70,7 +64,6 @@ function Obteneruidsesion() {
   return Leerdatosesion('uid');
 }
 
-// El token de acceso vence a la hora; el de renovación permite pedir otro sin volver a escribir la contraseña
 function Guardartokenssesion(Token, Uid, Correo, Renovacion) {
   Guardardatosesion('token', Token);
   if (Renovacion) Guardardatosesion('renovacion', Renovacion);
@@ -100,7 +93,6 @@ async function Peticionhttpsegura(Url, Opciones = {}) {
     if (!Respuesta.ok) {
       const Mensaje = (Datosjson && (Datosjson.msg || Datosjson.mensaje || Datosjson.message || Datosjson.error_description || Datosjson.error))
         || ('Error en el servidor (' + Respuesta.status + ')');
-      // Supabase manda el motivo exacto en error_code (por ejemplo email_not_confirmed); el texto puede cambiar
       const Codigo = (Datosjson && Datosjson.error_code) || '';
       return { ok: false, error: Mensaje, codigo: Codigo, estado: Respuesta.status };
     }
@@ -123,7 +115,7 @@ async function Peticionauth(Ruta, Cuerpo) {
   });
 }
 
-// Pide un token nuevo con el de renovación. Si varias peticiones vencen al tiempo, todas esperan la misma renovación
+// Comparte una sola renovación activa cuando varias llamadas reciben 401 al mismo tiempo
 let Renovacionencurso = null;
 function Renovarsesionapi() {
   const Renovacion = Leerdatosesion('renovacion');
@@ -139,11 +131,11 @@ function Renovarsesionapi() {
   return Renovacionencurso;
 }
 
-// Si la petición falla porque el token venció (401), renueva la sesión y la repite una sola vez
 async function Peticionconsesion(Hacerpeticion) {
   const Resultado = await Hacerpeticion();
   if (Resultado.ok || Resultado.estado !== 401 || !Leerdatosesion('renovacion')) return Resultado;
-  return (await Renovarsesionapi()) ? Hacerpeticion() : Resultado;
+  const Renovada = await Renovarsesionapi();
+  return Renovada ? Hacerpeticion() : Resultado;
 }
 
 async function Peticionrest(Ruta, Opciones = {}) {
@@ -163,7 +155,6 @@ async function Peticionrestdirecta(Ruta, Opciones) {
   return Peticionhttpsegura(Url, { ...Opciones, headers: Cabeceras });
 }
 
-// Inicia sesión con correo y contraseña y guarda la sesión en el celular
 async function Iniciarsesionapi(Correo, Contrasena) {
   const Resultado = await Peticionauth('token?grant_type=password', { email: Correo, password: Contrasena });
   if (Resultado.ok && Resultado.datos && Resultado.datos.access_token) {
@@ -221,7 +212,8 @@ async function Obtenerperfilapi() {
 async function Guardarperfilapi(Perfil) {
   const Uid = Obteneruidsesion();
   if (!Uid) return { ok: false, error: 'No hay sesión activa' };
-  const Carga = { ...Perfil, usuario_id: Uid, actualizado_en: new Date().toISOString() };
+  const Limpio = typeof Acotarcargaperfil === 'function' ? Acotarcargaperfil(Perfil) : Perfil;
+  const Carga = { ...Limpio, usuario_id: Uid, actualizado_en: new Date().toISOString() };
   return Peticionrest('perfiles_financieros', {
     method: 'POST',
     headers: { 'Prefer': 'resolution=merge-duplicates' },
@@ -229,8 +221,6 @@ async function Guardarperfilapi(Perfil) {
   });
 }
 
-// Soporte y autorización van a la función registrarlegal; ella guarda la prueba, calcula el plazo y llena la hoja de Google.
-// El token se manda solo si hay sesión: desde Contáctanos del inicio de sesión todavía no hay cuenta abierta
 function Peticionlegal(Cuerpo) {
   return Peticionconsesion(() => Peticionlegaldirecta(Cuerpo));
 }
@@ -253,7 +243,6 @@ function Plataformaactual() {
   return Nombres[Nombre] || 'Web';
 }
 
-// Devuelve { ok, datos: { radicado, fecha_maxima, tipo } } o { ok: false, error }
 async function Registrarsolicitudsoporteapi(Datossoporte) {
   return Peticionlegal({
     accion: 'soporte',
@@ -265,7 +254,6 @@ async function Registrarsolicitudsoporteapi(Datossoporte) {
   });
 }
 
-// Tasas de vivienda por entidad (datos públicos de la Superintendencia ya calculados en Supabase)
 async function Obtenertasasapi() {
   return Peticionhttpsegura(Configuracionapi.Urlbase + '/rest/v1/tasas_vivienda_semanal?select=*', {
     method: 'GET',
@@ -273,32 +261,26 @@ async function Obtenertasasapi() {
   });
 }
 
-// Borra la cuenta en la nube. La palabra ELIMINAR solo se manda después de que la persona aceptó el aviso
 async function Eliminarcuentaapi() {
   if (!Obtenertokensesion()) return { ok: false, estado: 401, error: 'Tu sesión venció. Vuelve a iniciar sesión para continuar.' };
   return Peticionlegal({ accion: 'eliminar', confirmacion: 'ELIMINAR' });
 }
 
-// Pide la copia de los datos al correo de la cuenta, junto con lo que está guardado en este celular
 async function Exportardatosapi(Local) {
   if (!Obtenertokensesion()) return { ok: false, estado: 401, error: 'Tu sesión venció. Vuelve a iniciar sesión para continuar.' };
   return Peticionlegal({ accion: 'exportar', local: Local || {} });
 }
 
-// Avisa que la persona abrió la app hoy y trae si tiene Pro y qué versión de la política autorizó
 async function Registraractividadapi() {
   if (!Obtenertokensesion()) return { ok: false, estado: 401 };
   return Peticionlegal({ accion: 'actividad' });
 }
 
-// El nombre, el correo y el método de registro los toma el servidor de la cuenta; aquí solo va la plataforma
 async function Registrarautorizacionapi() {
   if (!Obtenertokensesion()) return { ok: false, estado: 401, error: 'Tu sesión venció. Vuelve a iniciar sesión para continuar.' };
   return Peticionlegal({ accion: 'autorizacion', plataforma: Plataformaactual() });
 }
 
-// Le pide a la función del servidor el correo de bienvenida. Solo se manda con una sesión válida
-// y el servidor revisa si ya se envió antes, así que llamarla en cada inicio de sesión no repite el correo
 async function Enviarbienvenidaapi() {
   const Token = Obtenertokensesion();
   if (!Token) return { ok: false, error: 'No hay sesión activa' };
@@ -311,7 +293,7 @@ async function Enviarbienvenidaapi() {
 
 function Estadosesionactual() {
   return {
-    Autenticado: !!Obtenertokensesion(),
+    Autenticado: Boolean(Obtenertokensesion()),
     Token: Obtenertokensesion(),
     Uid: Obteneruidsesion(),
     Correo: Leerdatosesion('correo')
