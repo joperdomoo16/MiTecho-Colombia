@@ -8,9 +8,16 @@ function Generarvalorescalculo(Calculo, Configuracion) {
   const Financiado = Calculo.Preciotecho > 0 ? Calculo.Creditotecho / Calculo.Preciotecho : 0;
   // El último paso dice por qué el precio llega hasta ahí: el tope VIS, el porcentaje que presta el banco o el ahorro que se suma
   let Detalleprecio;
-  if (Calculo.Topado) Detalleprecio = 'Con lo que te presta el banco pasarías el tope VIS de ' + Ciudad + ', así que tu presupuesto llega hasta ese tope';
-  else if (Math.abs(Financiado - Financiacion) < 0.01) Detalleprecio = (Esleasing ? 'Con leasing' : Esnovis ? 'En vivienda No VIS' : 'En vivienda VIS') + ' el banco presta hasta el ' + Math.round(Financiacion * 100) + '% del precio';
-  else Detalleprecio = 'El banco presta el ' + Math.round(Financiado * 100) + '% del precio y tú pones el resto con tu ahorro' + (Calculo.Subsidiotecho > 0 ? ' y tu subsidio' : '');
+  if (Calculo.Topado) {
+    Detalleprecio = 'Con lo que te presta el banco pasarías el tope VIS de ' + Ciudad + ', así que tu presupuesto llega hasta ese tope';
+  } else if (Math.abs(Financiado - Financiacion) < 0.01) {
+    let Prefijomodalidad = 'En vivienda VIS';
+    if (Esleasing) Prefijomodalidad = 'Con leasing';
+    else if (Esnovis) Prefijomodalidad = 'En vivienda No VIS';
+    Detalleprecio = Prefijomodalidad + ' el banco presta hasta el ' + Math.round(Financiacion * 100) + '% del precio';
+  } else {
+    Detalleprecio = 'El banco presta el ' + Math.round(Financiado * 100) + '% del precio y tú pones el resto con tu ahorro' + (Calculo.Subsidiotecho > 0 ? ' y tu subsidio' : '');
+  }
   const Pasos = [
     ['Lo que te queda libre cada mes', 'Tus ingresos (' + Formatoenteropesos(Calculo.Ingresototal) + ') menos lo que pagas de deudas (' + Formatoenteropesos(Calculo.Deudasmes) + ')', '= ' + Formatoenteropesos(Calculo.Neto)],
     ['La cuota máxima del crédito', Estadoactual.Topeconservador

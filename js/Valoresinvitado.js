@@ -45,7 +45,7 @@ function Generarvaloresinvitado(Menuitemsbase) {
   Valores.Correovisible = 'Sin cuenta · tus datos están solo en este celular';
   if (Array.isArray(Menuitemsbase)) {
     Valores.Menuitems = Menuitemsbase.map(Item => (Item.Etiqueta === 'Cerrar sesión'
-      ? { ...Item, Etiqueta: 'Vincular cuenta', Subtexto: 'Guarda tus datos en una cuenta', Icono: Iconovincular, Color: 'var(--at)', Derecha: '→', Alclic: () => Abrirvinculacion({}) }
+      ? { ...Item, Etiqueta: 'Vincular cuenta', Subtexto: 'Guarda tus datos en una cuenta', Icono: Iconovincular, Color: 'var(--at)', Derecha: '', Alclic: () => Abrirvinculacion({}) }
       : Item));
   }
   return Valores;

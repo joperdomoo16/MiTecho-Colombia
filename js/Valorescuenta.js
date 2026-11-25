@@ -15,11 +15,14 @@ function Generarvalorescuenta() {
   const Exportando = Boolean(Estadoactual.Exportacionocupado);
   const Invitado = Boolean(Estadoactual.Invitado);
 
+  let Textobotonborrar = Invitado ? 'Sí, borrar mis datos' : 'Sí, borrar mi cuenta';
+  if (Ocupado) Textobotonborrar = 'Borrando tu cuenta…';
+
   return {
     Tieneeliminacion: this.Pantalla === 'app' && Boolean(Estadoactual.Eliminacionabierta),
     Eliminacionpro: Boolean(Estadoactual.Pro),
     Eliminacionerror: Estadoactual.Eliminacionerror || '',
-    Eliminacionbotontexto: Ocupado ? 'Borrando tu cuenta…' : (Invitado ? 'Sí, borrar mis datos' : 'Sí, borrar mi cuenta'),
+    Eliminacionbotontexto: Textobotonborrar,
     Eliminaciontitulo: Invitado ? 'Borrar mis datos' : 'Borrar mi cuenta',
     Eliminacionseborran: Invitado ? 'todo lo que guardaste en este celular: tu perfil financiero, tus deudas y tus registros.' : 'tu cuenta, tu perfil financiero, tus reportes PDF y todo lo guardado en este celular.',
     Eliminacionconservavisible: !Invitado,
@@ -69,7 +72,7 @@ function Generarvalorescuenta() {
           }
           this.Aviso('Descargamos una copia de tus datos de este celular.');
         } catch (Falla) {
-          this.Aviso('No pudimos preparar el archivo en este dispositivo.');
+          this.Aviso('No pudimos preparar el archivo en este celular.');
         }
         return;
       }

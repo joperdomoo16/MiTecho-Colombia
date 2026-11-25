@@ -77,8 +77,7 @@ function Volverlugaranterior() {
 function Manejaratras() {
   const Estado = this.Estadocomponente;
 
-  // 1. Modales y ventanas emergentes
-  // Si se estaba eligiendo con qué datos vincular la cuenta, atrás cancela la vinculación
+  // Cierra primero las hojas y ventanas abiertas encima de la pantalla actual
   if (Estado.Vinculacionpendiente) {
     Cancelarvinculacioninvitado.call(this);
     return;
@@ -115,18 +114,19 @@ function Manejaratras() {
     this.Cambiarestado({ Menu: false });
     return;
   }
+  if (typeof Recorridoactual === 'function' && Recorridoactual(this)) {
+    Avanzarrecorrido(this, true);
+    return;
+  }
 
-  // 2. Si llegó desde otra pantalla (una tarjeta, un botón de Ver o Ir), vuelve a ella
+  // Si llegó desde otra pestaña o tarjeta, retrocede por el historial guardado
   if (this.Pantalla === 'app' && Volverlugaranterior.call(this)) return;
 
-  // 3. Paneles de pantalla completa (perfil, recordatorios, comparador de tasas)
-  // El panel solo se ve dentro de la app; en el inicio de sesión de un invitado queda guardado para volver a él
   if (Estado.Panel && this.Pantalla === 'app') {
     this.Cambiarestado({ Panel: null });
     return;
   }
 
-  // 4. Pestañas en la app
   if (this.Pantalla === 'app') {
     if (Estado.Pestana === 'simulador' && Estado.Simuladorpaso === 'result') {
       this.Cambiarestado({ Simuladorpaso: 'form' });
@@ -142,9 +142,7 @@ function Manejaratras() {
     }
   }
 
-  // 5. Modos en pantalla de login (si está en registro, recuperar clave o correo abierto, volver atrás)
   if (this.Pantalla === 'login') {
-    // Quien entró sin cuenta y abrió el inicio de sesión para vincular, vuelve de una vez a la app con sus datos
     if (Estado.Invitado) {
       this.Cambiarestado({ Pantalla: 'app', Correoabierto: false, Ingresomodo: 'login', Ingresoerror: '', Ingresoaviso: '', Ingresoexitomensaje: '' });
       return;
@@ -159,7 +157,6 @@ function Manejaratras() {
     }
   }
 
-  // 6. Cuestionario de perfil (volver al paso anterior)
   if (this.Pantalla === 'setup') {
     const Paso = (Estado.Cuestionario && Estado.Cuestionario.Paso) || 0;
     if (Paso > 0) {
@@ -168,7 +165,7 @@ function Manejaratras() {
     }
   }
 
-  // 7. Si ya está en la pantalla inicial de inicio sin nada abierto: confirmar salida
+  // En el Inicio sin nada abierto exige un segundo toque para minimizar la aplicación
   const Ahora = Date.now();
   if (this.Ultimotoqueatras && (Ahora - this.Ultimotoqueatras) < 2200) {
     if (window.Puentenativo && typeof window.Puentenativo.minimizarApp === 'function') {
