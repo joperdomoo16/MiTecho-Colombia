@@ -81,7 +81,7 @@ const Plantillamodales = Plantillaregistrar + `
           <mt-if value="{{ Soporteenviadovisible }}">
             <div style="display:flex;flex-direction:column;gap:14px;padding:6px 0 4px">
               <div style="background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.45);border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
-                <div style="width:44px;height:44px;border-radius:22px;background:rgba(46,204,113,.2);color:#2ECC71;display:flex;align-items:center;justify-content:center;font:700 22px 'Familjen Grotesk',sans-serif">✓</div>
+                <div style="width:44px;height:44px;border-radius:22px;background:rgba(46,204,113,.2);color:#2ECC71;display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div>
                 <span style="font:600 15px/1.4 'Familjen Grotesk',sans-serif;color:#2ECC71">Recibimos tu solicitud</span>
                 <span style="font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:var(--mu)">NÚMERO DE RADICADO</span>
                 <span style="font:600 18px 'IBM Plex Mono',monospace;color:var(--ik);user-select:all">{{ Soporteradicadotexto }}</span>

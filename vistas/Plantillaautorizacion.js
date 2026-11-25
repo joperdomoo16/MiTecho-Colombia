@@ -9,6 +9,7 @@ const Plantillaautorizacion = `
             <span class="autorizacion-antetitulo">Antes de continuar</span>
             <h1 id="titulo-autorizacion" class="autorizacion-titulo">Tu autorización para usar tus datos</h1>
             <p class="texto-cuerpo">La Ley 1581 de 2012 nos pide tu autorización. Te lo explicamos en corto:</p>
+        <p class="texto-pequeno">MiTecho no da asesoría financiera: sus cálculos son estimados y no son una oferta ni una aprobación de crédito.</p>
           </header>
           <div class="mt-scroll autorizacion-cuerpo">
             <ul class="autorizacion-lista">

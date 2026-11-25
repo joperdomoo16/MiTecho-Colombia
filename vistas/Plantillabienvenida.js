@@ -37,11 +37,11 @@ const Plantillabienvenida = `
             <mt-if value="{{ Esmodoingreso }}">
               <div class="entrada-recuperar-fila">
                 <span class="texto-pequeno">¿Olvidaste tu contraseña?</span>
-                <button type="button" class="entrada-recuperar-link" al-clic="{{ Elegirrecuperar }}">Recuperar contraseña →</button>
+                <button type="button" class="entrada-recuperar-link" al-clic="{{ Elegirrecuperar }}">Recuperar contraseña</button>
               </div>
             </mt-if>
             <mt-if value="{{ Ingresoerror }}"><span class="mz" role="alert">{{ Ingresoerror }}</span></mt-if>
-            <mt-if value="{{ Ingresoexitomensaje }}"><div class="entrada-exito" role="status"><span>✓</span><span>{{ Ingresoexitomensaje }}</span></div></mt-if>
+            <mt-if value="{{ Ingresoexitomensaje }}"><div class="entrada-exito" role="status"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>{{ Ingresoexitomensaje }}</span></div></mt-if>
             <mt-if value="{{ Esmodoingreso }}">
               <button type="button" class="boton-primario" style="min-height:48px" al-clic="{{ Ingresocorreo }}">{{ Ingresobotontexto }}</button>
             </mt-if>
@@ -53,12 +53,12 @@ const Plantillabienvenida = `
           <mt-if value="{{ Esmodorecuperar }}">
             <div class="entrada-recuperar-cabeza">
               <span class="entrada-recuperar-titulo"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--at)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"></circle><path d="M21 2l-9.6 9.6M15.5 7.5l3 3"></path></svg><span>Recuperar contraseña</span></span>
-              <button type="button" class="entrada-volver" al-clic="{{ Elegiringreso }}">← Volver</button>
+              <button type="button" class="entrada-volver" al-clic="{{ Elegiringreso }}">Volver</button>
             </div>
             <p class="texto-cuerpo">Escribe el correo de tu cuenta y te enviaremos un enlace seguro para crear una contraseña nueva.</p>
             <label class="entrada-campo"><span class="entrada-rotulo">Correo de tu cuenta</span><input maxlength="100" class="entrada-input" value="{{ Ingresocorreovalor }}" al-escribir="{{ Escribiringresocorreo }}" type="email" placeholder="nombre@correo.com"></label>
             <mt-if value="{{ Ingresoerror }}"><span class="mz" role="alert">{{ Ingresoerror }}</span></mt-if>
-            <mt-if value="{{ Ingresoexitomensaje }}"><div class="entrada-exito" role="status"><span>✓</span><span>{{ Ingresoexitomensaje }}</span></div></mt-if>
+            <mt-if value="{{ Ingresoexitomensaje }}"><div class="entrada-exito" role="status"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>{{ Ingresoexitomensaje }}</span></div></mt-if>
             <button type="button" class="boton-primario" style="min-height:48px" al-clic="{{ Recuperarcorreo }}">{{ Recuperarbotontexto }}</button>
             <button type="button" class="entrada-cancelar" al-clic="{{ Elegiringreso }}">Volver a iniciar sesión</button>
           </mt-if>

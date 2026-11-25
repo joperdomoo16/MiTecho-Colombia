@@ -5,7 +5,7 @@ const Svginfosimulador = '<svg aria-hidden="true" width="15" height="15" viewBox
 const Chiptiposimulador = `<mt-if value="{{ Tipochipvisible }}"><button type="button" class="heroe-tipo" al-clic="{{ Abrirtipovivienda }}" aria-label="{{ Tipochipetiqueta }}" aria-haspopup="dialog"><span class="heroe-tipo-marco">{{ Tipochiptexto }}${Svginfosimulador}</span></button></mt-if>`;
 
 const Plantillasimulador = `
-        <mt-if value="{{ Pestanaes.simForm }}">
+        <mt-if value="{{ Pestanaes.Simuladorformulario }}">
         <div class="simulador">
           <div class="inicio-saludo"><h1 class="titulo-pantalla">Simular</h1><p class="texto-guia">Prueba cambios y mira al instante qué pasa con tu presupuesto. Lo que cambies aquí también se ve en el Inicio.</p></div>
           <section class="heroe sim-heroe" aria-live="polite" aria-label="Resultado de la simulación">
@@ -82,7 +82,7 @@ const Plantillasimulador = `
         </div>
         </mt-if>
 
-        <mt-if value="{{ Pestanaes.simResult }}">
+        <mt-if value="{{ Pestanaes.Simuladorresultado }}">
         <div class="simulador">
           <button type="button" class="volver sim-volver" al-clic="{{ Irsimulador }}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>Simular</button>
           <div class="inicio-saludo"><h1 class="titulo-pantalla">Tu resultado</h1><p class="texto-guia">Con los datos que pusiste en Simular.</p></div>
@@ -107,7 +107,7 @@ const Plantillasimulador = `
             <mt-if value="{{ Simcomparar }}">
               <div class="sim-grupo"><span id="sim-moneda" class="sim-grupo-titulo">¿Cómo quieres pagar el crédito?</span><div class="opciones sim-dos" role="group" aria-labelledby="sim-moneda"><mt-for list="{{ Tasaopciones }}" as="Opcion"><button type="button" class="opcion {{ Opcion.Clase }}" aria-pressed="{{ Opcion.Activo }}" al-clic="{{ Opcion.Alclic }}">{{ Opcion.Etiqueta }}</button></mt-for></div><p class="texto-pequeno">En pesos la cuota no cambia. En UVR empieza más baja, pero sube con la inflación.</p></div>
               <div class="sim-grupo"><span id="sim-banco" class="sim-grupo-titulo">Tasa de qué banco</span><div class="sim-fichas" role="group" aria-labelledby="sim-banco"><mt-for list="{{ Entidadopciones }}" as="Opcion"><button type="button" class="sim-ficha {{ Opcion.Clase }}" aria-pressed="{{ Opcion.Activo }}" al-clic="{{ Opcion.Alclic }}">{{ Opcion.Etiqueta }}</button></mt-for></div></div>
-              <mt-if value="{{ Esuvr }}"><div class="sim-uvr"><mt-for list="{{ Uvrfilas }}" as="Usofila"><div class="sim-fila"><span>{{ Usofila.Etiqueta }}</span><span class="sim-fila-valor">{{ Usofila.value }}</span></div></mt-for><p class="texto-pequeno">Punto de equilibrio: <b class="texto-tinta">{{ Puntoequilibriouvr }}</b>. Si la inflación promedio de los años del crédito es menor a 5,58% ganas con UVR; si es mayor, en pesos pagas menos.</p></div></mt-if>
+              <mt-if value="{{ Esuvr }}"><div class="sim-uvr"><mt-for list="{{ Uvrfilas }}" as="Usofila"><div class="sim-fila"><span>{{ Usofila.Etiqueta }}</span><span class="sim-fila-valor">{{ Usofila.Valorfila }}</span></div></mt-for><p class="texto-pequeno">Punto de equilibrio: <b class="texto-tinta">{{ Puntoequilibriouvr }}</b>. Si la inflación promedio de los años del crédito es menor a 5,58% ganas con UVR; si es mayor, en pesos pagas menos.</p></div></mt-if>
             </mt-if>
             <button type="button" class="enlace" al-clic="{{ Abrirtasassimulador }}">Comparar bancos y tasas${Svgflechasimulador}</button>
           </section>

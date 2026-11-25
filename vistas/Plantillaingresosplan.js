@@ -11,6 +11,7 @@ const Plantillaingresosplan = `
           <h1 class="titulo-detalle">Viviendas en tu presupuesto</h1>
           <div class="detalle-cuerpo">
             <p class="texto-guia">Proyectos de referencia para que te hagas una idea de lo que puedes comprar. No son ofertas de venta.</p>
+            <p class="texto-pequeno viviendas-origen">Los ejemplos los armamos nosotros con precios de referencia del mercado. No vienen de portales inmobiliarios ni de ventas en línea. Todo lo que ves es un estimado y no es una oferta ni una aprobación de crédito.</p>
             <div class="viviendas-resumen">
               <span class="viviendas-resumen-pildora">Presupuesto: hasta {{ Viviendaspresupuesto }}</span>
               <span class="viviendas-resumen-pildora">Ahorro: {{ Viviendasahorro }}</span>

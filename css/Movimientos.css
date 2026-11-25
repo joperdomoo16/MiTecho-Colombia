@@ -6,7 +6,7 @@
 .segmentos { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; padding:4px; border-radius:24px; background:var(--sf2); }
 .segmento { min-height:44px; border-radius:20px; border:0; background:transparent; color:var(--mu); font:700 15px 'Familjen Grotesk',sans-serif; cursor:pointer; }
 .segmento.is-activa { background:var(--sf); color:var(--ink); }
-.periodos { display:flex; gap:8px; flex-wrap:wrap; }
+.periodos { display:flex; gap:8px; flex-wrap:wrap; align-self:flex-start; }
 .periodo { min-height:44px; padding:0 16px; border-radius:22px; border:1px solid var(--ln); background:transparent; color:var(--ink); font:600 14px 'Hanken Grotesk',sans-serif; cursor:pointer; }
 .periodo.is-activa { background:var(--sel); border-color:var(--sel); color:var(--sel-t); }
 

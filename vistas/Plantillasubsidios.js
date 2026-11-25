@@ -23,16 +23,16 @@ const Plantillasubsidios = `
             <section class="tarjeta">
               <h2 class="titulo-tarjeta">Cuánto dan según los ingresos del hogar</h2>
               <div class="subsidios-tramos">
-                <div class="subsidios-tramo {{ Subsidiotramo1clase }}">
-                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramo1rango }}</span><mt-if value="{{ Subsidiotramo1hogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
-                  <span class="subsidios-tramo-monto">{{ Subsidiotramo1monto }}</span>
+                <div class="subsidios-tramo {{ Subsidiotramounoclase }}">
+                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramounorango }}</span><mt-if value="{{ Subsidiotramounohogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
+                  <span class="subsidios-tramo-monto">{{ Subsidiotramounomonto }}</span>
                 </div>
-                <div class="subsidios-tramo {{ Subsidiotramo2clase }}">
-                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramo2rango }}</span><mt-if value="{{ Subsidiotramo2hogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
-                  <span class="subsidios-tramo-monto">{{ Subsidiotramo2monto }}</span>
+                <div class="subsidios-tramo {{ Subsidiotramodosclase }}">
+                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramodosrango }}</span><mt-if value="{{ Subsidiotramodoshogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
+                  <span class="subsidios-tramo-monto">{{ Subsidiotramodosmonto }}</span>
                 </div>
-                <div class="subsidios-tramo {{ Subsidiotramo3clase }}">
-                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramo3rango }}</span><mt-if value="{{ Subsidiotramo3hogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
+                <div class="subsidios-tramo {{ Subsidiotramotresclase }}">
+                  <div class="subsidios-tramo-textos"><span class="subsidios-tramo-rango">{{ Subsidiotramotresrango }}</span><mt-if value="{{ Subsidiotramotreshogar }}"><span class="subsidios-insignia">Tu hogar</span></mt-if></div>
                   <span class="subsidios-tramo-monto is-no">No aplica</span>
                 </div>
               </div>
@@ -106,7 +106,7 @@ const Plantillasubsidios = `
                   <div class="m4x" style="margin:0">
                     <div class="m4y"><span class="m4z">{{ Seccionentidad.Numeroseccion }}</span><span class="m2c">{{ Seccionentidad.Titulo }}</span></div>
                     <span class="m2f">{{ Seccionentidad.Descripcioncorta }}</span>
-                    <mt-if value="{{ Seccionentidad.status }}"><div style="padding:10px 12px;border-radius:14px;background:{{ Seccionentidad.Estadofondo }};font:600 12.5px/1.4 'Hanken Grotesk',sans-serif;color:#0B0C0A">{{ Seccionentidad.status }}</div></mt-if>
+                    <mt-if value="{{ Seccionentidad.Estadotexto }}"><div style="padding:10px 12px;border-radius:14px;background:{{ Seccionentidad.Estadofondo }};font:600 12.5px/1.4 'Hanken Grotesk',sans-serif;color:#0B0C0A">{{ Seccionentidad.Estadotexto }}</div></mt-if>
                     <mt-for list="{{ Seccionentidad.Campos }}" as="Campoentidad">
                       <mt-if value="{{ Campoentidad.Esfichas }}"><div class="m50"><span class="m42">{{ Campoentidad.Etiqueta }}</span><div class="m1w"><mt-for list="{{ Campoentidad.Opciones }}" as="Opcioncampo"><button type="button" al-clic="{{ Opcioncampo.Alclic }}" style="height:34px;padding:0 12px;border-radius:17px;border:1px solid {{ Opcioncampo.Borde }};background:{{ Opcioncampo.Fondo }};color:{{ Opcioncampo.Color }};font:600 12px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Opcioncampo.Etiqueta }}</button></mt-for></div></div></mt-if>
                       <mt-if value="{{ Campoentidad.Escampo }}"><label class="m51"><span class="m42">{{ Campoentidad.Etiqueta }}</span><input maxlength="20" class="m52" value="{{ Campoentidad.Valorcampo }}" al-escribir="{{ Campoentidad.Alescribir }}" inputMode="{{ Campoentidad.Modoteclado }}" placeholder="{{ Campoentidad.Ejemplo }}" aria-label="{{ Campoentidad.Etiqueta }}"><mt-if value="{{ Campoentidad.Pista }}"><span class="m53">{{ Campoentidad.Pista }}</span></mt-if></label></mt-if>

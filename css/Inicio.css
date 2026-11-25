@@ -2,6 +2,7 @@
    más las hojas «Así calculamos tu presupuesto» y «¿Qué es una vivienda VIS?» */
 
 .inicio { display:flex; flex-direction:column; gap:14px; padding:6px 20px 24px; }
+.inicio-aviso { padding:2px 4px 0; text-align:center; }
 .inicio-saludo { display:flex; flex-direction:column; gap:6px; padding-top:2px; }
 
 /* Tarjeta azul con el presupuesto */

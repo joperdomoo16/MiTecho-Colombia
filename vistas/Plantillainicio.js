@@ -50,6 +50,7 @@ const Plantillainicio = `
             <span class="tarjeta-enlace-textos"><span class="tarjeta-enlace-titulo">Viviendas en tu presupuesto</span><span class="texto-pequeno">{{ Viviendasresumen }}</span></span>
             <svg aria-hidden="true" class="tarjeta-enlace-flecha" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
           </button>
+          <p class="texto-pequeno inicio-aviso">MiTecho hace estimados con las reglas vigentes. No es asesoría financiera ni una oferta o aprobación de crédito de ningún banco.</p>
         </div>
         </mt-if>
 `;

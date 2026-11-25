@@ -56,5 +56,6 @@
 .proyecto-enlace { width:100%; justify-content:space-between; }
 
 .viviendas-mas { background:transparent; }
+.viviendas-origen { padding:10px 12px; border-radius:14px; background:var(--sf2); }
 .viviendas-nota { display:flex; align-items:flex-start; gap:8px; }
 .viviendas-nota svg { flex:none; margin-top:1px; color:var(--mu); }
