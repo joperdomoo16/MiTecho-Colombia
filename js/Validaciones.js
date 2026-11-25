@@ -66,6 +66,15 @@ function Formatearmeses(Meses) {
 function Sanitizarestado(Objeto) {
   if (!Objeto || typeof Objeto !== 'object') return Objeto;
   const L = Limitesfinancieros;
+  if ('Invitado' in Objeto) Objeto.Invitado = Objeto.Invitado === true;
+  if (Objeto.Invitado) {
+    // Así nadie activa Pro ni se hace pasar por una cuenta editando lo guardado en el celular
+    Objeto.Pro = false;
+    Objeto.Correo = '';
+    Objeto.Metodoingreso = 'invitado';
+  }
+  if ('Temaelegido' in Objeto && !['claro', 'oscuro', 'auto'].includes(Objeto.Temaelegido)) delete Objeto.Temaelegido;
+  if ('Autorizacionfecha' in Objeto && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/.test(String(Objeto.Autorizacionfecha || ''))) Objeto.Autorizacionfecha = '';
   if ('Fijo' in Objeto) Objeto.Fijo = Acotarnumero(Objeto.Fijo, 0, L.IngresoMensual, 0);
   if ('Variable' in Objeto) Objeto.Variable = Acotarnumero(Objeto.Variable, 0, L.IngresoMensual, 0);
   if ('Ingresomanual' in Objeto) Objeto.Ingresomanual = Acotarnumero(Objeto.Ingresomanual, 0, L.IngresoMensual, 0);

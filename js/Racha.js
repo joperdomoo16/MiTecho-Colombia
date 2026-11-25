@@ -13,11 +13,11 @@ function Restardiasracha(Fechatexto, Dias) {
   return new Date(Date.UTC(Anio, Mes - 1, Dia) - Dias * Undiaracha).toISOString().slice(0, 10);
 }
 
-// Se llama al guardar un ingreso o un gasto; guarda como máximo un año de días para no llenar el celular
-function Marcardiaregistro(Dias) {
+// Se llama al guardar un ingreso o un gasto (de hoy o de un día anterior de la semana);
+// guarda como máximo un año de días para no llenar el celular
+function Marcardiaregistro(Dias, Fecha = Diahoyracha()) {
   const Lista = Array.isArray(Dias) ? Dias : [];
-  const Hoy = Diahoyracha();
-  return Lista.includes(Hoy) ? Lista : [...Lista, Hoy].slice(-366);
+  return Lista.includes(Fecha) ? Lista : [...Lista, Fecha].sort().slice(-366);
 }
 
 // Cuenta los días seguidos con registros. Si hoy todavía no registra, la racha sigue viva desde ayer

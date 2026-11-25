@@ -8,7 +8,12 @@ const Configuracionanuncios = {
   Prueba: true
 };
 
-const Estadoanuncios = { Inicio: null, Deseado: false, Creado: false, Altura: 0, Cola: Promise.resolve() };
+// Deseado: 'ver' muestra el banner, 'reservar' lo oculta y deja su espacio (hay una ventana encima), 'nada' libera el espacio.
+// Sinanuncio queda en true si el anuncio no cargó, para no dejar un hueco vacío abajo
+const Estadoanuncios = { Inicio: null, Deseado: 'nada', Creado: false, Altura: 0, Sinanuncio: false, Cola: Promise.resolve() };
+
+// Alto mínimo de un banner adaptable; se aparta antes de que cargue para que nada se corra cuando aparezca
+const Altominimoanuncio = 50;
 
 // Solo existe dentro del celular; en el computador (pruebas) no hay anuncios
 function Pluginanuncios() {
@@ -17,9 +22,16 @@ function Pluginanuncios() {
   return Esnativo && Capacitor.Plugins && Capacitor.Plugins.AdMob ? Capacitor.Plugins.AdMob : null;
 }
 
-// La altura del banner sube la barra de navegación para que no quede tapada
+// La altura del banner sube la barra de navegación para que no quede tapada; la clase dibuja la línea que los separa
 function Fijaralturaanuncio(Alto) {
-  document.documentElement.style.setProperty('--alto-anuncio', Math.max(0, Math.round(Alto || 0)) + 'px');
+  const Valor = Math.max(0, Math.round(Alto || 0));
+  document.documentElement.style.setProperty('--alto-anuncio', Valor + 'px');
+  document.documentElement.classList.toggle('con-anuncio', Valor > 0);
+}
+
+function Apartarespacioanuncio() {
+  const Apartar = Estadoanuncios.Deseado !== 'nada' && !Estadoanuncios.Sinanuncio;
+  Fijaralturaanuncio(Apartar ? Math.max(Estadoanuncios.Altura, Altominimoanuncio) : 0);
 }
 
 function Iniciaranuncios() {
@@ -31,41 +43,56 @@ function Iniciaranuncios() {
   }
   Estadoanuncios.Inicio = Plugin.initialize({ initializeForTesting: Configuracionanuncios.Prueba })
     .then(() => {
+      // Al ocultarse el banner el complemento puede avisar alto 0: se guarda solo el alto real para volver a usarlo
       Plugin.addListener('bannerAdSizeChanged', Tamano => {
-        Estadoanuncios.Altura = Tamano && Tamano.height ? Tamano.height : 0;
-        if (Estadoanuncios.Deseado) Fijaralturaanuncio(Estadoanuncios.Altura);
+        if (Tamano && Tamano.height > 0) {
+          Estadoanuncios.Altura = Tamano.height;
+          Estadoanuncios.Sinanuncio = false;
+        }
+        Apartarespacioanuncio();
       });
-      Plugin.addListener('bannerAdFailedToLoad', () => Fijaralturaanuncio(0));
+      Plugin.addListener('bannerAdFailedToLoad', () => {
+        Estadoanuncios.Sinanuncio = true;
+        Apartarespacioanuncio();
+      });
       return true;
     })
     .catch(() => false);
   return Estadoanuncios.Inicio;
 }
 
-// Se llama en cada cambio de pantalla; los pedidos al plugin van en fila para que mostrar y ocultar no se crucen
-function Sincronizarbanner(Mostrar) {
-  if (Mostrar === Estadoanuncios.Deseado) return;
-  Estadoanuncios.Deseado = Mostrar;
+// Se llama en cada cambio de pantalla con 'ver', 'reservar' o 'nada'; los pedidos al plugin van en fila
+// para que mostrar y ocultar no se crucen
+function Sincronizarbanner(Modo) {
+  if (Modo === Estadoanuncios.Deseado) return;
+  Estadoanuncios.Deseado = Modo;
   const Plugin = Pluginanuncios();
   if (!Plugin) return;
+  Apartarespacioanuncio();
   Estadoanuncios.Cola = Estadoanuncios.Cola.then(async () => {
-    if (!(await Iniciaranuncios())) return;
-    if (Estadoanuncios.Deseado !== Mostrar) return;
-    if (!Mostrar) {
-      Fijaralturaanuncio(0);
+    if (!(await Iniciaranuncios())) {
+      Estadoanuncios.Sinanuncio = true;
+      Apartarespacioanuncio();
+      return;
+    }
+    if (Estadoanuncios.Deseado !== Modo) return;
+    if (Modo !== 'ver') {
       await Plugin.hideBanner().catch(() => null);
       return;
     }
     if (Estadoanuncios.Creado) {
       await Plugin.resumeBanner().catch(() => null);
-      Fijaralturaanuncio(Estadoanuncios.Altura);
+      Apartarespacioanuncio();
       return;
     }
     // El complemento ya deja el banner encima de la barra de botones del celular; no se suma margen propio
     await Plugin.showBanner({
       adId: Configuracionanuncios.Banner, adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER',
       margin: 0, isTesting: Configuracionanuncios.Prueba
-    }).then(() => { Estadoanuncios.Creado = true; }).catch(() => Fijaralturaanuncio(0));
+    }).then(() => { Estadoanuncios.Creado = true; }).catch(() => {
+      Estadoanuncios.Sinanuncio = true;
+      Apartarespacioanuncio();
+    });
   });
 }
 

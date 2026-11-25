@@ -5,6 +5,8 @@ const Ingresofijo = 3800000;
 const Metaingreso = 186000;
 const Ahorrobase = 24600000;
 const Salariominimo = 1750905;
+// Año de los valores legales de este archivo (salario mínimo, topes VIS y VIP)
+const Aniovigente = 2026;
 
 // Municipios donde el precio tope de vivienda de interés social llega a 150 salarios mínimos
 const Ciudadesconsubsidioalto = [
@@ -27,10 +29,7 @@ let Fechatasasreferencia = '23 oct 2026';
 const Valoruvrhoy = 420.7199;
 const Escenariosinflacion = [0.03, 0.045, 0.063];
 const Inflacionequilibriouvr = 0.0558;
-const Umbralingresorenta = 6900000;
-const Topededuccioninteresesuvt = 1200;
 const Topeanticiponominauvt = 100;
-const Topepatrimoniodeclarar = 4500 * Unidadtributaria;
 
 const Tasasreferencia = {
   promedio: { vis: 0.1435, novis: 0.1546, leasing: 0.1469, Uvr: 0.075, Etiqueta: 'Promedio bancos' },
@@ -48,9 +47,23 @@ const Modalidadesvivienda = {
   leasing: { Etiqueta: 'Leasing', Descripcioncorta: 'Financia 80%', Tope: 0.40, Financiacion: 0.80, Gastos: 0, Glosario: 'Gastos diferidos', Etiquetanodo: 'LEASING · 80%' }
 };
 
+// Colores del diseño nuevo de la app. Los nombres cortos (bg, cd, c2, ik...) los usan las pantallas que aún no se
+// rediseñan; los largos (sf, ink, hero...) son los del diseño nuevo. --fa, el texto más tenue, llega a 4,5:1 de contraste
 const Temasinterfaz = {
-  oscuro: { bg:'#0B0C0A',cd:'#16180F',c2:'#24271C',ln:'rgba(255,255,255,.07)',ik:'#F2F4EC',mu:'#A3A898',fa:'#6F7466',ac:'#D4FF3A',oa:'#0B0C0A',at:'#D4FF3A',al:'#FF6A2B',dk:'#1C1E15',di:'#A3A898',fb:'#F2F4EC',of:'#0B0C0A',dm:'#2A2D22',ad:'#5E6B2A' },
-  claro: { bg:'#F1F2EC',cd:'#FFFFFF',c2:'#E6E9DC',ln:'rgba(15,17,12,.09)',ik:'#0F110C',mu:'#565C4D',fa:'#7C8273',ac:'#D4FF3A',oa:'#0B0C0A',at:'#4A6900',al:'#FF6A2B',dk:'#0F110C',di:'#A3A898',fb:'#F2F4EC',of:'#0B0C0A',dm:'#E1E4D6',ad:'#9DB84A' }
+  oscuro: {
+    bg:'#0B0C0A', cd:'#16180F', c2:'#22251B', ln:'rgba(255,255,255,.09)', ik:'#F2F4EC', mu:'#B3B8A7', fa:'#8F947F', ac:'#D4FF3A', oa:'#0B0C0A', at:'#D4FF3A', al:'#FF8A4C',
+    dk:'#1C1E15', di:'#A3A898', fb:'#F2F4EC', of:'#0B0C0A', dm:'#2A2D22', ad:'#5E6B2A',
+    sf:'#16180F', sf2:'#22251B', trk:'#2C3022', ink:'#F2F4EC', 'on-ac':'#0B0C0A', bar:'#D4FF3A', hero:'#1A2E52', 'hero-ink':'#F4F6FB', 'hero-mu':'#B9C6E4', 'hero-ln':'rgba(255,255,255,.14)',
+    warn:'#FFD23F', 'warn-t':'#FFD23F', 'al-t':'#FF8A4C', nav:'#121410', scrim:'rgba(0,0,0,.62)', sel:'#F2F4EC', 'sel-t':'#0B0C0A',
+    'soft-ac':'rgba(212,255,58,.10)', 'soft-warn':'rgba(255,210,63,.10)', 'soft-al':'rgba(255,138,76,.12)', shadow:'0 12px 32px rgba(0,0,0,.5)'
+  },
+  claro: {
+    bg:'#F3F3EE', cd:'#FFFFFF', c2:'#ECEEE4', ln:'rgba(15,17,12,.10)', ik:'#10120D', mu:'#4C5244', fa:'#626858', ac:'#D4FF3A', oa:'#0B0C0A', at:'#3E5A00', al:'#FF8A4C',
+    dk:'#0F110C', di:'#A3A898', fb:'#F2F4EC', of:'#0B0C0A', dm:'#E1E4D6', ad:'#9DB84A',
+    sf:'#FFFFFF', sf2:'#ECEEE4', trk:'#E2E5D8', ink:'#10120D', 'on-ac':'#0B0C0A', bar:'#5B7F00', hero:'#1E345B', 'hero-ink':'#FFFFFF', 'hero-mu':'#C3CEE6', 'hero-ln':'rgba(255,255,255,.16)',
+    warn:'#FFD23F', 'warn-t':'#7A5600', 'al-t':'#B4400F', nav:'#FFFFFF', scrim:'rgba(16,18,13,.45)', sel:'#10120D', 'sel-t':'#FFFFFF',
+    'soft-ac':'#EEF9C8', 'soft-warn':'#FFF4CC', 'soft-al':'#FFE6D9', shadow:'0 12px 32px rgba(16,18,13,.16)'
+  }
 };
 
 const Fuentesingreso = ['Salario / Nómina', 'Ventas del día', 'Comisiones', 'Honorarios', 'Arriendos', 'Otros'];
@@ -79,8 +92,8 @@ const Camposalmacenados = [
   'Pareja', 'Modalidadelegida', 'Tasatipo', 'Plazoelegido', 'Deudas', 'Registros', 'Agregado', 'Ingresosfijosextra',
   'Egresosregistrados', 'Efectivoanterior', 'Nombre', 'Edad', 'Ciudad', 'Ahorro', 'Ahorromes', 'Meta',
   'Caja', 'Cajanombre', 'Sisben', 'Recordatorios', 'Ofertasciudades', 'Promediomeses', 'Flexibleporcentaje', 'Topeconservador', 'Opcioncompra',
-  'Entidad', 'Objetivousuario', 'Sisbengrupo', 'Pro', 'Cuotainicialplazo', 'Anualporcentaje', 'Contactosenviados',
-  'Correo', 'Autorizacionversion', 'Fuenteingreso', 'Diasregistrados', 'Tutorialvisto', 'Consejosvistos', 'Parejaingreso', 'Parejadeudas', 'Parejanombre', 'Parejaahorro', 'Parejaactividad', 'Metodoingreso', 'Infoentidad', 'Avatarimagen', 'Financiargastos', 'Ingresovista', 'Registrotipo', 'Simuladorpaso',
+  'Entidad', 'Objetivousuario', 'Sisbengrupo', 'Pro', 'Cuotainicialplazo', 'Contactosenviados',
+  'Correo', 'Invitado', 'Autorizacionversion', 'Autorizacionfecha', 'Fuenteingreso', 'Diasregistrados', 'Tutorialvisto', 'Consejosvistos', 'Parejaingreso', 'Parejadeudas', 'Parejanombre', 'Parejaahorro', 'Parejaactividad', 'Metodoingreso', 'Infoentidad', 'Avatarimagen', 'Financiargastos', 'Ingresovista', 'Registrotipo', 'Simuladorpaso',
   'Desbloqueado', 'Desbloqueadopareja', 'Desbloqueadotasas', 'Anunciostasas', 'Desbloqueadopdf', 'Anunciospdf'
 ];
 

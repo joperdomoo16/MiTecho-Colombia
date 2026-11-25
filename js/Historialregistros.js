@@ -2,7 +2,22 @@
 // Nada de esto se inventa: si la persona no ha registrado, las vistas quedan vacías y el promedio usa lo que declaró en su perfil.
 
 const Mesescortos = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const Mesesnombres = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const Letrasdia = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+const Diasnombres = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+// 'AAAA-MM-DD' como «lunes 23 de noviembre»
+function Fechalarga(Fecha) {
+  const Dia = new Date(Fecha + 'T12:00:00Z');
+  return Diasnombres[Dia.getUTCDay()] + ' ' + Dia.getUTCDate() + ' de ' + Mesesnombres[Dia.getUTCMonth()];
+}
+
+// '13:40' como «1:40 p. m.», como se lee la hora en Colombia
+function Horadoce(Hora) {
+  const [Horas, Minutos] = String(Hora || '').split(':').map(Number);
+  if (!(Horas >= 0) || !(Minutos >= 0)) return '';
+  return ((Horas % 12) || 12) + ':' + String(Minutos).padStart(2, '0') + (Horas < 12 ? ' a. m.' : ' p. m.');
+}
 
 // Fecha de hoy en Colombia como 'AAAA-MM-DD'
 function Hoyregistro(Momento = new Date()) {
@@ -69,19 +84,4 @@ function Promediovariable(Historial, N, Corrimiento, Estadousuario) {
   const Ventana = Completos.slice(Math.max(0, Fin - N), Fin).filter(Valor => Valor !== null);
   if (Ventana.length) return Ventana.reduce((Acumulado, Valor) => Acumulado + Valor, 0) / Ventana.length;
   return Estadousuario.Tipo === 'fijo' ? 0 : (Estadousuario.Variable || 0);
-}
-
-// Cuántos meses completos con registros entran en el promedio
-function Mesesconregistros(Historial, N) {
-  return Historial.slice(0, -1).slice(-N).filter(Valor => Valor !== null).length;
-}
-
-// Semanas del mes actual: del día 1 al 7 es S1, del 8 al 14 S2, y así hasta S5
-function Semanasdelmes(Lista, Hoy = Hoyregistro()) {
-  const Semanas = [0, 0, 0, 0, 0];
-  Registrosdelmes(Lista, Hoy.slice(0, 7)).forEach(Registro => {
-    const Dia = Number(Fechaderegistro(Registro).slice(8, 10));
-    Semanas[Math.min(4, Math.floor((Dia - 1) / 7))] += Registro.Monto || 0;
-  });
-  return Semanas;
 }

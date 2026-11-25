@@ -54,7 +54,8 @@ function Guardardatosalmacenados(Estadocomponente) {
     Objeto.Guardadoen = new Date().toISOString();
     const Serializado = JSON.stringify(Objeto);
     localStorage.setItem(Clavealmacenamiento, Serializado);
-    if (Estadocomponente.Correo) {
+    // La copia por correo es solo para cuentas; un invitado vive únicamente en la clave general
+    if (Estadocomponente.Correo && !Estadocomponente.Invitado) {
       localStorage.setItem(Obtenerclaveusuario(Estadocomponente.Correo), Serializado);
     }
     return true;

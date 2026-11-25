@@ -13,20 +13,22 @@ function Generarvaloresautorizacion() {
   const Marcada = Boolean(Estadoactual.Autorizacionmarcada);
   const Ocupado = Boolean(Estadoactual.Autorizacionocupado);
   const Lista = Marcada && !Ocupado;
+  const Invitado = Boolean(Estadoactual.Invitado);
 
   return {
     Autorizacionvisible: Pendiente,
     Urlpolitica,
     Urlterminos,
     Autorizacionmarcadatexto: Marcada ? 'true' : 'false',
-    Autorizacioncasillafondo: Marcada ? 'var(--ac)' : 'transparent',
-    Autorizacioncasillaborde: Marcada ? 'var(--ac)' : 'var(--mu)',
-    Autorizacioncasillasigno: Marcada ? '✓' : '',
-    Autorizacionbotonfondo: Lista ? 'var(--ac)' : 'var(--c2)',
-    Autorizacionbotoncolor: Lista ? 'var(--oa)' : 'var(--mu)',
+    Autorizacionesta: Marcada,
+    Autorizacioncajaclase: Marcada ? 'is-marcada' : '',
+    Autorizacionbotonfondo: Lista ? 'var(--ac)' : 'var(--sf2)',
+    Autorizacionbotoncolor: Lista ? 'var(--on-ac)' : 'var(--fa)',
     Autorizacionbotonbloqueado: Lista ? 'false' : 'true',
     Autorizacionbotontexto: Ocupado ? 'Guardando tu autorización…' : 'Autorizo y continúo',
     Autorizacionerror: Estadoactual.Autorizacionerror || '',
+    Autorizacioninvitado: Invitado,
+    Autorizacionrevocartexto: 'Puedes revocar tu autorización cuando quieras escribiendo a rumoriastudio@gmail.com o borrando ' + (Invitado ? 'tus datos' : 'tu cuenta') + ' desde tu perfil.',
     Marcarautorizacion: () => {
       if (Ocupado) return;
       this.Cambiarestado({ Autorizacionmarcada: !Marcada, Autorizacionerror: '' });
@@ -35,6 +37,12 @@ function Generarvaloresautorizacion() {
       if (Ocupado) return;
       if (!Marcada) {
         this.Cambiarestado({ Autorizacionerror: 'Marca la casilla para confirmar que leíste y autorizas.' });
+        return;
+      }
+      // Sin cuenta no hay servidor donde dejar la prueba: queda en este celular con la fecha en que se dio
+      if (Invitado) {
+        this.Cambiarestado({ Autorizacionmarcada: false, Autorizacionerror: '', Autorizacionversion: Versionpolitica, Autorizacionfecha: new Date().toISOString() });
+        this.Aviso('Gracias. Tu autorización quedó guardada en este celular.');
         return;
       }
       this.Cambiarestado({ Autorizacionocupado: true, Autorizacionerror: '' });

@@ -6,7 +6,7 @@ class Aplicacionmitecho extends Componentebase {
 
   Estadocomponente = Estadobaseinicial();
 
-  get Temaactual() { return this.Estadocomponente.Temaelegido || this.Propiedades.Modo || 'oscuro'; }
+  get Temaactual() { return Resolvertema(this.Estadocomponente.Temaelegido, this.Propiedades.Modo); }
   get Pestana() { return this.Estadocomponente.Pestana || (['inicio','ingresos','simulador','plan','ofertas'].includes(this.Propiedades.Pantallainicial) ? this.Propiedades.Pantallainicial : 'inicio'); }
   get Pantalla() { if (this.Estadocomponente.Pantalla) return this.Estadocomponente.Pantalla; const Pantalladato = this.Propiedades.Pantallainicial ?? 'splash'; if (Pantalladato === 'splash') return 'splash'; if (Pantalladato === 'login') return 'login'; return Pantalladato === 'onboarding' || Pantalladato === 'setup' ? 'setup' : 'app'; }
   get Cuestionariolisto() { return this.Estadocomponente.Cuestionariolisto ?? !['login', 'onboarding', 'setup', 'splash'].includes(this.Propiedades.Pantallainicial ?? 'splash'); }
@@ -20,18 +20,23 @@ class Aplicacionmitecho extends Componentebase {
       if (!Cambios.Registrotipo) Cambios.Registrotipo = 'ing';
       if (!Cambios.Simuladorpaso) Cambios.Simuladorpaso = 'form';
       this.Cambiarestado(Cambios);
+      // Un invitado no puede quedar con la sesión de otra cuenta abierta: sus datos terminarían en esa cuenta
+      if (Cambios.Invitado && typeof Estadosesionactual === 'function' && Estadosesionactual().Autenticado) Soltarsesionabierta();
     }
     this.Temporizadorportadauno = setTimeout(() => this.Cambiarestado({ Portadaentrando: true }), 80);
     this.Temporizadorportadados = setTimeout(() => {
       if (this.Pantalla === 'splash') {
         if (this.Estadocomponente.Ingresado && this.Cuestionariolisto) {
           this.Cambiarestado({ Pantalla: 'app', Pestana: 'inicio' });
+        } else if (this.Estadocomponente.Ingresado && this.Estadocomponente.Invitado) {
+          this.Cambiarestado({ Pantalla: 'setup', Portadarecogida: true });
         } else {
           this.Cambiarestado({ Pantalla: 'login', Portadarecogida: true });
         }
       }
     }, 2200);
     this.Aplicartema();
+    Escuchartemasistema(this);
     this.target = this.Calcular().Preciotecho;
     this.Cambiarestado({ Mostrado: this.target });
     this.Reiniciarbarras();
@@ -48,7 +53,8 @@ class Aplicacionmitecho extends Componentebase {
           Menu: false,
           Ayuda: false,
           Hoja: false,
-          Consignacion: null,
+          Registrotipo: 'ing',
+          Diaseleccionado: 6,
           Panel: null
         });
       }
@@ -65,7 +71,8 @@ class Aplicacionmitecho extends Componentebase {
               Menu: false,
               Ayuda: false,
               Hoja: false,
-              Consignacion: null,
+              Registrotipo: 'ing',
+              Diaseleccionado: 6,
               Panel: null
             });
           }, 600);
@@ -87,110 +94,33 @@ class Aplicacionmitecho extends Componentebase {
     if (typeof Cargartasasmercado === 'function') Cargartasasmercado().then(Cambio => Cambio && this.Cambiarestado({ Tasasactualizadas: Date.now() })).catch(() => null);
   }
 
-  // Maneja el botón de atrás o gesto del celular en orden inteligente de capas
+  // El botón atrás del celular cierra primero lo que esté encima; el orden completo está en Navegacionatras.js
   ManejadorBotonAtras() {
-    const Estado = this.Estadocomponente;
-
-    // 1. Modales y ventanas emergentes
-    if (Estado.Eliminacionabierta) {
-      this.Cambiarestado({ Eliminacionabierta: false });
-      return;
-    }
-    if (Estado.Soporteabierto) {
-      this.Cambiarestado({ Soporteabierto: false });
-      return;
-    }
-    if (Estado.Hoja) {
-      this.Cambiarestado({ Hoja: false });
-      return;
-    }
-    if (Estado.Consignacion) {
-      this.Cambiarestado({ Consignacion: null });
-      return;
-    }
-    if (Estado.Ayuda) {
-      this.Cambiarestado({ Ayuda: false });
-      return;
-    }
-    if (Estado.Menu) {
-      this.Cambiarestado({ Menu: false });
-      return;
-    }
-
-    // 2. Paneles de pantalla completa (perfil, recordatorios, comparador de tasas)
-    if (Estado.Panel) {
-      this.Cambiarestado({ Panel: null });
-      return;
-    }
-
-    // 3. Pestañas en la app
-    if (this.Pantalla === 'app') {
-      if (Estado.Pestana === 'simulador' && Estado.Simuladorpaso === 'result') {
-        this.Cambiarestado({ Simuladorpaso: 'form' });
-        return;
-      }
-      if (Estado.Pestana === 'ingresos' && Estado.Ingresovista !== 'dia') {
-        this.Cambiarestado({ Ingresovista: 'dia' });
-        return;
-      }
-      if (Estado.Pestana && Estado.Pestana !== 'inicio') {
-        this.Cambiarestado({ Pestana: 'inicio' });
-        return;
-      }
-    }
-
-    // 4. Modos en pantalla de login (si está en registro, recuperar clave o correo abierto, volver atrás)
-    if (this.Pantalla === 'login') {
-      if (Estado.Ingresomodo === 'register' || Estado.Ingresomodo === 'recover') {
-        this.Cambiarestado({ Ingresomodo: 'login', Ingresoerror: '', Ingresoexitomensaje: '' });
-        return;
-      }
-      if (Estado.Correoabierto) {
-        this.Cambiarestado({ Correoabierto: false, Ingresoerror: '', Ingresoexitomensaje: '' });
-        return;
-      }
-    }
-
-    // 5. Cuestionario de perfil (volver al paso anterior)
-    if (this.Pantalla === 'setup') {
-      const Paso = (Estado.Cuestionario && Estado.Cuestionario.Paso) || 0;
-      if (Paso > 0) {
-        this.Cambiarestado(Previo => ({ Cuestionario: { ...(Previo.Cuestionario || {}), Paso: Paso - 1 } }));
-        return;
-      }
-    }
-
-    // 6. Si ya está en la pantalla inicial de inicio sin nada abierto: confirmar salida
-    const Ahora = Date.now();
-    if (this._UltimoToqueAtras && (Ahora - this._UltimoToqueAtras) < 2200) {
-      if (window.Puentenativo && typeof window.Puentenativo.minimizarApp === 'function') {
-        window.Puentenativo.minimizarApp();
-      }
-    } else {
-      this._UltimoToqueAtras = Ahora;
-      this.Aviso('Presiona atrás de nuevo para salir.');
-    }
+    Manejaratras.call(this);
   }
 
   // Al abrir la app con sesión guardada se avisa que hubo actividad y se traen Pro y la autorización desde el servidor
   async Sincronizarcuenta() {
-    if (!this.Estadocomponente.Ingresado || typeof Registraractividadapi !== 'function') return;
+    if (!this.Estadocomponente.Ingresado || this.Estadocomponente.Invitado || typeof Registraractividadapi !== 'function') return;
     const Resultado = await Registraractividadapi().catch(() => null);
     if (!Resultado || !Resultado.ok || !Resultado.datos) return;
     this.Cambiarestado({ Pro: Boolean(Resultado.datos.pro), Autorizacionversion: String(Resultado.datos.autorizacion || '') });
   }
 
-  // El banner solo sale en las pantallas de la app, sin Pro, con la autorización dada y sin ventanas abiertas encima
+  // El banner solo sale en las pantallas de la app, sin Pro y con la autorización dada. Con una ventana encima
+  // se oculta, pero su espacio queda reservado para que la barra de abajo no salte al abrirla o cerrarla
   Actualizaranuncios() {
     if (typeof Sincronizarbanner !== 'function') return;
     const Estado = this.Estadocomponente;
     const Autorizado = typeof Versionpolitica === 'undefined' || Estado.Autorizacionversion === Versionpolitica;
-    Sincronizarbanner(Boolean(Estado.Ingresado && this.Pantalla === 'app' && !Estado.Pro && Autorizado && Estado.Tutorialvisto && !Recorridoactual(this) && !Estado.Hoja && !Estado.Soporteabierto && !Estado.Eliminacionabierta && !Estado.Menu));
+    const Ventanaencima = Boolean(Estado.Hoja || Estado.Soporteabierto || Estado.Eliminacionabierta || Estado.Menu || Estado.Tipoviviendaabierto || Estado.Calculoabierto || Estado.Vinculacionpendiente);
+    Sincronizarbanner(Boolean(Estado.Ingresado && this.Pantalla === 'app' && !Estado.Pro && Autorizado && Estado.Tutorialvisto && !Recorridoactual(this)) ? (Ventanaencima ? 'reservar' : 'ver') : 'nada');
   }
 
   Alactualizar(Propiedadesprevias, Estadopasado) {
     this.Aplicartema();
     this.Actualizaranuncios();
+    Registrarnavegacion.call(this);
     if (window.Puentenativo && typeof window.Puentenativo.actualizarEstadoEfectivo === 'function') {
       const Regs = this.Estadocomponente.Registros || [];
       const Rec = this.Estadocomponente.Recordatorios || {};
@@ -201,7 +131,7 @@ class Aplicacionmitecho extends Componentebase {
     this.Temporizadorguardado = setTimeout(() => Guardardatosalmacenados(this.Estadocomponente), 250);
     clearTimeout(this.Temporizadornube);
     this.Temporizadornube = setTimeout(() => {
-      if (this.Estadocomponente.Ingresado && typeof Estadosesionactual === 'function' && Estadosesionactual().Autenticado) {
+      if (this.Estadocomponente.Ingresado && !this.Estadocomponente.Invitado && typeof Estadosesionactual === 'function' && Estadosesionactual().Autenticado) {
         Guardarperfilapi(Armarperfilnube(this.Estadocomponente)).catch(() => null);
       }
     }, 2000);
@@ -224,16 +154,7 @@ class Aplicacionmitecho extends Componentebase {
       this.Reiniciarbarras();
     }
     this.Clavenavegacion = Llave;
-  }
-
-  // Baja la pantalla de Ayuda hasta la pregunta que abrió un botón "Entender"
-  Bajarapregunta() {
-    this.Cambiarestado({ Ayudadesplazar: false });
-    setTimeout(() => {
-      // La pregunta abierta es el único bloque que, además del botón, muestra su contenido
-      const Pregunta = [...document.querySelectorAll('.m6f')].find(Bloque => Bloque.children.length > 1);
-      if (Pregunta) Pregunta.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    }, 80);
+    Restaurardesplazamiento.call(this);
   }
 
   Aldesmontar() {
@@ -264,9 +185,11 @@ class Aplicacionmitecho extends Componentebase {
     const Esportada = Pantallaactual === 'splash' && !this.Estadocomponente.Portadarecogida;
     const Esclaro = this.Temaactual === 'claro';
     const Superiorazul = Pantallaactual === 'splash' || Pantallaactual === 'login';
-    const Colorestado = Superiorazul ? '#1E345B' : (Esclaro ? '#F3F2EC' : '#0B0C0A');
+    const Colorestado = Superiorazul ? '#1E345B' : (Esclaro ? '#F3F3EE' : '#0B0C0A');
     const Estadooscuro = !Superiorazul && Esclaro;
-    const Colornavegacion = Esclaro ? '#F3F2EC' : '#0B0C0A';
+    // Con la barra de pestañas a la vista, la barra del celular toma su color para que se vean como una sola
+    const Conpestanas = Pantallaactual === 'app' && !this.Estadocomponente.Ayuda && !this.Estadocomponente.Panel;
+    const Colornavegacion = Conpestanas ? (Temasinterfaz[this.Temaactual] || Temasinterfaz.oscuro).nav : (Esclaro ? '#F3F3EE' : '#0B0C0A');
     const Navegacionoscura = !Esportada && Esclaro;
     const Bloquearvertical = Superiorazul;
     if (typeof document !== 'undefined' && this.Colornavegacionprevio !== Colornavegacion) {
@@ -275,7 +198,7 @@ class Aplicacionmitecho extends Componentebase {
     }
     const Puente = typeof window !== 'undefined' ? window.Puentenativo : null;
     if (Puente && typeof Puente.aplicarBarras === 'function') {
-      const Clavebarras = Estadooscuro + '|' + Navegacionoscura + '|' + Bloquearvertical;
+      const Clavebarras = Colornavegacion + '|' + Estadooscuro + '|' + Navegacionoscura + '|' + Bloquearvertical;
       if (this.Clavebarrasprevia !== Clavebarras) {
         this.Clavebarrasprevia = Clavebarras;
         Puente.aplicarBarras(Colorestado, Estadooscuro, Colornavegacion, Navegacionoscura, Bloquearvertical);
@@ -312,73 +235,22 @@ class Aplicacionmitecho extends Componentebase {
     return Calcularcapacidad(Permitido, Deudasreemplazo, Modalidadreemplazo);
   }
 
+  // Entrar y salir de una cuenta, o del modo sin cuenta, está en Sesionusuario.js y Sesioninvitado.js
   Iniciarsesionusuario(Correo, Nombresugerido, Perfilremoto, Metadatoscuenta) {
-    const Base = Estadobaseinicial();
-    const Guardadolocal = typeof Cargardatosusuario === 'function' ? Cargardatosusuario(Correo) : null;
-    if (Guardadolocal && typeof Guardadolocal === 'object') {
-      Camposalmacenados.forEach(Clave => {
-        if (Clave in Guardadolocal) Base[Clave] = Guardadolocal[Clave];
-      });
+    if (this.Estadocomponente.Invitado) {
+      Vincularcuentainvitado.call(this, Correo, Nombresugerido, Perfilremoto, Metadatoscuenta);
+      return;
     }
-    if (Perfilremoto && typeof Perfilremoto === 'object') {
-      Aplicarperfilremoto(Base, Perfilremoto, Guardadolocal, Nombresugerido);
-    } else if (!Base.Nombre && Nombresugerido) {
-      Base.Nombre = Nombresugerido;
-    }
-    Base.Correo = Correo || '';
-    // Pro lo marca el servidor (después Google Play Billing); lo guardado en el celular no cuenta
-    Base.Pro = Boolean(Metadatoscuenta && Metadatoscuenta.pro);
-    Base.Metodoingreso = Metadatoscuenta && Metadatoscuenta.provider === 'google' ? 'google' : 'correo';
-    Base.Ingresado = true;
-    // Si la cuenta todavía no autorizó la versión vigente de la política, la ventana de autorización sale sola
-    const Autorizacion = Metadatoscuenta && Metadatoscuenta.autorizacion;
-    Base.Autorizacionversion = Autorizacion && Autorizacion.version ? String(Autorizacion.version) : '';
-    Base.Temaelegido = this.Estadocomponente.Temaelegido || Base.Temaelegido || 'oscuro';
-    Base.Portadaentrando = true;
-    Base.Portadarecogida = true;
-    Base.Correoabierto = false;
-    Base.Ingresoclave = '';
-    Base.Ingresoclaveconfirmar = '';
-    Base.Ingresoerror = '';
-    Base.Ingresoaviso = '';
-    Base.Ingresoexitomensaje = '';
-    Base.Pantalla = Base.Cuestionariolisto ? 'app' : 'setup';
-    Base.Pestana = 'inicio';
-    this.Cambiarestado(Base);
-    Guardardatosalmacenados(Base);
-    this.Aviso('Sesión iniciada con ' + (Base.Nombre || Correo) + '.');
-    // El servidor manda la bienvenida solo la primera vez que la cuenta entra; las demás veces no hace nada
-    if (typeof Enviarbienvenidaapi === 'function') Enviarbienvenidaapi().catch(() => null);
+    Entrarconcuenta.call(this, Correo, Nombresugerido, Perfilremoto, Metadatoscuenta, null);
   }
 
   // Singuardar se usa al borrar la cuenta, para que no quede una copia de los datos en el celular
   Cerrarsesionusuario(Singuardar) {
-    if (!Singuardar && this.Estadocomponente.Ingresado && this.Estadocomponente.Correo) {
-      Guardardatosalmacenados(this.Estadocomponente);
-    }
-    if (typeof Cerrarsesionapi === 'function') {
-      Cerrarsesionapi().catch(() => null);
-    }
-    Borrardatosalmacenados();
-    const Limpio = Estadobaseinicial();
-    Limpio.Temaelegido = this.Estadocomponente.Temaelegido || 'oscuro';
-    Limpio.Pantalla = 'login';
-    Limpio.Portadaentrando = true;
-    Limpio.Portadarecogida = true;
-    Limpio.Ingresado = false;
-    this.Cambiarestado(Limpio);
-    this.Aviso('Sesión cerrada.');
+    Salirdesesion.call(this, Singuardar);
   }
 
-  Iniciosesion(Via) {
-    this.Cambiarestado({
-      Ingresado: true,
-      Pantalla: this.Cuestionariolisto ? 'app' : 'setup',
-      Pestana: 'inicio',
-      Correoabierto: false,
-      Ingresoerror: ''
-    });
-    this.Aviso('Sesión iniciada con ' + Via + '.');
+  Entrarsincuenta() {
+    Entrarcomoinvitado.call(this);
   }
 
   Perfilvalores(Calculo, Fichaseleccion, Oscuroactivo) {
@@ -389,8 +261,8 @@ class Aplicacionmitecho extends Componentebase {
     return Generarvaloresentidades.call(this, Calculo, Seleccion);
   }
 
-  Valoresextra(Calculo, Configuracion, Seleccion, Contexto) {
-    return Generarvaloresadicionales.call(this, Calculo, Configuracion, Seleccion, Contexto);
+  Valoresextra(Calculo, Configuracion, Seleccion) {
+    return Generarvaloresadicionales.call(this, Calculo, Configuracion, Seleccion);
   }
 
   Cuestionariovalores(Calculo, Fichaseleccion) {
@@ -426,6 +298,8 @@ class Aplicacionmitecho extends Componentebase {
     const Nombre = Tipo === 'Otro egreso fijo' ? Nombrebase : '';
     this.Cambiarestado({
       Hoja: true,
+      Hojamenu: false,
+      Hojafecha: null,
       Hojatipo: 'deuda',
       Hojafrecuencia: 'fijo',
       Deudaeditandoid: Identificador,
@@ -452,6 +326,7 @@ class Aplicacionmitecho extends Componentebase {
 
   async Generarpdf() {
     if (this.Estadocomponente.Desbloqueadopdf) {
+      this.Cambiarestado({ Reportelisto: true });
       Generarcertificadopdf(this.Estadocomponente, this.Calcular(), Mensaje => this.Aviso(Mensaje));
       return;
     }
@@ -461,7 +336,7 @@ class Aplicacionmitecho extends Componentebase {
     if (Resultado && Resultado.ok) {
       const Nuevocount = Vistos + 1;
       if (Nuevocount >= 3) {
-        this.Cambiarestado({ Desbloqueadopdf: true, Anunciospdf: 3 });
+        this.Cambiarestado({ Desbloqueadopdf: true, Anunciospdf: 3, Reportelisto: true });
         this.Aviso('¡Descarga de PDF desbloqueada!');
         Generarcertificadopdf(this.Estadocomponente, this.Calcular(), Mensaje => this.Aviso(Mensaje));
       } else {
@@ -484,11 +359,18 @@ class Aplicacionmitecho extends Componentebase {
   if (Plantilla && typeof Plantillaperfil !== 'undefined' && typeof Plantillaprincipal !== 'undefined' && typeof Plantillamodales !== 'undefined') {
     Plantilla.innerHTML = '<div class="m1" ref="{{ Raizreferencia }}"><div class="m2"><span>MITECHO COLOMBIA</span><span>·</span><span>VERSIÓN OFICIAL 2026</span></div><div class="m3"><div class="m4"></div><div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font:600 15px \'Familjen Grotesk\',sans-serif;color:{{ Estadotinta }};z-index:30;background:{{ Estadofondo }};transition:background .25s ease-out"><span>9:41</span><div class="m5"><div class="m6"><div class="m7"></div><div class="m8"></div><div class="m9"></div><div class="ma"></div></div><div class="mb"><div class="mc"></div></div></div></div>'
       + Plantillaperfil
-      + (typeof Plantillatasas !== 'undefined' ? Plantillatasas : '')
       + Plantillaprincipal
       + Plantillamodales
+      // Los paneles van fuera de la pantalla principal para que no se corran cuando ella está desplazada
+      + (typeof Plantillatasas !== 'undefined' ? Plantillatasas : '')
+      + (typeof Plantilladeudas !== 'undefined' ? Plantilladeudas : '')
+      + (typeof Plantillareporte !== 'undefined' ? Plantillareporte : '')
+      + (typeof Plantillasubsidios !== 'undefined' ? Plantillasubsidios : '')
       + (typeof Plantillaautorizacion !== 'undefined' ? Plantillaautorizacion : '')
       + (typeof Plantillaeliminacion !== 'undefined' ? Plantillaeliminacion : '')
+      + (typeof Plantillaavisoinvitado !== 'undefined' ? Plantillaavisoinvitado : '')
+      + (typeof Plantillatipovivienda !== 'undefined' ? Plantillatipovivienda : '')
+      + (typeof Plantillacalculo !== 'undefined' ? Plantillacalculo : '')
       + (typeof Plantillatutorial !== 'undefined' ? Plantillatutorial : '')
       + '</div></div>';
   }

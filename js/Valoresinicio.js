@@ -9,16 +9,20 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
   const Estadoactual = this.Estadocomponente, Pestana = this.Pestana;
   const Mostrado = Estadoactual.Mostrado ?? Calculo.Preciotecho;
   const Pestanas = ['inicio', 'ingresos', 'simulador', 'plan', 'ofertas'];
-  const Pestanaes = {}, Pestanafondo = {}, Pestanatexto = {}, Pestanair = {};
+  const Pestanaes = {}, Pestanaclase = {}, Pestanaactual = {}, Pestanair = {};
   Pestanas.forEach(Auxiliar => {
     Pestanaes[Auxiliar] = Pestana === Auxiliar;
-    Pestanafondo[Auxiliar] = Pestana === Auxiliar ? 'var(--ac)' : 'transparent';
-    Pestanatexto[Auxiliar] = Pestana === Auxiliar ? 'var(--oa)' : 'var(--di)';
-    Pestanair[Auxiliar] = () => this.Cambiarestado({
-      Pestana: Auxiliar,
-      Simuladorpaso: Auxiliar === 'simulador' ? (Estadoactual.Simuladorpaso || 'form') : Estadoactual.Simuladorpaso,
-      ...(Auxiliar === 'ingresos' ? { Ingresovista: Estadoactual.Ingresovista || 'dia', Registrotipo: Estadoactual.Registrotipo || 'ing' } : {})
-    });
+    Pestanaclase[Auxiliar] = Pestana === Auxiliar ? 'is-activa' : '';
+    Pestanaactual[Auxiliar] = Pestana === Auxiliar ? 'page' : false;
+    // Las pestañas de abajo empiezan un historial nuevo: desde ellas, atrás lleva al Inicio
+    Pestanair[Auxiliar] = () => {
+      Reiniciarnavegacion.call(this);
+      this.Cambiarestado({
+        Pestana: Auxiliar,
+        Simuladorpaso: Auxiliar === 'simulador' ? (Estadoactual.Simuladorpaso || 'form') : Estadoactual.Simuladorpaso,
+        ...(Auxiliar === 'ingresos' ? { Ingresovista: Estadoactual.Ingresovista || 'dia', Registrotipo: Estadoactual.Registrotipo || 'ing', Diaseleccionado: 6 } : {})
+      });
+    };
   });
   Pestanaes.simForm = Pestana === 'simulador' && (Estadoactual.Simuladorpaso || 'form') === 'form';
   Pestanaes.simResult = Pestana === 'simulador' && Estadoactual.Simuladorpaso === 'result';
@@ -28,32 +32,32 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
   // Lo que pide el techo (cuota inicial y gastos) frente a lo que ya tiene el hogar (ahorro y subsidio que aplica a ese techo)
   const Necesariotecho = Calculo.Cuotainicialtecho + (Estadoactual.Financiargastos ? 0 : Calculo.Gastostecho);
   const Cuotainicialporcentaje = Necesariotecho > 0 ? Math.min(1, (Necesariotecho - Calculo.Faltatecho) / Necesariotecho) : 0;
+  const Tienetecho = Calculo.Preciotecho > 0, Tieneahorro = Necesariotecho - Calculo.Faltatecho;
+  const Ahorroporcentaje = Necesariotecho > 0 ? Math.min(100, Math.round(Cuotainicialporcentaje * 100)) : 0;
+  const Metaporcentaje = Math.min(100, Math.round(Totalhoy / Math.max(1, Calculo.Metadiaria) * 100));
+  // Proyectos de referencia que caben en el presupuesto (solo se cuentan en el Inicio)
+  const { Proyectosciudad, Alcanzables } = Pestana === 'inicio' ? Proyectosalcanzables.call(this, Estadoactual, Calculo) : { Proyectosciudad: [], Alcanzables: [] };
+  const Desde = Alcanzables.length ? Math.min(...Alcanzables.map(Proyecto => Proyecto.Precioproyecto)) : 0;
   // La racha cuenta los días marcados y también los días que tienen ingresos o gastos con fecha
   const Rachadatos = Calcularracha([...(Estadoactual.Diasregistrados || []), ...Estadoactual.Registros.filter(Elemento => Elemento.Fecha).map(Elemento => Elemento.Fecha), ...Estadoactual.Egresosregistrados.filter(Elemento => Elemento.Fecha).map(Elemento => Elemento.Fecha)]);
   const Mesesfaltantes = Math.max(0, Math.ceil(Calculo.Faltatecho / Math.max(1, Estadoactual.Ahorromes)));
+  // Con salario fijo no hay ventas del día que registrar: la meta de hoy solo aparece con ingresos variables o mixtos
+  const Metavisible = Estadoactual.Tipo !== 'fijo';
   const Subsidiousado = Calculo.Subsidiotecho;
-  const Propio = Math.max(0, Calculo.Cuotainicialtecho - Subsidiousado);
-  const Salariosminimos = Calculo.Salariosminimos;
-  const Potencialsalarios = Estadoactual.Caja ? 0 : Salariosminimos <= 2 ? 30 : Salariosminimos <= 4 ? 20 : 0;
-  const Subsidiosalarios = Calculo.Subsidiocajasalarios + Calculo.Subsidiomicasayasalarios;
-  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Salariosminimos < 4;
-  // Aviso de la meta de hoy: cuenta con qué vivienda se calcula y lleva al campo donde se personaliza
-  const Metaavisotexto = Estadoactual.Objetivousuario > 0
-    ? 'Tu meta de hoy se calcula con tu vivienda objetivo de ' + Formatoenteropesos(Calculo.Objetivo) + (Calculo.Objetivonovis && Estadoactual.Modalidadelegida !== 'novis' ? ', que pasa el tope VIS: la contamos como No VIS, con 70% de financiación y sin subsidio' : '') + '. Si borras ese valor, vuelve a calcularse con tu techo según tus ingresos.'
-    : Calculo.Objetivo > 0 ? 'Tu meta de hoy se calcula con tu techo según tus ingresos ($' + Formatomillones(Calculo.Objetivo) + ' M). Puedes personalizarla con el valor de la vivienda objetivo.'
-      : 'Hoy tu techo según tus ingresos está en $0. Puedes personalizar tu meta con el valor de la vivienda objetivo.';
+  const Primernombre = (Estadoactual.Nombre || '').trim().split(/\s+/)[0];
 
   return {
     Raizreferencia: this.Raizreferencia,
     Desplazamientoreferencia: this.Desplazamientoreferencia,
     Esoscuro: Oscuroactivo,
     Esclaro: !Oscuroactivo,
-    Alternartema: () => this.Cambiarestado({ Temaelegido: Oscuroactivo ? 'claro' : 'oscuro' }),
+    Alternartema: () => Alternartemarapido.call(this),
     Esapp: this.Pantalla === 'app',
+    Estilocontenedorapp: Pestana === 'ofertas' ? 'es-detalle' : '',
+    Mostrarbarrasuperior: Pestana !== 'ofertas',
     Tienehoja: this.Pantalla === 'app' && Boolean(Estadoactual.Hoja),
-    Hojavisible: (this.Pantalla === 'app' && Estadoactual.Hoja) ? 'flex' : 'none',
     Hojafondovisible: (this.Pantalla === 'app' && Estadoactual.Hoja) ? 'block' : 'none',
-    Mostrarbarra: this.Pantalla === 'app' && !Estadoactual.Ayuda && !Estadoactual.Panel,
+    Mostrarbarra: this.Pantalla === 'app' && !Estadoactual.Ayuda && !Estadoactual.Panel && Pestana !== 'ofertas',
     Esbienvenidaingreso: this.Pantalla === 'splash' || this.Pantalla === 'login',
     Esmodoportada: this.Pantalla === 'splash' && !Estadoactual.Portadarecogida,
     Bienvenidaclase: (this.Pantalla === 'splash' && !Estadoactual.Portadarecogida) ? 'is-splash' : 'is-login',
@@ -80,11 +84,9 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
     Esmodorecuperar: Estadoactual.Ingresomodo === 'recover',
     Esmodoingreso: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login'),
     Esmodoregistro: Estadoactual.Ingresomodo === 'register',
-    Ingresopestanafondo: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login') ? 'var(--ac)' : 'transparent',
-    Ingresopestanacolor: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login') ? 'var(--oa)' : 'var(--mu)',
-    Registropestanafondo: Estadoactual.Ingresomodo === 'register' ? 'var(--ac)' : 'transparent',
-    Registropestanacolor: Estadoactual.Ingresomodo === 'register' ? 'var(--oa)' : 'var(--mu)',
-    Claveejemplo: Estadoactual.Ingresomodo === 'register' ? 'Contraseña (mínimo 6 caracteres)' : 'Contraseña',
+    Ingresotabclase: (!Estadoactual.Ingresomodo || Estadoactual.Ingresomodo === 'login') ? 'is-activa' : '',
+    Registrotabclase: Estadoactual.Ingresomodo === 'register' ? 'is-activa' : '',
+    Claveejemplo: Estadoactual.Ingresomodo === 'register' ? 'Mínimo 6 caracteres' : 'Tu contraseña',
     Ingresoclaveconfirmarvalor: Estadoactual.Ingresoclaveconfirmar || '',
     Ingresoexitomensaje: Estadoactual.Ingresoexitomensaje || '',
     Registrobotontexto: Estadoactual.Ingresoocupado ? 'Registrando…' : 'Registrarme',
@@ -273,59 +275,58 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
       }
     },
     Pestanaes,
-    Pestanafondo,
-    Pestanatexto,
     Pestanair,
+    Pestanaclase,
+    Pestanaactual,
+    Saludotitulo: Primernombre ? 'Hola, ' + Primernombre : 'Hola',
+    Abrirayuda: () => this.Cambiarestado({ Ayuda: true, Menu: false }),
+    // Presupuesto: lo que presta el banco y lo que pone la persona (cuota inicial, con el subsidio si aplica)
+    Heroebancopeso: Tienetecho ? Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 1000) : 0,
+    Heroepropiopeso: Tienetecho ? 1000 - Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 1000) : 0,
+    Heroepropiomillones: '$' + Formatomillones(Math.max(0, Calculo.Preciotecho - Calculo.Creditotecho)) + ' M',
+    Heroepropionota: (Tienetecho ? 100 - Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 100) : 0) + '% · cuota inicial',
+    Heroesubsidiotexto: 'Tu subsidio ' + (Calculo.Subsidiomicasayasalarios ? 'de Caja y Mi Casa Ya' : 'de Caja') + ' cubre $' + Formatomillones(Subsidiousado) + ' M de esa cuota inicial.',
+    // Ahorro para comprar: lo que pide el presupuesto (cuota inicial, notaría y registro) frente a lo que ya hay
+    Ahorroporcentaje,
+    Ahorroporcentajetexto: Ahorroporcentaje + '%',
+    Ahorroancho: Ahorroporcentaje + '%',
+    Ahorroprogresoetiqueta: 'Llevas el ' + Ahorroporcentaje + '% del ahorro que necesitas',
+    Ahorroconmonto: Tienetecho,
+    Ahorrotienes: '$' + Formatomillones(Tieneahorro) + ' M',
+    Ahorronecesario: '$' + Formatomillones(Necesariotecho) + ' M',
+    Ahorroconfalta: Tienetecho && Calculo.Faltatecho > 0,
+    Ahorrofaltamonto: '$' + Formatomillones(Calculo.Faltatecho) + ' M',
+    Ahorrofaltaresto: Estadoactual.Ahorromes > 0 ? ': unos ' + Formatearmeses(Mesesfaltantes) + ' si ahorras ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes.' : '. Escribe en tu perfil cuánto puedes ahorrar al mes y te decimos en cuánto tiempo llegas.',
+    Ahorroconaviso: !Tienetecho || Calculo.Faltatecho <= 0,
+    Ahorroaviso: !Tienetecho ? (Calculo.Ingresototal > 0 ? 'Tus cuotas de deudas se llevan todo tu ingreso, así el banco no te presta. Cada cuota que termines de pagar sube tu presupuesto.' : 'Completa tus ingresos en tu perfil para calcular tu presupuesto.') : 'Ya tienes la cuota inicial y los gastos de notaría y registro.',
+    Irplanahorro: () => this.Cambiarestado({ Pestana: 'plan' }),
+    // Meta de hoy y racha de días registrando
+    Metahoy: Formatoenteropesos(Totalhoy),
+    Metaporcentaje,
+    Metaprogresoetiqueta: 'Llevas el ' + Metaporcentaje + '% de tu meta de hoy',
+    Rachatexto: Rachadatos.Seguidos === 0 ? 'Empieza hoy tu racha: registra lo que ganes.' : Rachadatos.Seguidos === 1 ? 'Llevas 1 día registrando.' : 'Llevas ' + Rachadatos.Seguidos + ' días seguidos registrando.',
+    // Los precios de los proyectos van en millones redondos, como en la lista de viviendas
+    Viviendasresumen: Alcanzables.length ? Alcanzables.length + (Alcanzables.length === 1 ? ' proyecto de referencia desde $' : ' proyectos de referencia desde $') + Math.round(Desde / 1e6).toLocaleString('es-CO') + ' M'
+      : Proyectosciudad.length ? 'Mira los proyectos de referencia en ' + Estadoactual.Ciudad : 'Mira proyectos de referencia en otras ciudades',
+    Irofertas: () => this.Cambiarestado({ Pestana: 'ofertas' }),
     Preciodestacado: Formatomillones(Mostrado),
-    Modalidadetiqueta: Configuracion.Etiquetanodo,
     Creditomillones: '$' + Formatomillones(Calculo.Creditotecho) + ' M',
-    Capacidadcuotamillones: '$' + Formatomillones(Calculo.Capacidadcuota) + ' M',
-    Ingresobase: 'Con ingresos de $' + Formatomillones(Calculo.Ingresototal) + ' M al mes',
     Financiacionancho: (Calculo.Creditotecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
     Porcentajefinanciado: Math.round(Calculo.Creditotecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
-    Subsidioancho: (Subsidiousado / Math.max(1, Calculo.Preciotecho) * 100) + '%',
-    Propioporcentaje: Math.round(Propio / Math.max(1, Calculo.Preciotecho) * 100) + '%',
-    Propiomillones: '$' + Formatomillones(Propio) + ' M',
     Tienesubsidio: Subsidiousado > 0,
-    Subsidiomillones: '$' + Formatomillones(Subsidiousado) + ' M',
-    Subsidioetiqueta: Calculo.Subsidiomicasayasalarios ? 'Caja + Mi Casa Ya' : 'de Caja',
-    Cuotainicialtituloplan: 'Cuota inicial y gastos',
-    Cuotainicialproporcion: '$' + Formatomillones(Necesariotecho - Calculo.Faltatecho) + ' M / $' + Formatomillones(Necesariotecho) + ' M',
-    Techotopevisvisible: Calculo.Techosobretopevis,
-    Techotopevismensaje: Calculo.Techosobretopevis ? Avisotopevis(Calculo, Estadoactual.Ciudad) : '',
-    Cuotainicialbarraancho: (Cuotainicialporcentaje * 100) + '%',
-    Cuotainicialporcentaje: Math.round(Cuotainicialporcentaje * 100) + '%',
-    Cuotainicialmeses: !Calculo.Preciotecho ? (Calculo.Ingresototal > 0 ? 'Tus cuotas de deudas se llevan todo tu ingreso, así el banco no te presta. Revisa tus deudas en Plan: cada cuota que termines de pagar sube tu techo.' : 'Completa tus ingresos en tu perfil financiero para calcular tu techo.') : Mesesfaltantes ? (Estadoactual.Ahorromes ? 'Te faltan ' + Mesesfaltantes + ' meses ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes.' : 'Te faltan ' + Formatoenteropesos(Calculo.Faltatecho) + '. Define tu ahorro mensual en el perfil.') : 'Ya tienes tu cuota inicial completa.',
     Cuotainicialmillones: '$' + Formatomillones(Calculo.Cuotainicialtecho) + ' M',
     Cuotainicialparte: Math.round(Calculo.Cuotainicialtecho / Math.max(1, Calculo.Preciotecho) * 100) + '%',
     Preciohoymillones: '$' + Formatomillones(Calculo.Preciohoy) + ' M',
     Limiteahorro: Calculo.Limiteahorro,
-    // Racha real: un cuadro por cada uno de los últimos 14 días, lleno si ese día registró un ingreso o un gasto
-    Racha: Rachadatos.Cuadros.map(Cuadro => ({ Fondo: Cuadro.Lleno ? 'var(--ac)' : Cuadro.Eshoy ? 'var(--ad)' : 'var(--dm)' })),
-    Rachaetiqueta: Rachadatos.Seguidos === 0 ? 'Empieza hoy' : Rachadatos.Seguidos + (Rachadatos.Seguidos === 1 ? ' día' : ' días'),
     Metaancho: Math.min(100, Totalhoy / Math.max(1, Calculo.Metadiaria) * 100) + '%',
+    Metavisible,
     Tieneefectivo: Efectivopendiente > 0,
     Efectivomensaje: Formatoenteropesos(Efectivopendiente) + ' en efectivo sin consignar. El banco no los ve.',
-    Mostrarafiliacion,
-    Afiliacioncorto: 'Afíliate a una Caja y podrías recibir ' + Formatoenteropesos(Potencialsalarios * Salariominimo) + ' de subsidio.',
-    Sensibilidadmillones: '$' + Formatomillones(Calculo.Sensibilidad) + ' M',
     Iringresos: () => this.Cambiarestado({ Pestana: 'ingresos', Ingresovista: 'dia' }),
     Irsimulador: () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'form' }),
     Irresultado: () => this.Cambiarestado({ Pestana: 'simulador', Simuladorpaso: 'result' }),
-    Irplan: () => this.Cambiarestado({ Pestana: 'plan' }),
+    Irdeudas: () => this.Cambiarestado({ Panel: 'deudas', Menu: false }),
     Irperfil: () => this.Cambiarestado({ Panel: 'perfil' }),
-    Metaavisoabierto: Boolean(Estadoactual.Metaavisoabierto),
-    Metaavisoexpandido: Estadoactual.Metaavisoabierto ? 'true' : 'false',
-    Metaavisotexto,
-    Alternarmetaaviso: () => this.Cambiarestado({ Metaavisoabierto: !Estadoactual.Metaavisoabierto }),
-    Irviviendaobjetivo: () => {
-      this.Cambiarestado({ Panel: 'perfil', Metaavisoabierto: false });
-      // Espera a que el perfil se pinte y baja hasta el campo de la vivienda objetivo
-      setTimeout(() => {
-        const Campo = document.querySelector('[data-campo="vivienda-objetivo"]');
-        if (Campo) Campo.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      }, 120);
-    },
     Avisomensaje: Estadoactual.Aviso,
     Avisodesplazamiento: Estadoactual.Avisovisible ? 'translateY(0)' : 'translateY(-140%)',
     Avisoopacidad: Estadoactual.Avisovisible ? 1 : 0

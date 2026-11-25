@@ -13,18 +13,31 @@ function Generarvalorescuenta() {
   const Estadoactual = this.Estadocomponente;
   const Ocupado = Boolean(Estadoactual.Eliminacionocupado);
   const Exportando = Boolean(Estadoactual.Exportacionocupado);
+  const Invitado = Boolean(Estadoactual.Invitado);
 
   return {
     Tieneeliminacion: this.Pantalla === 'app' && Boolean(Estadoactual.Eliminacionabierta),
     Eliminacionpro: Boolean(Estadoactual.Pro),
     Eliminacionerror: Estadoactual.Eliminacionerror || '',
-    Eliminacionbotontexto: Ocupado ? 'Borrando tu cuenta…' : 'Sí, borrar mi cuenta',
+    Eliminacionbotontexto: Ocupado ? 'Borrando tu cuenta…' : (Invitado ? 'Sí, borrar mis datos' : 'Sí, borrar mi cuenta'),
+    Eliminaciontitulo: Invitado ? 'Borrar mis datos' : 'Borrar mi cuenta',
+    Eliminacionseborran: Invitado ? 'todo lo que guardaste en este celular: tu perfil financiero, tus deudas y tus registros.' : 'tu cuenta, tu perfil financiero, tus reportes PDF y todo lo guardado en este celular.',
+    Eliminacionconservavisible: !Invitado,
+    Perfilborrartexto: Invitado ? 'Borrar mis datos' : 'Borrar mi cuenta',
     Perfileliminar: () => this.Cambiarestado({ Eliminacionabierta: true, Eliminacionerror: '' }),
     Cancelareliminacion: () => {
       if (!Ocupado) this.Cambiarestado({ Eliminacionabierta: false, Eliminacionerror: '' });
     },
     Confirmareliminacion: async () => {
       if (Ocupado) return;
+      // Sin cuenta no hay nada en la nube: basta con limpiar este celular
+      if (Invitado) {
+        Borrardatosalmacenados();
+        this.Cambiarestado({ Eliminacionabierta: false, Eliminacionerror: '' });
+        this.Cerrarsesionusuario(true);
+        this.Aviso('Borramos los datos que tenías en este celular.');
+        return;
+      }
       this.Cambiarestado({ Eliminacionocupado: true, Eliminacionerror: '' });
       const Resultado = await Eliminarcuentaapi();
       if (!Resultado.ok) {
@@ -40,9 +53,26 @@ function Generarvalorescuenta() {
       this.Cerrarsesionusuario(true);
       this.Aviso('Tu cuenta y tus datos fueron borrados.');
     },
-    Perfilexportartexto: Exportando ? 'Enviando tus datos…' : 'Enviar mis datos a mi correo',
+    Perfilexportartexto: Exportando ? 'Enviando tus datos…' : 'Descargar mis datos',
     Perfilexportar: async () => {
       if (Exportando) return;
+      if (Invitado) {
+        try {
+          const Datos = JSON.stringify(Datoslocalesexportables(Estadoactual), null, 2);
+          if (typeof document !== 'undefined' && typeof Blob !== 'undefined' && typeof URL !== 'undefined') {
+            const Enlace = document.createElement('a');
+            Enlace.href = URL.createObjectURL(new Blob([Datos], { type: 'application/json' }));
+            Enlace.download = 'mitecho-datos.json';
+            document.body.appendChild(Enlace);
+            Enlace.click();
+            Enlace.remove();
+          }
+          this.Aviso('Descargamos una copia de tus datos de este celular.');
+        } catch (Falla) {
+          this.Aviso('No pudimos preparar el archivo en este dispositivo.');
+        }
+        return;
+      }
       this.Cambiarestado({ Exportacionocupado: true });
       const Resultado = await Exportardatosapi(Datoslocalesexportables(Estadoactual));
       this.Cambiarestado({ Exportacionocupado: false });
