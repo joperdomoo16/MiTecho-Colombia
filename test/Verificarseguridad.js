@@ -27,7 +27,7 @@ const Huella = Cifrado.createHash('sha256').update(Scriptajustecertificado).dige
 Revisar(Scripts.includes("'sha256-" + Huella + "'"), 'La huella del script del certificado coincide con la CSP.', 'Cambió el script del certificado: actualiza la CSP con sha256-' + Huella);
 
 // Las plantillas usan atributos al-* y nunca onclick, onerror o similares
-const Plantillas = Archivos.readdirSync(Rutas.join(Carpetaraiz, 'vistas')).map(Nombre => Leer('vistas/' + Nombre)).join('\n') + Leer('js/app.js');
+const Plantillas = Archivos.readdirSync(Rutas.join(Carpetaraiz, 'vistas')).map(Nombre => Leer('vistas/' + Nombre)).join('\n') + Leer('js/Aplicacion.js');
 const Enlinea = Plantillas.match(/\son[a-z]+="/gi) || [];
 Revisar(Enlinea.length === 0, 'Las plantillas no tienen eventos en línea.', 'Hay eventos en línea en las plantillas: ' + Enlinea.slice(0, 5).join(' '));
 

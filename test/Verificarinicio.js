@@ -4,7 +4,7 @@ const Archivos = require('fs');
 const Rutas = require('path');
 const Maquinavirtual = require('vm');
 
-for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorcalculo', 'Racha']) {
+for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Racha']) {
   Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/' + Nombre + '.js'), 'utf8'));
 }
 

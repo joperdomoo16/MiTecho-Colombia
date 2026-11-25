@@ -117,15 +117,12 @@ public final class NotificadorRacha {
             return;
         }
 
-        // 1. Notificación de Racha - Mediodía (1:00 PM / 13:00)
         Calendar calMediodia = calcularSiguienteMomento(13, 0);
         programarAlarmaSegura(gestorAlarma, calMediodia.getTimeInMillis(), piMediodia);
 
-        // 2. Notificación de Racha - Noche (8:00 PM o configurada por usuario)
         Calendar calNoche = calcularSiguienteMomento(horaNoche, minutoNoche);
         programarAlarmaSegura(gestorAlarma, calNoche.getTimeInMillis(), piNoche);
 
-        // 3. Alerta de Efectivo sin consignar (4:30 PM / 16:30)
         Calendar calEfectivo = calcularSiguienteMomento(16, 30);
         programarAlarmaSegura(gestorAlarma, calEfectivo.getTimeInMillis(), piEfectivo);
     }
@@ -177,12 +174,12 @@ public final class NotificadorRacha {
         programarRecordatorios(contexto, activo, h + ":" + (m < 10 ? "0" + m : m));
     }
 
-    // Muestra la notificación de Racha (sin prometer 100% exactitud)
+    // Lanza el recordatorio diario de registros en la barra del celular
     public static void mostrarNotificacionRacha(Context contexto, boolean esNoche) {
         crearCanal(contexto);
         PendingIntent pendingApp = crearPendingIntentLanzarApp(contexto, "ingresos", 4001);
 
-        String titulo = "¡Mantén tu racha en MiTecho! 🏠";
+        String titulo = "Mantén tu racha en MiTecho";
         String texto = esNoche
             ? "¿Anotaste tus movimientos de hoy? Mantén viva tu racha para simular mejor tu crédito de vivienda."
             : "Registra tus ingresos o gastos para que tu proyección de vivienda esté lo más ajustada a tu realidad.";
@@ -205,18 +202,18 @@ public final class NotificadorRacha {
         }
     }
 
-    // Muestra la alerta de efectivo sin consignar solo si el cliente tiene registros pendientes
+    // Avisa en la tarde solo cuando quedan ingresos en efectivo pendientes por consignar
     public static void mostrarNotificacionEfectivo(Context contexto) {
         SharedPreferences prefs = contexto.getSharedPreferences(PREF_NOMBRE, Context.MODE_PRIVATE);
         boolean tieneEfectivo = prefs.getBoolean(PREF_TIENE_EFECTIVO, false);
-        if (!tieneEfectivo) return; // Si no hay efectivo sin consignar, no envía nada
+        if (!tieneEfectivo) return;
 
         crearCanal(contexto);
         PendingIntent pendingApp = crearPendingIntentLanzarApp(contexto, "ingresos", 4002);
 
-        String titulo = "¡El banco no ve tu efectivo! 🏦💵";
-        String texto = "Tienes movimientos sin consignar. ¡Recuerda que estos el banco no los ve! Si ya lo hiciste, actualiza en la app; si no lo has hecho, corre, TuTecho te espera.";
-        String textoExpandido = "Tienes movimientos en efectivo sin consignar. ¡Recuerda que estos el banco no los ve para tu crédito! Si ya lo hiciste, actualiza en la app; si no lo has hecho, ¡corre, TuTecho te espera! 🏠";
+        String titulo = "El banco no ve tu efectivo";
+        String texto = "Tienes movimientos sin consignar. Recuerda que el banco no los ve. Si ya los consignaste, márcalos en la app; si no, MiTecho te espera.";
+        String textoExpandido = "Tienes movimientos en efectivo sin consignar. Recuerda que el banco solo cuenta lo que entra a tus extractos. Si ya los consignaste, actualízalos en la app.";
 
         NotificationCompat.Builder constructor = new NotificationCompat.Builder(contexto, CANAL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)

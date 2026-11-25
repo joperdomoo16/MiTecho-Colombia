@@ -26,7 +26,7 @@ function Listar(Carpeta, Base = Carpeta) {
 function Resultados(Carpeta) {
   const Contexto = { console, Intl, Date, Math, JSON, crypto: Cifrado.webcrypto };
   Maquinavirtual.createContext(Contexto);
-  for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorcalculo', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfhojatres', 'Generadorpdf']) {
+  for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Logocertificado', 'Estiloscertificadobase', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfsecciones', 'Generadorpdfhojatres', 'Generadorpdf']) {
     Maquinavirtual.runInContext(Archivos.readFileSync(Rutas.join(Carpeta, 'js', Nombre + '.js'), 'utf8'), Contexto);
   }
   return Maquinavirtual.runInContext(`(() => {

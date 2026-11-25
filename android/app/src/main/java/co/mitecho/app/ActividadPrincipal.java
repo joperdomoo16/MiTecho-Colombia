@@ -61,11 +61,11 @@ public class ActividadPrincipal extends BridgeActivity {
             destinoPendiente = "ingresos";
         }
 
-        // Manejo del botón o gesto atrás: le avisa a la interfaz para cerrar modales o volver a la pestaña previa
+        // Pasa el gesto o botón atrás a la vista web para cerrar ventanas o retroceder de pestaña
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                ejecutarEnInterfaz("if(window.ManejarAtras){window.ManejarAtras();}else{window.history.back();}");
+                ejecutarEnInterfaz("if(window.Volveratrasapp){window.Volveratrasapp();}else{window.history.back();}");
             }
         });
 
@@ -265,7 +265,7 @@ public class ActividadPrincipal extends BridgeActivity {
         setIntent(intent);
         if (intent != null && "ingresos".equals(intent.getStringExtra("destino"))) {
             destinoPendiente = "ingresos";
-            ejecutarEnInterfaz("if(window.AbrirDestinoNotificacion){window.AbrirDestinoNotificacion(" + JSONObject.quote(destinoPendiente) + ");}");
+            ejecutarEnInterfaz("if(window.Abrirdestinonotificacion){window.Abrirdestinonotificacion(" + JSONObject.quote(destinoPendiente) + ");}");
         }
     }
 

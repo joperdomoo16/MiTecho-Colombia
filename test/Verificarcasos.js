@@ -10,6 +10,7 @@ const Rutacasos = Rutas.join(__dirname, 'Casosprueba.json');
 
 Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutaconstantes, 'utf8'));
 Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Historialregistros.js'), 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Motorsubsidios.js'), 'utf8'));
 Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutamotor, 'utf8'));
 
 const Datosprueba = JSON.parse(Archivos.readFileSync(Rutacasos, 'utf8'));

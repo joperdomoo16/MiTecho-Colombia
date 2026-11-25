@@ -10,13 +10,9 @@ const Rutaestilos = Rutas.join(__dirname, '../js/Estiloscertificado.js');
 const Rutahojatres = Rutas.join(__dirname, '../js/Generadorpdfhojatres.js');
 const Rutagenerador = Rutas.join(__dirname, '../js/Generadorpdf.js');
 
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutaconstantes, 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Historialregistros.js'), 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutamotor, 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutaestilos, 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Reportedatos.js'), 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutahojatres, 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutagenerador, 'utf8'));
+for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Logocertificado', 'Estiloscertificadobase', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfsecciones', 'Generadorpdfhojatres', 'Generadorpdf']) {
+  Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/' + Nombre + '.js'), 'utf8'));
+}
 
 let Errores = 0;
 console.log('Iniciando revisión del generador de certificados...\n');
