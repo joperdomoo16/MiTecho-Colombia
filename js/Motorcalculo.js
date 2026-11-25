@@ -257,8 +257,7 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
     Cuotainicial = Preciomax - Creditovivienda;
     Margendespuescierre = Recursospropios - Cuotainicial - (Creditovivienda + Gastos - Credito);
     if (Limitante === 'recursos_propios') {
-      const Preciocupo = Creditoporcapacidad / (Financiacionmaxima + Porcentajegastos);
-      Falta = Math.max(0, Math.round(Preciocupo * (1 - Financiacionmaxima) - Recursospropios));
+      Falta = Faltacupo;
     }
   } else {
     Credito = Math.min(
@@ -269,8 +268,7 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
     Cuotainicial = Preciomax - Credito;
     Margendespuescierre = Recursospropios - Cuotainicial - Gastos;
     if (Limitante === 'recursos_propios') {
-      const Preciocupo = Creditoporcapacidad / Financiacionmaxima;
-      Falta = Math.max(0, Math.round(Preciocupo * (1 - Financiacionmaxima + Porcentajegastos) - Recursospropios));
+      Falta = Faltacupo;
     }
   }
 
@@ -340,7 +338,7 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
     Topevis,
     Topevissalarios,
     Topevip,
-    Esvip: Modalidadfinal === 'vis' && Preciomax <= Topevip,
+    Esvip: Modalidadfinal === 'vis' && Preciotecho > 0 && Preciotecho <= Topevip,
     Salariosminimos,
     Subsidiocajasalarios: Subsidiocajaaplicado / Salariominimo,
     Subsidiomicasayasalarios: Subsidiomicasayaaplicado / Salariominimo,

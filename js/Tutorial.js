@@ -3,24 +3,21 @@
 // Cada parte que se ilumina lleva en la plantilla el atributo data-tutorial con el nombre de su objetivo.
 
 const Pasosrecorrido = [
-  { Objetivo: 'perfil', Imagen: 'Perfil', Titulo: 'Completa tu perfil financiero', Texto: 'Toca tu ícono para agregar ingresos, deudas, ahorro, Caja y Sisbén. Entre más datos, más cerca de la realidad queda tu techo.' },
-  { Objetivo: 'techo', Imagen: 'Techo', Titulo: 'Este es tu techo', Texto: 'Es el precio de la vivienda que un banco podría financiarte según tus ingresos. Toca Entender para ver de dónde sale.' },
-  { Objetivo: 'cuotainicial', Imagen: 'Ahorro', Titulo: 'Tu cuota inicial', Texto: 'Lo que ya tienes frente a lo que pide la vivienda, con los gastos de escritura incluidos.' },
-  { Objetivo: 'barra', Imagen: 'Secciones', Titulo: 'Todo a un toque', Texto: 'Registros para anotar lo que ganas, Simulador para probar escenarios, Plan para apagar deudas y Ofertas para ver proyectos.' },
-  { Objetivo: 'tasas', Imagen: 'Tasas', Titulo: 'Compara bancos', Texto: 'Tu cuota en cada entidad con datos de la Superintendencia Financiera.' },
+  { Objetivo: 'perfil', Imagen: 'Perfil', Titulo: 'Completa tu perfil financiero', Texto: 'Toca tu ícono para agregar ingresos, deudas, ahorro, Caja y Sisbén. Entre más datos, más cerca de la realidad queda tu presupuesto.' },
+  { Objetivo: 'techo', Imagen: 'Techo', Titulo: 'Este es tu presupuesto', Texto: 'Es el precio de la vivienda que un banco podría financiarte según tus ingresos y tus deudas. Toca ¿Cómo lo calculamos? para ver de dónde sale.' },
+  { Objetivo: 'cuotainicial', Imagen: 'Ahorro', Titulo: 'Tu ahorro para comprar', Texto: 'Lo que ya tienes frente a lo que pide la vivienda, con la notaría y el registro incluidos.' },
+  { Objetivo: 'barra', Imagen: 'Secciones', Titulo: 'Todo a un toque', Texto: 'Mi plan para avanzar paso a paso, Registrar para anotar lo que ganas o gastas, Simular para probar escenarios y Movimientos para ver tus registros.' },
+  { Objetivo: 'siguiente', Imagen: 'Plan', Titulo: 'Tu siguiente paso', Texto: 'Te decimos qué hacer ahora para acercarte a tu vivienda: pedir un subsidio, terminar de pagar una deuda o ahorrar un poco más.' },
   { Objetivo: '', Imagen: 'Listo', Titulo: '¡Listo para empezar!', Texto: 'Si tienes dudas, Ayuda y Soporte están siempre en tu ícono de perfil. Puedes volver a ver este recorrido desde el menú.', Final: true }
 ];
 
 const Consejossecciones = {
-  simulador: [
-    { Objetivo: 'modalidad', Imagen: 'Simulador', Titulo: 'Elige el tipo de vivienda', Texto: 'En VIS el banco financia hasta el 80%, en No VIS hasta el 70%. Leasing es un arriendo con opción de compra al final.' },
-    { Objetivo: 'tope', Imagen: 'Simulador', Titulo: 'Cuota máxima', Texto: 'La norma permite que la cuota llegue al 40% de tu ingreso libre. Con el modo conservador ves qué pasa si tu banco aplica 30%.' }
-  ],
+  // Sin consejo de Simular: sus pasos eran del diseño anterior y la capa oscura tapaba el nuevo prototipo
   ingresos: [
-    { Objetivo: 'registrar', Imagen: 'Registro', Titulo: 'Anota en segundos', Texto: 'Con el botón + registras un ingreso o un gasto del día.' },
-    { Objetivo: 'vistas', Imagen: 'Registro', Titulo: 'Día, mes y año', Texto: 'Tus registros se suman por mes. El promedio de los meses completos es el que mira el banco.' }
+    { Objetivo: 'registrar', Imagen: 'Registro', Titulo: 'Anota en segundos', Texto: 'Con el botón Registrar anotas un ingreso o un gasto del día.' },
+    { Objetivo: 'vistas', Imagen: 'Registro', Titulo: 'Hoy, este mes y este año', Texto: 'Tus registros se suman por mes. El promedio de los meses completos es el que mira el banco.' }
   ],
-  plan: [{ Objetivo: 'plan', Imagen: 'Plan', Titulo: 'Apaga una deuda', Texto: 'Toca una deuda para ver cuánto más te prestaría el banco si la terminas de pagar.' }],
+  plan: [{ Objetivo: 'plan', Imagen: 'Plan', Titulo: 'Tu camino paso a paso', Texto: 'Abajo están los pasos para comprar tu vivienda. El resaltado es en el que vas; toca los otros para ver qué hacer en cada uno.' }],
   ofertas: [{ Objetivo: 'ofertas', Imagen: 'Ofertas', Titulo: 'Qué significa cada color', Texto: 'Verde: puedes cerrar hoy. Amarillo: te alcanza el cupo, pero falta cuota inicial. Oscuro: supera tu cupo.' }],
   tasas: [{ Objetivo: 'oferta', Imagen: 'Tasas', Titulo: 'Compara una oferta', Texto: 'Si un banco te dio una tasa, escríbela aquí y mira si está por encima o por debajo del promedio.' }]
 };

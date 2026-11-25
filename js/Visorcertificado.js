@@ -44,14 +44,8 @@ function Generarcertificadopdf(Estadoactual, Calculo, Funcionaviso) {
     }
   };
 
-  setTimeout(() => {
-    try {
-      Marco.contentWindow.focus();
-      Marco.contentWindow.print();
-    } catch (Falla) {}
-  }, 400);
-
-  if (Funcionaviso) Funcionaviso('Reporte generado. Selecciona "Guardar como PDF" en tu celular.');
+  // La impresión solo la dispara el botón: un print() automático choca con él y suele fallar en el WebView de Android
+  if (Funcionaviso) Funcionaviso('Reporte generado. Toca "Guardar como PDF / Imprimir" y elige "Guardar como PDF".');
   return Contenidohtml;
 }
 

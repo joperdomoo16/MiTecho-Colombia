@@ -1,83 +1,37 @@
 // Preparación de los cálculos del simulador de crédito, nivel de deudas, cuotas y proyectos de vivienda
 
 function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaseleccion) {
-  const Estadoactual = this.Estadocomponente, Oscuroactivo = this.Temaactual === 'oscuro', Pestana = this.Pestana;
+  const Estadoactual = this.Estadocomponente;
   // Las cuentas guardadas antes de existir los dos botones usaban el promedio o el valor manual
   const Fuenteactual = Estadoactual.Fuenteingreso || (Estadoactual.Usarautomatico ? 'promedio' : 'manual');
-  const Deudastodas = Estadoactual.Deudas.map(Dato => ({ ...Dato, Activa: true }));
-  const Cuotatodas = this.Calcular(Estadoactual, Deudastodas);
-  const Creditoliberado = Math.max(0, Calculo.Creditotecho - Cuotatodas.Creditotecho);
-  const Deudabanco = Math.max(0, Calculo.Preciotecho - Cuotatodas.Preciotecho), Deudahoy = Math.max(0, Calculo.Preciohoy - Cuotatodas.Preciohoy);
-  const Faltamas = Math.max(0, Calculo.Faltatecho - Cuotatodas.Faltatecho);
-  const Saldoapagado = Estadoactual.Deudas.filter(Dato => !Dato.Activa).reduce((Acumulado, Dato) => Acumulado + (Dato.Saldo || 0), 0);
-  const Cuotasaldo = Saldoapagado ? this.Calcular({ ...Estadoactual, Ahorro: Math.max(0, Estadoactual.Ahorro - Saldoapagado) }) : null;
-
-  let Planmensaje = '', Planlisto = false;
-  if (Creditoliberado > 0) {
-    if (Calculo.Topado && Deudabanco < 1) Planmensaje = 'Tu cupo ya supera el tope VIS. El crédito extra no sube el precio de una vivienda VIS.';
-    else if (Faltamas < 1) { Planlisto = true; Planmensaje = 'Tienes la cuota inicial para usarlo: tu vivienda puede subir $' + Formatomillones(Deudabanco) + ' M.'; }
-    else if (Deudahoy > 1) Planmensaje = 'Hoy tu vivienda sube $' + Formatomillones(Deudahoy) + ' M. Para usar todo el cupo necesitas ' + Formatoenteropesos(Faltamas) + ' más de cuota inicial.';
-    else Planmensaje = 'Hoy tu límite es la cuota inicial, no el banco. Para usar este cupo necesitas ' + Formatoenteropesos(Faltamas) + ' más de cuota inicial' + (Calculo.Subsidio ? ', ya contando tu subsidio.' : '.');
-  }
-
-  const Deudatarjetas = Estadoactual.Deudas.map(Dato => {
-    const Apagadoitem = !Dato.Activa;
-    return {
-      id: Dato.id,
-      Nombreitem: Dato.Nombreitem,
-      detail: Formatoenteropesos(Dato.Cuota) + '/mes' + (Dato.Saldo ? ' · saldo ' + Formatoenteropesos(Dato.Saldo) : ''),
-      Fondo: Apagadoitem ? 'var(--ac)' : 'var(--cd)',
-      Borde: Apagadoitem ? 'var(--ac)' : 'var(--ln)',
-      Color: Apagadoitem ? 'var(--oa)' : 'var(--ik)',
-      Subtexto: Apagadoitem ? 'rgba(11,12,10,.65)' : 'var(--mu)',
-      Linea: Apagadoitem ? 'rgba(11,12,10,.15)' : 'var(--ln)',
-      Riel: Apagadoitem ? 'var(--oa)' : 'var(--c2)',
-      Perilla: Apagadoitem ? 'var(--ac)' : 'var(--mu)',
-      Posicion: Apagadoitem ? 'translateX(18px)' : 'none',
-      Estadocomponente: Apagadoitem ? 'APAGADA · LIBERA' : 'SI LA APAGAS',
-      Impacto: '+$' + Formatomillones(Dato.Cuota * Calculo.Tope * Calculo.Factor) + ' M crédito',
-      Botonfondo: Apagadoitem ? 'rgba(11,12,10,.1)' : 'var(--c2)',
-      Botonborde: Apagadoitem ? 'rgba(11,12,10,.15)' : 'var(--ln)',
-      Alclic: () => this.Fijardeuda(Dato.id, { Activa: !Dato.Activa }),
-      Aleditar: () => this.Editardeuda(Dato.id),
-      Aleliminar: () => this.Eliminardeuda(Dato.id)
-    };
-  });
-
   const Deudafichas = Estadoactual.Deudas.map(Dato => ({
     Etiqueta: Dato.Corto + ' ' + Formatoenteropesos(Dato.Cuota),
-    Fondo: Dato.Activa ? 'var(--c2)' : 'transparent',
-    Borde: Dato.Activa ? 'var(--c2)' : 'var(--ln)',
-    Color: Dato.Activa ? 'var(--ik)' : 'var(--fa)',
-    Decoracion: Dato.Activa ? 'none' : 'line-through',
+    Activa: Boolean(Dato.Activa), Clase: Dato.Activa ? 'is-activa' : 'is-quitada',
     Alclic: () => this.Fijardeuda(Dato.id, { Activa: !Dato.Activa })
   }));
 
-  const Deudafilasmes = Estadoactual.Deudas.filter(Dato => Dato.Activa).map(Dato => ({
-    Nombreitem: Dato.Nombreitem,
-    Cuota: Formatoenteropesos(Dato.Cuota),
-    Pagada: Dato.Pagada,
-    Cajafondo: Dato.Pagada ? 'var(--ac)' : 'transparent',
-    Cajaborde: Dato.Pagada ? 'var(--ac)' : 'var(--fa)',
-    Color: Dato.Pagada ? 'var(--mu)' : 'var(--ik)',
-    Decoracion: Dato.Pagada ? 'line-through' : 'none',
-    Alternarpagada: () => this.Fijardeuda(Dato.id, { Pagada: !Dato.Pagada }),
-    Aleditar: () => this.Editardeuda(Dato.id)
-  }));
-
-  const Deudaproporcion = Calculo.Deudasmes / Math.max(1, Calculo.Ingresototal);
-  const Modalidadopciones = Object.keys(Modalidadesvivienda).map(Clave => {
-    const Objeto = Seleccion(Estadoactual.Modalidadelegida === Clave);
-    return { Etiqueta: Modalidadesvivienda[Clave].Etiqueta, Descripcioncorta: Modalidadesvivienda[Clave].Descripcioncorta, ...Objeto, Alclic: () => this.Cambiarestado({ Modalidadelegida: Clave }) };
-  });
   const Topevis = Consultartopevis(Estadoactual.Ciudad) * Salariominimo;
   const Tasaopciones = [['pesos', 'Pesos fijos'], ['uvr', 'UVR']].map(([Clave, Etiquetatexto]) => ({ Etiqueta: Etiquetatexto, ...Seleccion(Estadoactual.Tasatipo === Clave), Alclic: () => this.Cambiarestado({ Tasatipo: Clave }) }));
   const Plazoopciones = [15, 20, 30].map(Numero => ({ Etiqueta: Numero + ' años', ...Seleccion(Estadoactual.Plazoelegido === Numero), Alclic: () => this.Cambiarestado({ Plazoelegido: Numero }) }));
   const Cuota = Calculo.Cuotatecho;
-  const Fotosegura = Imagensegura(Estadoactual.Avatarimagen);
-  const Deslizadorporcentaje = Math.max(0, Math.min(1, (Calculo.Ingresotitular - 1500000) / (15000000 - 1500000)));
   const Formactual = Estadoactual.Formulario;
   const Formularioganancia = Formactual.Monto / Calculo.N * Calculo.Tope * Calculo.Factor / Configuracion.Financiacion;
+
+  // Simular con pareja o familia: ver 1 video corto para desbloquear la función
+  const Alternarpareja = async () => {
+    if (!Estadoactual.Desbloqueadopareja) {
+      this.Aviso('Mira 1 video corto para desbloquear la simulación en pareja…');
+      const Resultado = typeof Verrecompensa === 'function' ? await Verrecompensa() : { ok: true };
+      if (Resultado && Resultado.ok) {
+        this.Cambiarestado({ Desbloqueadopareja: true, Pareja: true });
+        this.Aviso('¡Simulación en pareja desbloqueada!');
+      } else {
+        this.Aviso(Resultado && Resultado.error ? Resultado.error : 'No se pudo cargar el video. Intenta de nuevo.');
+      }
+      return;
+    }
+    this.Cambiarestado({ Pareja: !Estadoactual.Pareja });
+  };
 
   const Salariosminimos = Calculo.Salariosminimos;
   const Potencialsalarios = Estadoactual.Caja ? 0 : Salariosminimos <= 2 ? 30 : Salariosminimos <= 4 ? 20 : 0;
@@ -90,44 +44,15 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
   // El cierre muestra el subsidio que de verdad se usa en el techo: solo paga cuota inicial, no la escrituración
   const Subsidiocajausado = Calculo.Techosobretopevis ? 0 : Math.min(Calculo.Subsidiocajamonto, Calculo.Subsidiotecho);
   const Subsidiomicasayausado = Calculo.Techosobretopevis ? 0 : Math.max(0, Calculo.Subsidiotecho - Subsidiocajausado);
-  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Salariosminimos < 4;
-
-  const Ciudadesseleccionadas = Estadoactual.Ofertasciudades ?? [Estadoactual.Ciudad];
-  const Ordenadas = Ciudadesseleccionadas.includes(Estadoactual.Ciudad) ? [Estadoactual.Ciudad, ...Ciudadesseleccionadas.filter(Opcion => Opcion !== Estadoactual.Ciudad)] : Ciudadesseleccionadas;
-  const Tarjeta = Proyecto => {
-    const Modalidadproyecto = Proyecto.Tipovivienda === 'VIS' ? 'vis' : 'novis', Calculoproyecto = this.Calcular(Estadoactual, null, Modalidadproyecto), Financiacion = Modalidadesvivienda[Modalidadproyecto].Financiacion;
-    // El techo de esa modalidad ya cuenta el ahorro: con más cuota inicial el banco puede financiar menos del máximo
-    const Cupo = Modalidadproyecto === 'vis' ? Math.min(Calculoproyecto.Preciotecho, Calculoproyecto.Topevis) : Calculoproyecto.Preciotecho;
-    const Bancoaprueba = Proyecto.Precioproyecto <= Cupo + 1, Gastosproyecto = Estadoactual.Financiargastos ? 0 : Proyecto.Precioproyecto * (Modalidadesvivienda[Modalidadproyecto].Gastos ?? 0.03);
-    const Faltaproyecto = Math.max(0, Proyecto.Precioproyecto + Gastosproyecto - Math.min(Calculoproyecto.Creditoporcapacidad, Proyecto.Precioproyecto * Financiacion) - Calculoproyecto.Efectivo);
-    const Estadoprevio = !Bancoaprueba ? 2 : Faltaproyecto > 1 ? 1 : 0;
-    return {
-      Alinteres: () => this.Aviso(Proyecto.Nombreproyecto + ' es un ejemplo de referencia en ' + Proyecto.Ciudadproyecto + ' para comparar tu cupo.'),
-      Imagenfondo: 'url(assets/proyectos/' + Proyecto.Imagen + '.webp)',
-      Area: Proyecto.Areaconstruida.toUpperCase() + ' · ' + Proyecto.Tipovivienda.toUpperCase(),
-      Nombre: Proyecto.Nombreproyecto,
-      Precio: '$' + Formatomillones(Proyecto.Precioproyecto) + ' M',
-      Meta: Proyecto.Barrio + ' · ' + Proyecto.Ciudadproyecto + ' · ' + Proyecto.Areaconstruida + ' · ' + Proyecto.Tipovivienda + (Calculoproyecto.Subsidio ? ' · Subsidio $' + Formatomillones(Calculoproyecto.Subsidio) + ' M' : ''),
-      Ajuste: Estadoprevio === 0 ? 'PUEDE SER MITECHO' : Estadoprevio === 1 ? 'FALTA INICIAL $' + Formatomillones(Faltaproyecto) + ' M' : 'FALTAN $' + Formatomillones(Proyecto.Precioproyecto - Cupo) + ' M DE CUPO',
-      Etiquetafondo: ['var(--ac)', '#FFD23F', 'var(--dk)'][Estadoprevio],
-      Etiquetacolor: ['var(--oa)', '#0B0C0A', '#F2F4EC'][Estadoprevio],
-      Estadoprevio: Estadoprevio,
-      Programado: Proyecto.Precioproyecto
-    };
-  };
-  const Conteo = (Ciudaditem) => Catalogoproyectos.filter(Proyecto => Proyecto.Ciudadproyecto === Ciudaditem).length;
-  const Busqueda = Normalizartexto(Estadoactual.Ofertasbusqueda.trim());
-  const Listaagregar = Directoriociudades.filter(([Nombreciudad, Dato]) => !Ciudadesseleccionadas.includes(Nombreciudad) && (!Busqueda || Normalizartexto(Nombreciudad).includes(Busqueda) || Normalizartexto(Dato).includes(Busqueda)));
+  // El perfil le explica a quien no tiene contrato cómo afiliarse a una Caja si gana hasta 4 SMMLV
+  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Salariosminimos <= 4;
 
   return {
     Deudafichas,
-    Deudafilasmes,
-    Modalidadopciones,
     Topevis,
     Tasaopciones,
     Plazoopciones,
     Cuota,
-    Deslizadorporcentaje,
     Formactual,
     Formularioganancia,
     Ingresootro: Formactual.Fuente === 'Otros',
@@ -142,59 +67,6 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Formdeudaotro: Estadoactual.Formulariodeuda.Tipo === 'Otro egreso fijo',
     Formdeudanombre: Estadoactual.Formulariodeuda.Nombre || '',
     Escribirdeudanombre: (Elemento) => this.Cambiarestado({ Formulariodeuda: { ...Estadoactual.Formulariodeuda, Nombre: Textoseguro(Elemento.target.value, 60) } }),
-    Correovisible: (Estadoactual.Correo || '') + ' · ' + (Estadoactual.Metodoingreso === 'google' ? 'Google' : 'Correo'),
-    Abrirmenu: () => this.Cambiarestado({ Menu: true }),
-    Cerrarmenu: () => this.Cambiarestado({ Menu: false }),
-    Esusuariopro: false,
-    Avatarimagen: Fotosegura,
-    Tieneavatarimagen: !!Fotosegura,
-    Sinavatarimagen: !Fotosegura,
-    Avatarfondo: Fotosegura ? 'transparent' : 'var(--ac)',
-    Avatartexto: Fotosegura ? 'transparent' : 'var(--oa)',
-    Avatarborde: 'none',
-    Avatarbordepequeno: '1px solid var(--ln)',
-    Avatarbordegrande: '2px solid var(--ln)',
-    Avatarsombra: Estadoactual.Menu ? '0 0 0 4px var(--ad)' : 'none',
-    Abrirselectorfoto: () => {
-      if (typeof document !== 'undefined') {
-        const Nodo = document.getElementById('mt-avatar-input');
-        if (Nodo) { Nodo.value = ''; Nodo.click(); }
-      }
-    },
-    Cambiararchivoavatar: (Elemento) => {
-      const Destinoconsignacion = (Elemento.Eventonativo && Elemento.Eventonativo.target) || Elemento.target;
-      const Archivo = Destinoconsignacion && Destinoconsignacion.files && Destinoconsignacion.files[0];
-      if (!Archivo) return;
-      if (!Archivo.type || !Archivo.type.startsWith('image/')) {
-        this.Aviso('Por favor selecciona una imagen válida.');
-        return;
-      }
-      if (Archivo.size > 8 * 1024 * 1024) {
-        this.Aviso('La imagen no debe superar los 8 MB.');
-        return;
-      }
-      Procesarfotoperfil(Archivo, (Imagendatos) => {
-        this.Cambiarestado({ Avatarimagen: Imagendatos });
-        this.Aviso('Foto de perfil actualizada.');
-      });
-    },
-    Quitaravatarimagen: () => {
-      this.Cambiarestado({ Avatarimagen: '' });
-      this.Aviso('Foto de perfil eliminada.');
-    },
-    Menuopacidad: Estadoactual.Menu ? 1 : 0,
-    Menueventos: Estadoactual.Menu ? 'auto' : 'none',
-    Menuescala: Estadoactual.Menu ? 'scale(1)' : 'scale(.92) translateY(-8px)',
-    Avataranillo: Estadoactual.Menu ? '4px' : '0px',
-    Menuitems: [
-      { Etiqueta: 'Ayuda', Subtexto: 'Qué significa cada cifra', Icono: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', Fondo: 'var(--ac)', Color: 'var(--oa)', Iconofondo: 'rgba(11,12,10,.1)', Derecha: '→', Alclic: () => this.Cambiarestado({ Menu: false, Ayuda: true, Ayudaabierta: 0 }) },
-      { Etiqueta: 'Tasas por banco', Subtexto: 'Tasas de la Superintendencia Financiera', Icono: 'M4 20V10M10 20V4M16 20v-7M22 20H2', Fondo: 'transparent', Color: 'var(--ik)', Iconofondo: 'var(--c2)', Derecha: Estadoactual.Desbloqueadotasas ? '' : (Estadoactual.Anunciostasas ? (Estadoactual.Anunciostasas + '/3') : '3 VIDEOS'), Alclic: () => this.Cambiarestado({ Menu: false, Panel: 'tasas' }) },
-      { Etiqueta: 'Mi perfil financiero', Subtexto: 'Ciudad, tipo de ingreso, edad', Icono: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', Fondo: 'transparent', Color: 'var(--ik)', Iconofondo: 'var(--c2)', Derecha: '', Alclic: () => this.Cambiarestado({ Menu: false, Panel: 'perfil' }) },
-      { Etiqueta: 'Recordatorios', Subtexto: 'Aviso diario para registrar', Icono: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0', Fondo: 'transparent', Color: 'var(--ik)', Iconofondo: 'var(--c2)', Derecha: Estadoactual.Recordatorios.Diario ? Estadoactual.Recordatorios.Hora : 'APAGADO', Alclic: () => this.Cambiarestado({ Menu: false, Panel: 'rem' }) },
-      { Etiqueta: Oscuroactivo ? 'Modo claro' : 'Modo oscuro', Subtexto: '', Icono: Oscuroactivo ? 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4' : 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z', Fondo: 'transparent', Color: 'var(--ik)', Iconofondo: 'var(--c2)', Derecha: '', Alclic: () => this.Cambiarestado({ Temaelegido: Oscuroactivo ? 'claro' : 'oscuro' }) },
-      { Etiqueta: 'Ver tutorial otra vez', Subtexto: '', Icono: 'M1 4v6h6M3.5 15a9 9 0 1 0 2.1-9.4L1 10', Fondo: 'transparent', Color: 'var(--ik)', Iconofondo: 'var(--c2)', Derecha: '', Alclic: () => this.Cambiarestado({ Menu: false, Ayuda: false, Panel: '', Pestana: 'inicio', Tutorialvisto: false, Tutorialpaso: 0, Tutorialcaja: null, Consejosvistos: {}, Consejopaso: 0 }) },
-      { Etiqueta: 'Cerrar sesión', Subtexto: '', Icono: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', Fondo: 'transparent', Color: 'var(--al)', Iconofondo: 'var(--c2)', Derecha: '', Alclic: () => this.Cerrarsesionusuario() }
-    ],
     Subsidiotexto: Formatoenteropesos(Calculo.Subsidio),
     Ahorrotexto: Formatoenteropesos(Calculo.Ahorrohogar),
     Salariosminimostexto: Calculo.Salariosminimos.toLocaleString('es-CO', { maximumFractionDigits: 1 }),
@@ -205,11 +77,8 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Subsidiocajatexto: Formatoenteropesos(Subsidiocajausado),
     Subsidiomicasayatexto: Formatoenteropesos(Subsidiomicasayausado),
     Subsidiomicasayasalariostexto: String(Math.round(Calculo.Subsidiomicasayamonto / Salariominimo)),
-    Faltaetiqueta: Calculo.Faltatecho > 0 ? '= Te falta' : '= Cuota inicial cubierta',
     Faltatexto: Calculo.Faltatecho > 0 ? Formatoenteropesos(Calculo.Faltatecho) : '✓',
-    Faltacolor: Calculo.Faltatecho > 0 ? 'var(--al)' : 'var(--at)',
     Simuladorsubsidiovisible: Estadoactual.Modalidadelegida === 'vis',
-    Simuladorsubsidiopunto: Calculo.Subsidio > 0 && !Calculo.Techosobretopevis ? 'var(--ac)' : '#FFD23F',
     // El orden importa: primero lo que de verdad entra al techo, después por qué no entra nada
     Simuladorsubsidiomensaje: Calculo.Subsidio > 0 && Calculo.Techosobretopevis ? 'Tu techo pasa el tope VIS: a ese precio la vivienda es No VIS y no sumamos subsidio. Si buscas VIS, el subsidio sí aplica.'
       : !Estadoactual.Caja && !Calculo.Subsidio ? 'No tienes Caja de compensación registrada, así que no sumamos subsidio. Actívala en tu perfil si estás afiliado.' : Calculo.Subsidio > 0 && Calculo.Subsidiotecho < Calculo.Subsidio - 1 ? 'Tu subsidio es de ' + Formatoenteropesos(Calculo.Subsidio) + ' (' + (Calculo.Subsidiocajasalarios + Calculo.Subsidiomicasayasalarios) + ' SMMLV), pero solo usamos ' + Formatoenteropesos(Calculo.Subsidiotecho) + ', lo que pide tu cuota inicial. El subsidio se gira al vendedor y no paga la escrituración.'
@@ -218,54 +87,34 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Perfilsubsidiofondo: Cajalista ? 'var(--ac)' : 'var(--c2)',
     Perfilsubsidiocolor: Cajalista ? 'var(--oa)' : 'var(--ik)',
     Perfilsubsidioantetitulo: Cajalista ? 'rgba(11,12,10,.65)' : 'var(--fa)',
-    Afiliacionmensaje: 'Como independiente puedes afiliarte de forma voluntaria a una Caja de compensación aportando el 0,6% o el 2% de tus ingresos. Así podrías postularte a ' + Formatoenteropesos(Potencialsalarios * Salariominimo) + ' de subsidio para vivienda VIS.',
+    Mostrarafiliacion,
+    Afiliacionmensaje: 'Como independiente puedes afiliarte de forma voluntaria a una Caja de compensación aportando el 2% de tus ingresos (con el 0,6% no aplica el subsidio de vivienda). En Compensar, por ejemplo, piden 12 meses de aportes antes de postularte. Así podrías postularte a ' + Formatoenteropesos(Potencialsalarios * Salariominimo) + ' de subsidio para vivienda VIS.',
     Preciomillones: '$' + Formatomillones(Calculo.Preciotecho) + ' M',
     Ingresotexto: Formatoenteropesos(Calculo.Ingresototal),
     Topevistexto: Formatoenteropesos(Topevis),
     Sensibilidadcapacidad: Formatoenteropesos(100000 * Calculo.Tope),
     Sensibilidadcredito: Formatoenteropesos(100000 * Calculo.Tope * Calculo.Factor),
     Topeporcentaje: Math.round(Calculo.Tope * 100) + '%',
-    Ingresofuenteetiqueta: Fuenteactual === 'perfil' ? 'PERFIL FINANCIERO' : Fuenteactual === 'promedio' ? (Calculo.Variablepromedio > 0 ? 'FIJO + PROMEDIO ' + Calculo.N + ' MESES' : 'PROMEDIO DE INGRESOS') : 'MANUAL',
     Ingresoformato: Formatonumero(Calculo.Ingresotitular),
     Ingresovalor: Calculo.Ingresotitular,
-    Ingresodeslizadorancho: (Deslizadorporcentaje * 100) + '%',
     // Mover la barra pasa a ingreso manual; los dos botones eligen el promedio o lo declarado en el perfil financiero
     Cambiaringreso: (Elemento) => this.Cambiarestado({ Fuenteingreso: 'manual', Usarautomatico: false, Ingresomanual: Acotarnumero(Elemento.target.value, 0, Limitesfinancieros.IngresoMensual, 0) }),
-    Ingresofuentes: [['promedio', 'Usar promedio de ingresos'], ['perfil', 'Usar ingresos del perfil financiero']].map(([Clave, Etiqueta]) => ({
+    Ingresofuentes: [['promedio', 'Mi promedio'], ['perfil', 'Mi perfil']].map(([Clave, Etiqueta]) => ({
       Etiqueta, ...Seleccion(Fuenteactual === Clave), Activa: Fuenteactual === Clave ? 'true' : 'false',
       Alclic: () => this.Cambiarestado({ Fuenteingreso: Clave, Usarautomatico: Clave === 'promedio' })
     })),
-    // Simular con pareja o familia: ver 1 video corto para desbloquear la función
-    Alternarpareja: async () => {
-      if (!Estadoactual.Desbloqueadopareja) {
-        this.Aviso('Mira 1 video corto para desbloquear la simulación en pareja…');
-        const Resultado = typeof Verrecompensa === 'function' ? await Verrecompensa() : { ok: true };
-        if (Resultado && Resultado.ok) {
-          this.Cambiarestado({ Desbloqueadopareja: true, Pareja: true });
-          this.Aviso('¡Simulación en pareja desbloqueada!');
-        } else {
-          this.Aviso(Resultado && Resultado.error ? Resultado.error : 'No se pudo cargar el video. Intenta de nuevo.');
-        }
-        return;
-      }
-      this.Cambiarestado({ Pareja: !Estadoactual.Pareja });
-    },
-    Parejariel: Estadoactual.Pareja ? 'var(--ac)' : 'var(--c2)',
-    Parejaperilla: Estadoactual.Pareja ? 'var(--oa)' : 'var(--mu)',
-    Parejaposicion: Estadoactual.Pareja ? 'translateX(22px)' : 'none',
+    Alternarpareja,
+    ...Valoresresultadosimulador.call(this, Calculo, Seleccion, Fuenteactual, Alternarpareja),
     Visaviso: Calculo.Topado || Calculo.Techosobretopevis,
     Vistopadafila: Calculo.Topado,
-    Preciosintopetexto: Formatoenteropesos(Calculo.Creditoporcapacidad / Configuracion.Financiacion),
+    Preciosintopetexto: Formatoenteropesos(Calculo.Creditoporcapacidad / Configuracion.Financiacion + (Estadoactual.Financiargastos ? Calculo.Gastosescrituracion : 0)),
     Financiacionetiquetaultima: Calculo.Topado ? 'TOPE VIS (' + Consultartopevis(Estadoactual.Ciudad) + ' SMMLV)' : '÷ ' + Math.round(Calculo.Financiaciontecho * 100) + '% FINANCIADO' + (Calculo.Techosobretopevis ? ' · NO VIS' : ''),
     Visavisomensaje: Calculo.Techosobretopevis ? Avisotopevis(Calculo, Estadoactual.Ciudad) : 'Tu cupo supera el tope VIS en ' + Estadoactual.Ciudad + ' (' + Consultartopevis(Estadoactual.Ciudad) + ' SMMLV = ' + Formatoenteropesos(Topevis) + '). Te mostramos viviendas VIS hasta ese valor; por encima serían No VIS y sin subsidio.',
-    Netotexto: Formatoenteropesos(Calculo.Neto),
     Topeetiqueta: '× ' + Math.round(Calculo.Tope * 100) + '% CAPACIDAD',
     Capacidadcuotatexto: Formatoenteropesos(Calculo.Capacidadcuota),
-    Creditotexto: Formatoenteropesos(Calculo.Creditotecho),
     Creditocadenatexto: Formatoenteropesos(Calculo.Creditoporcapacidad),
     Financiacionetiqueta: '÷ ' + Math.round(Configuracion.Financiacion * 100) + '% VIVIENDA',
     Preciotexto: Formatoenteropesos(Calculo.Preciotecho),
-    Cuotaetiqueta: 'Cuota mensual ' + (Estadoactual.Tasatipo === 'pesos' ? '(' + Formatoporcentaje(Calculo.Tasaanual) + ' E.A.)' : 'inicial en UVR (UVR + ' + Formatoporcentaje(Calculo.Tasaanual) + ')'),
     Cuotamensual: Formatoenteropesos(Cuota),
     Bloqueado: !Estadoactual.Desbloqueado,
     Desbloquearetiqueta: Estadoactual.Desbloqueando ? 'Cargando el video…' : 'Ver un video corto para abrirlo',
@@ -280,72 +129,17 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Cuotainicialtitulo: 'Cuota inicial ' + Math.round((1 - Configuracion.Financiacion) * 100) + '% + gastos',
     Cuotainicialtexto: Formatoenteropesos(Calculo.Cuotainicialtecho),
     Gastosetiqueta: Configuracion.Glosario,
-    Gastosetiquetacierre: (Estadoactual.Modalidadelegida === 'leasing' ? 'Gastos de escritura (los asume el leasing)' : Estadoactual.Financiargastos ? 'Escrituración (va en el crédito)' : '+ ' + (Calculo.Techosobretopevis ? Modalidadesvivienda.novis : Configuracion).Glosario),
+    Gastosetiquetacierre: Estadoactual.Modalidadelegida === 'leasing' ? 'Los asume el leasing' : Estadoactual.Financiargastos ? 'Van dentro del préstamo' : 'Para poner la vivienda a tu nombre (' + Math.round((Calculo.Techosobretopevis ? Modalidadesvivienda.novis : Configuracion).Gastos * 100) + '% del precio)',
     Gastostexto: Formatoenteropesos(Calculo.Gastostecho),
-    Planinteres: Creditoliberado > 0 ? 'Con lo que apagaste, el banco te presta' : 'Apaga una deuda y mira cuánto más te presta el banco',
-    Liberadomillones: Formatomillones(Creditoliberado),
-    Deudatarjetas,
-    Plancupo: Deudabanco > 1 ? '$' + Formatomillones(Cuotatodas.Preciotecho) + ' → $' + Formatomillones(Calculo.Preciotecho) + ' M' : '$' + Formatomillones(Calculo.Preciotecho) + ' M',
-    Planhoy: Deudahoy > 1 ? '$' + Formatomillones(Cuotatodas.Preciohoy) + ' → $' + Formatomillones(Calculo.Preciohoy) + ' M' : '$' + Formatomillones(Calculo.Preciohoy) + ' M',
-    Planmensajevisible: !!Planmensaje,
-    Planmensaje,
-    Planmensajefondo: Planlisto ? 'var(--ac)' : '#FFD23F',
-    Saldovisible: Saldoapagado > 0,
-    Saldomensaje: Saldoapagado ? 'Ojo: si pagas estas deudas con tus ahorros (' + Formatoenteropesos(Saldoapagado) + ' de saldo), tu cuota inicial baja y hoy cerrarías hasta $' + Formatomillones(Cuotasaldo.Preciohoy) + ' M.' : '',
-    Sensibilidadcreditomillones: '$' + Formatomillones(Calculo.Sensibilidadcredito) + ' M',
-    Mostrarcartera: Deudaproporcion > 0.25,
-    Carteramensaje: 'Tus deudas son el ' + Math.round(Deudaproporcion * 100) + '% de tu ingreso',
-    Ofertaspersonalizadas: Estadoactual.Ofertasciudades !== null,
-    Ofertasreiniciar: () => this.Cambiarestado({ Ofertasciudades: null, Ofertasagregarabierto: false, Ofertasbusqueda: '' }),
-    Ofertasfichas: Ordenadas.map(Nombreciudad => {
-      const Inicio = Nombreciudad === Estadoactual.Ciudad;
-      return {
-        Etiqueta: Nombreciudad,
-        Fondo: Inicio ? 'var(--ac)' : 'var(--c2)',
-        Color: Inicio ? 'var(--oa)' : 'var(--ik)',
-        Fondox: Inicio ? 'rgba(11,12,10,.1)' : 'var(--bg)',
-        Alquitar: () => this.Cambiarestado({ Ofertasciudades: Ciudadesseleccionadas.filter(Opcion => Opcion !== Nombreciudad) })
-      };
-    }),
-    Ofertasagregarabierto: Estadoactual.Ofertasagregarabierto,
-    Ofertasagregaretiqueta: Estadoactual.Ofertasagregarabierto ? 'Cerrar' : '+ Agregar ciudad',
-    Alternarofertasagregar: () => this.Cambiarestado({ Ofertasagregarabierto: !Estadoactual.Ofertasagregarabierto, Ofertasbusqueda: '' }),
-    Ofertasbusqueda: Estadoactual.Ofertasbusqueda,
-    Escribirofertasbusqueda: (Elemento) => this.Cambiarestado({ Ofertasbusqueda: Textoseguro(Elemento.target.value, 40) }),
-    Ofertasagregarvacio: Listaagregar.length === 0,
-    Ofertasagregarlista: Listaagregar.map(([Nombreciudad, Dato]) => {
-      const Numero = Conteo(Nombreciudad);
-      return {
-        Nombreitem: Nombreciudad,
-        Departamento: Dato,
-        Cantidad: Numero ? Numero + (Numero === 1 ? ' PROYECTO' : ' PROYECTOS') : 'SIN PROYECTOS',
-        Cantidadcolor: Numero ? 'var(--at)' : 'var(--fa)',
-        Alclic: () => this.Cambiarestado({ Ofertasciudades: [...Ciudadesseleccionadas, Nombreciudad], Ofertasagregarabierto: false, Ofertasbusqueda: '' })
-      };
-    }),
-    Ofertasninguna: Ciudadesseleccionadas.length === 0,
-    Ofertasgrupos: Ordenadas.map(Nombreciudad => {
-      const Items = Catalogoproyectos.filter(Proyecto => Proyecto.Ciudadproyecto === Nombreciudad).map(Tarjeta).sort((Acumulado, Segundo) => (Acumulado.Estadoprevio - Segundo.Estadoprevio) || (Acumulado.Programado - Segundo.Programado));
-      return {
-        Ciudaditem: Nombreciudad,
-        Inicio: Nombreciudad === Estadoactual.Ciudad,
-        Cantidad: Items.length + (Items.length === 1 ? ' proyecto' : ' proyectos'),
-        Items,
-        Vacio: Items.length === 0,
-        Vaciomensaje: 'Aún no hay ejemplos de referencia cargados para ' + Nombreciudad + '. Puedes usar el simulador con el precio de cualquier vivienda.'
-      };
-    }),
-    Abrirhoja: () => this.Cambiarestado({ Hoja: true, Hojatipo: Estadoactual.Registrotipo === 'egr' && Pestana === 'ingresos' ? 'deuda' : 'ingreso', Hojafrecuencia: 'diario', Deudaeditandoid: null, Formularioerror: '' }),
-    Abrirhojadeuda: () => this.Cambiarestado({ Hoja: true, Hojatipo: 'deuda', Hojafrecuencia: 'fijo', Deudaeditandoid: null, Formulariodeuda: { Tipo: 'Tarjeta de crédito', Cuota: 0, Saldo: 0, Entidad: '', Nombre: '' }, Formularioerror: '' }),
-    Abrirhojagasto: () => this.Cambiarestado({ Hoja: true, Hojatipo: 'deuda', Hojafrecuencia: 'diario', Deudaeditandoid: null, Formularioerror: '' }),
-    Abriringresofijo: () => this.Cambiarestado({ Hoja: true, Hojatipo: 'ingreso', Hojafrecuencia: 'fijo', Deudaeditandoid: null, Formularioerror: '' }),
+    // El botón Registrar abre primero las cuatro opciones; las demás entradas van directo a su formulario
+    Abrirhoja: () => this.Cambiarestado({ Hoja: true, Hojamenu: true, Hojafecha: null, Deudaeditandoid: null, Formularioerror: '' }),
+    Abrirhojadeuda: () => this.Cambiarestado({ Hoja: true, Hojamenu: false, Hojafecha: null, Hojatipo: 'deuda', Hojafrecuencia: 'fijo', Deudaeditandoid: null, Formulariodeuda: { Tipo: 'Tarjeta de crédito', Cuota: 0, Saldo: 0, Entidad: '', Nombre: '' }, Formularioerror: '' }),
+    Abriringresofijo: () => this.Cambiarestado({ Hoja: true, Hojamenu: false, Hojafecha: null, Hojatipo: 'ingreso', Hojafrecuencia: 'fijo', Deudaeditandoid: null, Formularioerror: '' }),
     Hojaegresofijo: Estadoactual.Hojatipo === 'deuda' && Estadoactual.Hojafrecuencia === 'fijo',
     Hojaingresodia: Estadoactual.Hojatipo !== 'deuda' && Estadoactual.Hojafrecuencia !== 'fijo',
     Hojaingresofijo: Estadoactual.Hojatipo !== 'deuda' && Estadoactual.Hojafrecuencia === 'fijo',
     Hojaegresodia: Estadoactual.Hojatipo === 'deuda' && Estadoactual.Hojafrecuencia !== 'fijo',
     Sindeudas: Estadoactual.Deudas.length === 0,
-    Hojaantetitulo: Estadoactual.Hojatipo === 'deuda' ? (Estadoactual.Hojafrecuencia === 'fijo' ? (Estadoactual.Deudaeditandoid ? 'EDITAR DEUDA O EGRESO' : 'LO QUE EL BANCO TE DESCUENTA') : 'GASTO DEL DÍA') : (Estadoactual.Hojafrecuencia === 'fijo' ? 'LLEGA CADA MES' : 'REGISTRO EN 3 SEGUNDOS'),
-    Hojatipos: [['ingreso', 'Ingreso'], ['deuda', 'Egreso']].map(([Clave, Etiquetatexto]) => ({ Etiqueta: Etiquetatexto, Fondo: Estadoactual.Hojatipo === Clave ? (Clave === 'deuda' ? 'var(--ik)' : 'var(--ac)') : 'transparent', Color: Estadoactual.Hojatipo === Clave ? (Clave === 'deuda' ? 'var(--bg)' : 'var(--oa)') : 'var(--mu)', Alclic: () => this.Cambiarestado({ Hojatipo: Clave, Formularioerror: '' }) })),
     Deudatipofichas: Tiposdeuda.map(Opcion => ({ Etiqueta: Opcion, ...Fichaseleccion(Estadoactual.Formulariodeuda.Tipo === Opcion), Alclic: () => this.Cambiarestado({ Formulariodeuda: { ...Estadoactual.Formulariodeuda, Tipo: Opcion } }) })),
     Formdeudacuotatexto: Estadoactual.Formulariodeuda.Cuota ? Formatonumero(Estadoactual.Formulariodeuda.Cuota) : '',
     Formdeudasaldotexto: Estadoactual.Formulariodeuda.Saldo ? Formatoenteropesos(Estadoactual.Formulariodeuda.Saldo) : '',
@@ -381,10 +175,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
         this.Aviso(Nombreitem + ' agregada: −' + Formatoenteropesos(Formdeuda.Cuota) + '/mes en tu cálculo.');
       }
     },
-    Cerrarhoja: () => this.Cambiarestado({ Hoja: false, Deudaeditandoid: null }),
-    Hojaopacidad: Estadoactual.Hoja ? 1 : 0,
-    Hojaeventos: Estadoactual.Hoja ? 'auto' : 'none',
-    Hojadesplazamiento: Estadoactual.Hoja ? 'translateY(0)' : 'translateY(105%)',
+    Cerrarhoja: () => this.Cambiarestado({ Hoja: false, Hojafecha: null, Deudaeditandoid: null }),
     Formulariomontotexto: Formactual.Monto ? Formatonumero(Formactual.Monto) : '',
     Escribirmonto: (Elemento) => this.Cambiarestado({ Formulario: { ...Formactual, Monto: Limpiardigitos(Elemento.target.value, Limitesfinancieros.MovimientoDiario) }, Formularioerror: '' }),
     Fichasrapidas: [50000, 100000, 250000, 500000].map(Valor => ({ Etiqueta: '+' + Formatoenteropesos(Valor), Alclic: () => this.Cambiarestado({ Formulario: { ...Formactual, Monto: Math.min(Limitesfinancieros.MovimientoDiario, Formactual.Monto + Valor) }, Formularioerror: '' }) })),
@@ -395,8 +186,44 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Guardarregistro: () => {
       if (Formactual.Monto < 1000) { this.Cambiarestado({ Formularioerror: 'Escribe un monto o toca una cifra rápida.' }); return; }
       const Dato = new Date(), Hora = String(Dato.getHours()).padStart(2, '0') + ':' + String(Dato.getMinutes()).padStart(2, '0');
-      this.Cambiarestado(Estadoprevio => ({ Diasregistrados: Marcardiaregistro(Estadoprevio.Diasregistrados), Registros: [...Estadoprevio.Registros, { Fecha: Hoyregistro(), Concepto: (Formactual.Fuente === 'Otros' && (Formactual.Nombre || '').trim()) || Formactual.Fuente, Fuente: Formactual.Fuente, Medio: Formactual.Medio, Monto: Formactual.Monto, Hora }], Hoja: false, Diaseleccionado: 6, Formulario: { ...Estadoprevio.Formulario, Monto: 0, Nombre: '' } }));
+      // Desde Movimientos se puede anotar en un día anterior de la semana; si no, va con la fecha de hoy
+      const Fecha = Estadoactual.Hojafecha || Hoyregistro();
+      this.Cambiarestado(Estadoprevio => ({ Diasregistrados: Marcardiaregistro(Estadoprevio.Diasregistrados, Fecha), Registros: [...Estadoprevio.Registros, { Fecha, Concepto: (Formactual.Fuente === 'Otros' && (Formactual.Nombre || '').trim()) || Formactual.Fuente, Fuente: Formactual.Fuente, Medio: Formactual.Medio, Monto: Formactual.Monto, Hora }], Hoja: false, Hojafecha: null, ...(Estadoactual.Hojafecha ? {} : { Diaseleccionado: 6 }), Formulario: { ...Estadoprevio.Formulario, Monto: 0, Nombre: '' } }));
       this.Aviso('+' + Formatoenteropesos(Formactual.Monto) + ' registrados. Cuentan para tu promedio de ingresos cuando termine el mes.');
     }
+  };
+}
+
+// Lo que suman Simular y Tu resultado en el diseño nuevo: quién compra, opciones avanzadas, cuota, cierre y el reporte
+function Valoresresultadosimulador(Calculo, Seleccion, Fuenteactual, Alternarpareja) {
+  const Estadoactual = this.Estadocomponente, Cuota = Calculo.Cuotatecho, Plazo = Calculo.Plazo || Estadoactual.Plazoelegido;
+  const Esleasing = Estadoactual.Modalidadelegida === 'leasing';
+  const Esuvr = Estadoactual.Tasatipo === 'uvr' && !Esleasing && Calculo.Entidadclave !== 'caja';
+  const Faltanpdf = Math.max(1, 3 - Number(Estadoactual.Anunciospdf || 0));
+  return {
+    Simquien: [[false, 'Solo yo'], [true, 'Con alguien más']].map(([Valor, Etiqueta]) => ({ Etiqueta, ...Seleccion(Boolean(Estadoactual.Pareja) === Valor), Alclic: () => { if (Boolean(Estadoactual.Pareja) !== Valor) Alternarpareja(); } })),
+    Parejainactiva: !Estadoactual.Pareja,
+    Simavanzado: Boolean(Estadoactual.Simuladoravanzado),
+    Simavanzadoclase: Estadoactual.Simuladoravanzado ? 'is-abierta' : '',
+    Simavanzadotexto: Esleasing ? 'Cuota máxima, promedio de ingresos y opción de compra' : 'Cuota máxima y promedio de tus ingresos',
+    Alternarsimavanzado: () => this.Cambiarestado({ Simuladoravanzado: !Estadoactual.Simuladoravanzado }),
+    Simingresonota: Fuenteactual === 'perfil' ? 'Es lo que pusiste en tu perfil financiero. Muévelo para probar.'
+      : Fuenteactual === 'promedio' ? (Calculo.Variablepromedio > 0 ? 'Es tu ingreso fijo más el promedio de los últimos ' + Calculo.N + ' meses. Muévelo para probar.' : 'Es tu promedio de ingresos. Muévelo para probar.')
+      : 'Es el valor que elegiste con la barra. Toca un botón para volver a tu promedio o a tu perfil.',
+    Simcuotatitulo: Esleasing ? 'Tu canon mensual' : Esuvr ? 'Tu primera cuota' : 'Tu cuota mensual',
+    Simplazotexto: 'al mes, durante ' + Plazo + ' años',
+    Simplazochip: 'A ' + Plazo + ' años',
+    Simmonedachip: Esleasing ? 'Leasing habitacional' : Esuvr ? 'Crédito en UVR' : 'Crédito en pesos',
+    Simtasatexto: Formatoporcentaje(Calculo.Tasaanual) + (Esuvr ? ' + UVR' : ' E.A.'),
+    // En UVR y en leasing el total no es la cuota por los meses: la cuota sube o queda el pago final
+    Simtotalvisible: !Esuvr && !Esleasing && Cuota > 0,
+    Simtotalpagar: '$' + Formatomillones(Cuota * Plazo * 12) + ' M',
+    Simcomparar: Boolean(Estadoactual.Desbloqueado),
+    Abrirtasassimulador: () => this.Cambiarestado({ Panel: 'tasas' }),
+    Simfaltarotulo: Calculo.Faltatecho > 0 ? 'Te falta' : 'Cuota inicial cubierta',
+    Simfaltaclase: Calculo.Faltatecho > 0 ? 'is-alerta' : '',
+    Financiargastosclase: Estadoactual.Financiargastos ? 'is-activo' : '',
+    Simpdfvisible: !Estadoactual.Desbloqueadopdf,
+    Simpdfnota: 'Gratis: antes verás ' + (Faltanpdf === 1 ? '1 video corto.' : Faltanpdf + ' videos cortos.')
   };
 }
