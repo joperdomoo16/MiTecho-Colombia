@@ -1,133 +1,172 @@
-// Plantilla de la pantalla de perfil del titular, segundo solicitante, recordatorios y opciones de la cuenta
+// Plantilla de «Perfil y ajustes» (cuenta e invitado), hojas de edición de datos y panel «Recordatorios»
+
+const Svgvolverperfil = '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>';
+const Svgflechaperfil = '<svg class="perfil-fila-flecha" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>';
+const Svgayudaperfil = '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .8-1 1.5v.5M12 17h.01"></path></svg>';
+const Svgcerrarperfil = '<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>';
 
 const Plantillaperfilusuario = `
-<mt-if value="{{ Esperfil }}">
-        <div class="mt-scroll m3l">
-          <div class="m3m"><button class="m3n" al-clic="{{ Cerrarpanel }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>Volver</button><span class="m3o">MI PERFIL</span></div>
-          <div class="m3p">
-            <div style="position:relative;flex:none">
-              <mt-if value="{{ Esusuariopro }}">
-                <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);padding:2px 8px;border-radius:6px;background:#FFD23F;color:#0B0C0A;font:700 9px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;box-shadow:0 2px 6px rgba(0,0,0,.35);white-space:nowrap;z-index:2;pointer-events:none">
-                  MI TECHO PRO
-                </div>
-              </mt-if>
-              <div class="m3q" al-clic="{{ Abrirselectorfoto }}" title="Cambiar foto de perfil" style="overflow:hidden;position:relative;background:{{ Avatarfondo }};color:{{ Avatartexto }};cursor:pointer;border:{{ Avatarbordegrande }};box-sizing:border-box">
-                <mt-if value="{{ Tieneavatarimagen }}"><img src="{{ Avatarimagen }}" alt="Foto" style="width:100%;height:100%;object-fit:cover;display:block"></mt-if>
-                <mt-if value="{{ Sinavatarimagen }}">{{ Iniciales }}</mt-if>
-              </div>
-              <button al-clic="{{ Abrirselectorfoto }}" aria-label="Cambiar foto de perfil" title="Cambiar foto de perfil" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:14px;background:var(--ik);color:var(--bg);border:2px solid var(--cd);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              </button>
-            </div>
-            <div class="m3r">
-              <span class="m3s">{{ Nombrecompletousuario }}</span>
-              <span class="m3t">{{ Correovisible }}</span>
-              <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
-                <button al-clic="{{ Abrirselectorfoto }}" style="padding:0;background:none;border:none;font:600 12.5px 'Familjen Grotesk',sans-serif;color:var(--at);cursor:pointer;text-align:left">
-                  Cambiar foto
+      <mt-if value="{{ Esperfil }}">
+        <div class="mt-scroll m3l detalle">
+          <div class="barra-detalle"><button type="button" class="volver" al-clic="{{ Cerrarpanel }}">${Svgvolverperfil}<span>{{ Perfilvolver }}</span></button><span class="barra-detalle-espacio"></span><button type="button" class="barra-icono" al-clic="{{ Abrirayuda }}" aria-label="Ayuda y glosario">${Svgayudaperfil}</button></div>
+          <h1 class="titulo-detalle">Perfil y ajustes</h1>
+          <div class="detalle-cuerpo">
+            <div class="perfil-cabecera">
+              <div class="perfil-avatar-envoltura">
+                <button type="button" class="perfil-avatar {{ Perfilavatarclase }}" al-clic="{{ Abrirselectorfoto }}" title="Cambiar foto de perfil" aria-label="Cambiar foto de perfil">
+                  <mt-if value="{{ Tieneavatarimagen }}"><img src="{{ Avatarimagen }}" alt="Foto de perfil"></mt-if>
+                  <mt-if value="{{ Sinavatarimagen }}"><mt-if value="{{ Coniniciales }}">{{ Iniciales }}</mt-if><mt-if value="{{ Sininiciales }}"><svg class="sin-nombre-icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></mt-if></mt-if>
                 </button>
-                <mt-if value="{{ Tieneavatarimagen }}">
-                  <span style="color:var(--ln);font-size:12px">·</span>
-                  <button al-clic="{{ Quitaravatarimagen }}" style="padding:0;background:none;border:none;font:500 12.5px 'Familjen Grotesk',sans-serif;color:var(--al);cursor:pointer">
-                    Quitar foto
-                  </button>
-                </mt-if>
+              </div>
+              <div class="perfil-identidad">
+                <h2 class="perfil-nombre">{{ Perfilnombremostrar }}</h2>
+                <p class="perfil-meta">{{ Perfilmetaprincipal }}</p>
+                <mt-if value="{{ Noesinvitado }}"><p class="perfil-submeta">{{ Perfilmetasecundaria }}</p></mt-if>
+                <mt-if value="{{ Tieneavatarimagen }}"><div class="perfil-foto-acciones"><button type="button" class="perfil-foto-boton" al-clic="{{ Abrirselectorfoto }}">Cambiar foto</button><span class="perfil-submeta">·</span><button type="button" class="perfil-foto-boton perfil-foto-quitar" al-clic="{{ Quitaravatarimagen }}">Quitar foto</button></div></mt-if>
               </div>
             </div>
-          </div>
-          <div class="m3u"><div class="m3v"><span class="m3w">CON ESTOS DATOS TU TECHO VALE</span><span class="m3x">\${{ Preciodestacado }} M</span></div><span class="m3y">Se actualiza mientras editas</span></div>
-          <div class="m3z">Datos personales</div>
-          <div class="m40"><label class="m41"><span class="m42">NOMBRE COMPLETO</span><input class="m43" maxlength="70" value="{{ Perfilnombre }}" al-escribir="{{ Escribirperfilnombre }}" placeholder="Tu nombre" aria-label="NOMBRE COMPLETO"></label><label class="m41"><span class="m42">EDAD</span><input class="m43" maxlength="2" value="{{ Perfiledad }}" al-escribir="{{ Escribirperfiledad }}" inputMode="numeric" placeholder="0" aria-label="EDAD"></label><div class="m44">
-            <span class="m42">CIUDAD</span>
-            <button al-clic="{{ Alternarciudad }}" aria-expanded="{{ Ciudadabierta }}" style="width:100%;min-height:48px;padding:0 12px 0 14px;border-radius:16px;background:var(--c2);border:1px solid {{ Ciudadborde }};display:flex;align-items:center;gap:10px;text-align:left;box-sizing:border-box">
-              <span class="m45"><span class="m46">{{ Ciudad }}</span><span class="m47">{{ Ciudaddepartamento }}</span></span>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--mu);transform:{{ Ciudadflecha }};transition:transform .2s ease-out;flex:none"><path d="M6 9l6 6 6-6"></path></svg>
-            </button>
-            <mt-if value="{{ Ciudadabierta }}">
-              <div class="m48">
-                <div class="m49">
-                  <svg class="m4a" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
-                  <input class="m4b" maxlength="50" value="{{ Ciudadbusqueda }}" al-escribir="{{ Escribirciudad }}" autoFocus="{{ true }}" placeholder="Escribe para buscar" aria-label="Buscar ciudad">
-                  <span class="m4c">{{ Ciudadconteo }}</span>
+
+            <mt-if value="{{ Esinvitado }}">
+              <section class="tarjeta perfil-vincular" aria-labelledby="titulo-vincular">
+                <div class="perfil-vincular-cabeza">
+                  <span class="tarjeta-icono" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>
+                  <h2 id="titulo-vincular" class="titulo-tarjeta">Vincula tu cuenta</h2>
                 </div>
-                <div class="mt-scroll m4d">
-                  <mt-for list="{{ Ciudadlista }}" as="Ciudadfila"><button al-clic="{{ Ciudadfila.Alclic }}" style="width:100%;min-height:44px;padding:8px 14px;display:flex;align-items:center;gap:10px;text-align:left;background:{{ Ciudadfila.Fondo }};border-bottom:1px solid var(--ln)"><span class="m45"><span style="font:600 14px 'Hanken Grotesk',sans-serif;color:{{ Ciudadfila.Color }}">{{ Ciudadfila.Nombreitem }}</span><span style="font:400 11.5px 'Hanken Grotesk',sans-serif;color:{{ Ciudadfila.Subtexto }}">{{ Ciudadfila.Departamento }}</span></span><mt-if value="{{ Ciudadfila.Seleccion }}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" style="color:{{ Ciudadfila.Color }};flex:none"><path d="M5 12l5 5L20 7"></path></svg></mt-if></button></mt-for>
-                  <mt-if value="{{ Ciudadvacia }}"><div class="m4e">No encontramos esa ciudad. Revisa cómo la escribiste.</div></mt-if>
-                </div>
-              </div>
+                <p class="texto-cuerpo">Si cambias de celular o borras la app, sin cuenta perderías tus datos. Al vincularla, todo lo que ya registraste se queda.</p>
+                <button type="button" class="perfil-google" al-clic="{{ Vincularcongoogle }}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"></path><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"></path><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"></path><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"></path></svg><span>Continuar con Google</span></button>
+                <button type="button" class="boton-secundario perfil-vincular-correo" al-clic="{{ Vincularconcorreo }}">Usar mi correo</button>
+              </section>
             </mt-if>
-          </div></div>
-          <div class="m4f">{{ Edadpista }}</div>
-          <div class="m3z">Ingresos</div>
-          <div class="m40"><div class="m4g"><span class="m42">TIPO DE INGRESO</span><div class="m1w"><mt-for list="{{ Perfiltipofichas }}" as="Ficha"><button al-clic="{{ Ficha.Alclic }}" style="height:36px;padding:0 13px;border-radius:18px;border:1px solid {{ Ficha.Borde }};background:{{ Ficha.Fondo }};color:{{ Ficha.Color }};font:600 12.5px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Ficha.Etiqueta }}</button></mt-for></div></div><mt-if value="{{ Perfilmostrarfijo }}"><label class="m41"><span class="m42">SALARIO O INGRESO FIJO MENSUAL</span><input class="m43" maxlength="13" value="{{ Perfilfijo }}" al-escribir="{{ Escribirperfilfijo }}" inputMode="numeric" placeholder="$0" aria-label="SALARIO O INGRESO FIJO MENSUAL"></label></mt-if><mt-if value="{{ Perfilmostrarvariable }}"><label class="m41"><span class="m42">INGRESOS VARIABLES AL MES</span><input class="m43" maxlength="13" value="{{ Perfilvariable }}" al-escribir="{{ Escribirperfilvariable }}" inputMode="numeric" placeholder="$0" aria-label="INGRESOS VARIABLES AL MES"></label></mt-if><div class="m4h"><span class="m2n">Ingreso mensual</span><span class="m4i">{{ Perfilingresototal }}</span></div></div>
-          <div class="m3z">Ahorro y metas</div>
-          <div class="m40"><label class="m41"><span class="m42">AHORRO PARA CUOTA INICIAL</span><input class="m43" maxlength="15" value="{{ Perfilahorro }}" al-escribir="{{ Escribirperfilahorro }}" inputMode="numeric" placeholder="$0" aria-label="AHORRO PARA CUOTA INICIAL"></label><label class="m41"><span class="m42">CUÁNTO AHORRAS AL MES</span><input class="m43" maxlength="13" value="{{ Perfilahorromes }}" al-escribir="{{ Escribirperfilahorromes }}" inputMode="numeric" placeholder="$0" aria-label="CUÁNTO AHORRAS AL MES"></label><label class="m4j" data-campo="vivienda-objetivo"><span class="m42">PRECIO DE LA VIVIENDA QUE BUSCAS</span><input class="m43" maxlength="16" value="{{ Perfilobjetivo }}" al-escribir="{{ Escribirperfilobjetivo }}" inputMode="numeric" placeholder="$0" aria-label="Precio de la vivienda que buscas"><span class="m2f">{{ Perfilmetainfo }}</span></label></div>
-          <div class="m3z">Caja de compensación y subsidios</div>
-          <div class="m40">
-            <button class="m2u" al-clic="{{ Alternarcaja }}"><div class="m2a"><span class="m2v">Estoy afiliado a una Caja</span><span class="m4k">Necesario para recibir subsidio de vivienda</span></div><div style="width:54px;height:32px;border-radius:16px;background:{{ Cajariel }};position:relative;flex:none;transition:background .15s ease-out"><div style="position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:13px;background:{{ Cajaperilla }};transform:{{ Cajaposicion }};transition:transform .18s ease-out"></div></div></button>
-            <mt-if value="{{ Cajaactiva }}"><div class="m4l"><span class="m42">TU CAJA</span><div class="m1w"><mt-for list="{{ Cajafichas }}" as="Ficha"><button al-clic="{{ Ficha.Alclic }}" style="height:34px;padding:0 12px;border-radius:17px;border:1px solid {{ Ficha.Borde }};background:{{ Ficha.Fondo }};color:{{ Ficha.Color }};font:600 12px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Ficha.Etiqueta }}</button></mt-for></div></div></mt-if>
-            <button class="m2y" al-clic="{{ Alternarsisben }}"><div class="m2a"><span class="m2v">Tengo Sisbén</span><span class="m2w">Permite postularte a Mi Casa Ya (sujeto a cupos)</span></div><div style="width:54px;height:32px;border-radius:16px;background:{{ Sisbenriel }};position:relative;flex:none;transition:background .15s ease-out"><div style="position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:13px;background:{{ Sisbenperilla }};transform:{{ Sisbenposicion }};transition:transform .18s ease-out"></div></div></button>
-            <mt-if value="{{ Sisbenactivo }}"><div class="m4m"><span class="m42">GRUPO SISBÉN IV</span><div class="m1w"><mt-for list="{{ Sisbengrupoopciones }}" as="Opcion"><button al-clic="{{ Opcion.Alclic }}" style="flex:1;min-width:64px;height:38px;padding:0 10px;border-radius:19px;border:1px solid {{ Opcion.Borde }};background:{{ Opcion.Fondo }};color:{{ Opcion.Color }};font:600 13px 'Familjen Grotesk',sans-serif;white-space:nowrap">{{ Opcion.Etiqueta }}</button></mt-for></div></div></mt-if>
-          </div>
-          <div style="margin:8px 14px 0;padding:14px 16px;border-radius:20px;background:{{ Perfilsubsidiofondo }};display:flex;flex-direction:column;gap:4px"><span style="font:500 10.5px 'IBM Plex Mono',monospace;color:{{ Perfilsubsidioantetitulo }}">TU HOGAR GANA {{ Salariosminimostexto }} SMMLV</span><span style="font:600 15px/1.35 'Hanken Grotesk',sans-serif;color:{{ Perfilsubsidiocolor }};text-wrap:pretty">{{ Perfilsubsidiomensaje }}</span></div>
-          <mt-if value="{{ Mostrarafiliacion }}"><div class="m4n">{{ Afiliacionmensaje }}</div></mt-if>
-          <div class="m4o"><span class="m2v">Datos de tu Caja o del FNA</span><span class="m42">OPCIONAL</span></div>
-          <div class="m4p">Si ya tienes esta información, escríbela y tu estimado se ajusta a tu caso real. Deja en blanco lo que no sepas.</div>
-          <div class="m4q"><mt-for list="{{ Entidadpestanas }}" as="Pestanaentidad"><button al-clic="{{ Pestanaentidad.Alclic }}" style="border-radius:18px;background:{{ Pestanaentidad.Fondo }};color:{{ Pestanaentidad.Color }};font:600 13px 'Familjen Grotesk',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px">{{ Pestanaentidad.Etiqueta }}</button></mt-for></div>
-          <div class="m4r">
-            <div class="m4s"><span class="m4t">Precisión del estimado</span><span class="m4u">{{ Entidadprecisionetiqueta }}</span></div>
-            <div class="m4v"><div style="height:100%;width:{{ Entidadprecisionancho }};background:var(--ac);border-radius:4px;transition:width .4s ease-out"></div></div>
-            <mt-for list="{{ Entidadusando }}" as="Usofila"><span class="m4w">✓ {{ Usofila }}</span></mt-for>
-          </div>
-          <mt-for list="{{ Entidadsecciones }}" as="Seccionentidad">
-            <div class="m4x">
-              <div class="m4y"><span class="m4z">{{ Seccionentidad.Numeroseccion }}</span><span class="m2c">{{ Seccionentidad.Titulo }}</span></div>
-              <span class="m2f">{{ Seccionentidad.Descripcioncorta }}</span>
-              <mt-if value="{{ Seccionentidad.status }}"><div style="padding:10px 12px;border-radius:14px;background:{{ Seccionentidad.Estadofondo }};font:600 12.5px/1.4 'Hanken Grotesk',sans-serif;color:#0B0C0A">{{ Seccionentidad.status }}</div></mt-if>
-              <mt-for list="{{ Seccionentidad.Campos }}" as="Campoentidad">
-                  <mt-if value="{{ Campoentidad.Esfichas }}"><div class="m50"><span class="m42">{{ Campoentidad.Etiqueta }}</span><div class="m1w"><mt-for list="{{ Campoentidad.Opciones }}" as="Opcioncampo"><button al-clic="{{ Opcioncampo.Alclic }}" style="height:34px;padding:0 12px;border-radius:17px;border:1px solid {{ Opcioncampo.Borde }};background:{{ Opcioncampo.Fondo }};color:{{ Opcioncampo.Color }};font:600 12px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Opcioncampo.Etiqueta }}</button></mt-for></div></div></mt-if>
-                  <mt-if value="{{ Campoentidad.Escampo }}"><label class="m51"><span class="m42">{{ Campoentidad.Etiqueta }}</span><input maxlength="20" class="m52" value="{{ Campoentidad.Valorcampo }}" al-escribir="{{ Campoentidad.Alescribir }}" inputMode="{{ Campoentidad.Modoteclado }}" placeholder="{{ Campoentidad.Ejemplo }}" aria-label="{{ Campoentidad.Etiqueta }}"><mt-if value="{{ Campoentidad.Pista }}"><span class="m53">{{ Campoentidad.Pista }}</span></mt-if></label></mt-if>
-                </mt-for>
+
+            <section class="tarjeta">
+              <div class="perfil-avance-cabeza">
+                <h2 class="perfil-avance-titulo">Tu perfil va en {{ Perfilavance }}%</h2>
+                <span class="perfil-avance-valor">{{ Perfilavance }}%</span>
+              </div>
+              <div class="progreso progreso-delgado" role="progressbar" aria-label="{{ Perfilavanceetiqueta }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ Perfilavance }}"><div class="progreso-relleno" style="width:{{ Perfilavanceancho }}"></div></div>
+              <p class="texto-cuerpo">{{ Perfilavancetexto }}</p>
+              <mt-if value="{{ Perfilavancependiente }}"><button type="button" class="enlace" al-clic="{{ Perfilcompletaraccion }}"><span>Completar ahora</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></mt-if>
+            </section>
+
+            <h2 class="perfil-seccion">Mis datos</h2>
+            <div class="perfil-lista">
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirperfilpersonales }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Datos personales</span><span class="perfil-fila-valor">{{ Perfilresumenpersonales }}</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirperfilingresos }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Ingresos</span><span class="perfil-fila-valor">{{ Perfilresumeningresos }}</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirperfilahorro }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"></rect><path d="M3 10h18M16 14.5h2"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Ahorro</span><span class="perfil-fila-valor">{{ Perfilresumenahorro }}</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirperfildeudas }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"></rect><path d="M3 10h18M7 15h4"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Deudas</span><span class="perfil-fila-valor">{{ Perfilresumendeudas }}</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirperfilsubsidios }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.5-8 11-8 11z"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Caja y subsidios</span><span class="perfil-fila-valor">{{ Perfilresumencaja }}</span></span><mt-if value="{{ Perfilcajacompletar }}"><span class="pildora-completar">Completar</span></mt-if>${Svgflechaperfil}</button>
             </div>
-          </mt-for>
-          <div class="m54"><button class="m55" al-clic="{{ Entidadlimpiar }}">Borrar datos de {{ Entidadpestananombre }}</button></div>
-          <div class="m3z">Vivienda que buscas</div>
-          <div class="m56">
-            <mt-for list="{{ Modalidadopciones }}" as="Modalidadopcion"><button al-clic="{{ Modalidadopcion.Alclic }}" style="padding:14px 12px;border-radius:20px;border:1px solid {{ Modalidadopcion.Borde }};background:{{ Modalidadopcion.Fondo }};text-align:left;display:flex;flex-direction:column;gap:6px"><span style="font:600 14px 'Familjen Grotesk',sans-serif;color:{{ Modalidadopcion.Color }}">{{ Modalidadopcion.Etiqueta }}</span><span style="font:500 11px 'IBM Plex Mono',monospace;color:{{ Modalidadopcion.Subtexto }}">{{ Modalidadopcion.Descripcioncorta }}</span></button></mt-for>
-          </div>
-          <div class="m3z">Deudas</div>
-          <button class="m57" al-clic="{{ Perfilirdeudas }}"><div class="m2a"><span class="m2v">{{ Perfildeudascantidad }}</span><span class="m4k">{{ Perfildeudassuma }}</span></div><span class="m58">Administrar →</span></button>
-          <div class="m5f">
-            <button class="m5g" al-clic="{{ Perfilexportar }}">{{ Perfilexportartexto }}</button>
-            <button class="m5h" al-clic="{{ Perfileliminar }}">Borrar mi cuenta</button>
+
+            <h2 class="perfil-seccion">Apariencia</h2>
+            <section class="tarjeta">
+              <span class="perfil-temas-rotulo">Tema de la app</span>
+              <div class="perfil-temas" role="group" aria-label="Apariencia">
+                <mt-for list="{{ Temaopciones }}" as="Opciontema">
+                  <button type="button" class="perfil-tema {{ Opciontema.Clase }}" aria-pressed="{{ Opciontema.Activa }}" al-clic="{{ Opciontema.Alclic }}">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ Opciontema.Icono }}"></path></svg>
+                    <span>{{ Opciontema.Etiqueta }}</span>
+                  </button>
+                </mt-for>
+              </div>
+              <p class="texto-pequeno">{{ Temanota }}</p>
+            </section>
+
+            <h2 class="perfil-seccion">Avisos</h2>
+            <section class="tarjeta perfil-avisos">
+              <button type="button" class="interruptor-fila" role="switch" aria-checked="{{ Diarioactivo }}" al-clic="{{ Alternardiario }}"><span>Recordarme registrar lo que gano</span><span class="interruptor {{ Diarioclase }}" aria-hidden="true"></span></button>
+              <button type="button" class="perfil-avisos-hora" al-clic="{{ Abrirpanelrecordatorios }}">{{ Avisosresumenhora }} ›</button>
+            </section>
+
+            <h2 class="perfil-seccion">Ayuda</h2>
+            <div class="perfil-lista">
+              <button type="button" class="perfil-fila" al-clic="{{ Abrirayuda }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .8-1 1.5v.5M12 17h.01"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Centro de ayuda y glosario</span><span class="perfil-fila-valor">Qué significa cada cifra y cada palabra</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Contactarsoporteayuda }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Escríbenos</span><span class="perfil-fila-valor">Te respondemos por correo</span></span>${Svgflechaperfil}</button>
+              <button type="button" class="perfil-fila" al-clic="{{ Verbienvenidaotrarez }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M3.5 15a9 9 0 1 0 2.1-9.4L1 10"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Ver otra vez la bienvenida</span></span>${Svgflechaperfil}</button>
+            </div>
+
+            <h2 class="perfil-seccion">Cuenta</h2>
+            <div class="perfil-lista">
+              <mt-if value="{{ Esinvitado }}">
+                <button type="button" class="perfil-fila" al-clic="{{ Vincularcongoogle }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Vincular cuenta</span><span class="perfil-fila-valor">Con Google o con tu correo</span></span><span class="pildora-recomendado">Recomendado</span>${Svgflechaperfil}</button>
+              </mt-if>
+              <button type="button" class="perfil-fila" al-clic="{{ Perfilexportar }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">{{ Perfilexportartexto }}</span></span>${Svgflechaperfil}</button>
+              <mt-if value="{{ Noesinvitado }}">
+                <button type="button" class="perfil-fila" al-clic="{{ Cerrarsesionperfil }}"><span class="perfil-fila-icono" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo">Cerrar sesión</span></span>${Svgflechaperfil}</button>
+              </mt-if>
+              <button type="button" class="perfil-fila" al-clic="{{ Perfileliminar }}"><span class="perfil-fila-icono is-peligro" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"></path></svg></span><span class="perfil-fila-textos"><span class="perfil-fila-titulo is-peligro">{{ Perfilborrartexto }}</span><span class="perfil-fila-valor">{{ Perfilborrarsubtitulo }}</span></span>${Svgflechaperfil}</button>
+            </div>
+
+            <footer class="perfil-pie">
+              <img class="perfil-pie-logo" src="assets/Logoapp.webp" width="128" height="128" alt="">
+              <div class="perfil-pie-textos"><span class="perfil-pie-marca">MiTecho · Colombia</span><span>Versión 2026 · RumoriaStudio</span></div>
+            </footer>
           </div>
         </div>
       </mt-if>
-      <mt-if value="{{ Esrecordatorio }}">
-        <div class="mt-scroll m3l">
-          <div class="m3m"><button class="m3n" al-clic="{{ Cerrarpanel }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>Volver</button><span class="m3o">RECORDATORIOS</span></div>
-          <div class="m5i">
-            <h1 class="m5j">Recordatorios</h1>
-            <p class="ms">Te avisamos para que no se te pase ningún registro y tu promedio no se caiga.</p>
-          </div>
-          <div style="margin:20px 14px 0;padding:14px;border-radius:24px;background:rgba(127,127,127,.14);border:1px solid var(--ln);display:flex;gap:12px;align-items:flex-start;opacity:{{ Recordatoriovistaopacidad }};transition:opacity .2s ease-out">
-            <img class="m5k" src="assets/Logoapp.webp" width="128" height="128" alt="">
-            <div class="m5l"><div class="m5m"><span class="m5n">MiTecho</span><span class="m4k">{{ Recordatoriohora }}</span></div><span class="m5o">{{ Recordatoriovista }}</span></div>
-          </div>
-          <div class="m5p">VISTA PREVIA</div>
-          <div class="m3z">Registro diario</div>
-          <div class="m40">
-            <button class="m2u" al-clic="{{ Alternardiario }}"><div class="m2a"><span class="m2v">Recordarme registrar</span><span class="m4k">Un aviso al final del día</span></div><div style="width:54px;height:32px;border-radius:16px;background:{{ Diarioriel }};position:relative;flex:none;transition:background .15s ease-out"><div style="position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:13px;background:{{ Diarioperilla }};transform:{{ Diarioposicion }};transition:transform .18s ease-out"></div></div></button>
-            <mt-if value="{{ Diarioactivo }}">
-              <div class="m4l"><span class="m42">HORA</span><div class="m1w"><mt-for list="{{ Horafichas }}" as="Ficha"><button al-clic="{{ Ficha.Alclic }}" style="height:36px;padding:0 13px;border-radius:18px;border:1px solid {{ Ficha.Borde }};background:{{ Ficha.Fondo }};color:{{ Ficha.Color }};font:600 12.5px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Ficha.Etiqueta }}</button></mt-for></div></div>
-              <div class="m5q"><span class="m42">DÍAS</span><div class="m5r"><mt-for list="{{ Diafichas }}" as="Diafila"><button al-clic="{{ Diafila.Alclic }}" style="height:42px;border-radius:21px;border:1px solid {{ Diafila.Borde }};background:{{ Diafila.Fondo }};color:{{ Diafila.Color }};font:600 13px 'Familjen Grotesk',sans-serif">{{ Diafila.Etiqueta }}</button></mt-for></div></div>
+
+      <mt-if value="{{ Esperfildato }}">
+        <div class="hoja-capa">
+          <button type="button" class="hoja-velo" al-clic="{{ Cerrarperfildato }}" aria-label="Cerrar"></button>
+          <section class="hoja mt-sheet registro" role="dialog" aria-modal="true" aria-labelledby="titulo-perfil-dato">
+            <div class="hoja-manija" aria-hidden="true"></div>
+            <div class="hoja-cabecera"><h2 id="titulo-perfil-dato" class="hoja-titulo">{{ Perfildatotitulo }}</h2><button type="button" class="hoja-cerrar" al-clic="{{ Cerrarperfildato }}" aria-label="Cerrar">${Svgcerrarperfil}</button></div>
+
+            <mt-if value="{{ Perfildatopersonales }}">
+              <label class="registro-campo"><span class="registro-rotulo">Nombre completo</span><input class="registro-entrada" maxlength="70" value="{{ Perfilnombre }}" al-escribir="{{ Escribirperfilnombre }}" placeholder="Tu nombre"></label>
+              <label class="registro-campo"><span class="registro-rotulo">Edad</span><input class="registro-entrada" maxlength="2" value="{{ Perfiledad }}" al-escribir="{{ Escribirperfiledad }}" inputMode="numeric" placeholder="0"></label>
+              <p class="texto-pequeno">{{ Edadpista }}</p>
+              <div class="registro-campo">
+                <span class="registro-rotulo">Ciudad</span>
+                <button type="button" class="registro-entrada" al-clic="{{ Alternarciudad }}" aria-expanded="{{ Ciudadabierta }}" style="display:flex;align-items:center;justify-content:space-between;text-align:left"><span>{{ Ciudad }} · {{ Ciudaddepartamento }}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="transform:{{ Ciudadflecha }}"><path d="M6 9l6 6 6-6"></path></svg></button>
+                <mt-if value="{{ Ciudadabierta }}">
+                  <div class="viviendas-buscador-caja">
+                    <div class="viviendas-buscador-cabeza"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input class="viviendas-buscador-entrada" maxlength="50" value="{{ Ciudadbusqueda }}" al-escribir="{{ Escribirciudad }}" autoFocus="{{ true }}" placeholder="Buscar ciudad" aria-label="Buscar ciudad"></div>
+                    <div class="mt-scroll viviendas-buscador-lista">
+                      <mt-for list="{{ Ciudadlista }}" as="Ciudadfila"><button type="button" class="viviendas-buscador-fila" al-clic="{{ Ciudadfila.Alclic }}"><span class="viviendas-buscador-textos"><span class="viviendas-buscador-nombre">{{ Ciudadfila.Nombreitem }}</span><span class="viviendas-buscador-depto">{{ Ciudadfila.Departamento }}</span></span></button></mt-for>
+                      <mt-if value="{{ Ciudadvacia }}"><div class="viviendas-vacio">No encontramos esa ciudad.</div></mt-if>
+                    </div>
+                  </div>
+                </mt-if>
+              </div>
             </mt-if>
-          </div>
-          <div class="m3z">Otros avisos</div>
-          <div class="m40">
-            <mt-for list="{{ Recordatoriointerruptores }}" as="Opciontipo"><button class="m2u" al-clic="{{ Opciontipo.Alclic }}"><div class="m2a"><span class="m2v">{{ Opciontipo.Etiqueta }}</span><span class="m2w">{{ Opciontipo.Subtexto }}</span></div><div style="width:54px;height:32px;border-radius:16px;background:{{ Opciontipo.Riel }};position:relative;flex:none;transition:background .15s ease-out"><div style="position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:13px;background:{{ Opciontipo.Perilla }};transform:{{ Opciontipo.Posicion }};transition:transform .18s ease-out"></div></div></button></mt-for>
+
+            <mt-if value="{{ Perfildatoingresos }}">
+              <div class="registro-grupo"><span class="registro-rotulo">Cómo recibes tu dinero</span><div class="registro-fichas"><mt-for list="{{ Perfiltipofichas }}" as="Ficha"><button type="button" class="registro-ficha {{ Ficha.Clase }}" aria-pressed="{{ Ficha.Activo }}" al-clic="{{ Ficha.Alclic }}">{{ Ficha.Etiqueta }}</button></mt-for></div></div>
+              <mt-if value="{{ Perfilmostrarfijo }}"><label class="registro-campo"><span class="registro-rotulo">Salario o ingreso fijo mensual</span><input class="registro-entrada" maxlength="13" value="{{ Perfilfijo }}" al-escribir="{{ Escribirperfilfijo }}" inputMode="numeric" placeholder="$0"></label></mt-if>
+              <mt-if value="{{ Perfilmostrarvariable }}"><label class="registro-campo"><span class="registro-rotulo">Ingresos variables al mes</span><input class="registro-entrada" maxlength="13" value="{{ Perfilvariable }}" al-escribir="{{ Escribirperfilvariable }}" inputMode="numeric" placeholder="$0"></label></mt-if>
+              <div class="sim-fila-total"><span class="texto-pequeno">Ingreso mensual</span><span class="sim-total">{{ Perfilingresototal }}</span></div>
+            </mt-if>
+
+            <mt-if value="{{ Perfildatoahorro }}">
+              <label class="registro-campo"><span class="registro-rotulo">Ahorro que ya tienes</span><input class="registro-entrada" maxlength="15" value="{{ Perfilahorro }}" al-escribir="{{ Escribirperfilahorro }}" inputMode="numeric" placeholder="$0"></label>
+              <label class="registro-campo"><span class="registro-rotulo">Cuánto ahorras al mes</span><input class="registro-entrada" maxlength="13" value="{{ Perfilahorromes }}" al-escribir="{{ Escribirperfilahorromes }}" inputMode="numeric" placeholder="$0"></label>
+              <label class="registro-campo"><span class="registro-rotulo">Precio de la vivienda que buscas (opcional)</span><input class="registro-entrada" maxlength="16" value="{{ Perfilobjetivo }}" al-escribir="{{ Escribirperfilobjetivo }}" inputMode="numeric" placeholder="$0"></label>
+              <div class="sim-tipos"><mt-for list="{{ Modalidadopciones }}" as="Modalidadopcion"><button type="button" class="tipo-opcion sim-tipo {{ Modalidadopcion.Clase }}" al-clic="{{ Modalidadopcion.Alclic }}" aria-pressed="{{ Modalidadopcion.Activa }}"><span class="sim-tipo-nombre">{{ Modalidadopcion.Etiqueta }}</span><span class="sim-tipo-detalle">{{ Modalidadopcion.Descripcioncorta }}</span><mt-if value="{{ Modalidadopcion.Recomendada }}"><span class="tipo-insignia">Para ti</span></mt-if></button></mt-for></div>
+            </mt-if>
+
+            <button type="button" class="boton-primario" al-clic="{{ Cerrarperfildato }}">Listo</button>
+          </section>
+        </div>
+      </mt-if>
+
+      <mt-if value="{{ Esrecordatorio }}">
+        <div class="mt-scroll m3l detalle">
+          <div class="barra-detalle"><button type="button" class="volver" al-clic="{{ Volveraperfil }}">${Svgvolverperfil}<span>Perfil y ajustes</span></button><span class="barra-detalle-espacio"></span><button type="button" class="barra-icono" al-clic="{{ Abrirayuda }}" aria-label="Ayuda y glosario">${Svgayudaperfil}</button></div>
+          <h1 class="titulo-detalle">Recordatorios</h1>
+          <div class="detalle-cuerpo">
+            <p class="texto-guia">Te avisamos para que no se te pase ningún registro y tu promedio no se caiga.</p>
+            <section class="tarjeta">
+              <button type="button" class="interruptor-fila" role="switch" aria-checked="{{ Diarioactivo }}" al-clic="{{ Alternardiario }}"><span>Recordarme registrar</span><span class="interruptor {{ Diarioclase }}" aria-hidden="true"></span></button>
+              <mt-if value="{{ Diarioactivo }}">
+                <div class="registro-grupo"><span class="registro-rotulo">Hora</span><div class="registro-fichas"><mt-for list="{{ Horafichas }}" as="Ficha"><button type="button" class="registro-ficha {{ Ficha.Clase }}" aria-pressed="{{ Ficha.Activo }}" al-clic="{{ Ficha.Alclic }}">{{ Ficha.Etiqueta }}</button></mt-for></div></div>
+                <div class="registro-grupo"><span class="registro-rotulo">Días</span><div class="m5r"><mt-for list="{{ Diafichas }}" as="Diafila"><button type="button" class="registro-ficha {{ Diafila.Clase }}" aria-pressed="{{ Diafila.Activo }}" al-clic="{{ Diafila.Alclic }}" style="padding:0">{{ Diafila.Etiqueta }}</button></mt-for></div></div>
+              </mt-if>
+            </section>
+            <section class="tarjeta">
+              <h2 class="titulo-tarjeta">Otros avisos</h2>
+              <mt-for list="{{ Recordatoriointerruptores }}" as="Opciontipo"><button type="button" class="interruptor-fila" role="switch" aria-checked="{{ Opciontipo.Activo }}" al-clic="{{ Opciontipo.Alclic }}"><span class="perfil-fila-textos"><span class="perfil-fila-titulo">{{ Opciontipo.Etiqueta }}</span><span class="texto-pequeno">{{ Opciontipo.Subtexto }}</span></span><span class="interruptor {{ Opciontipo.Clase }}" aria-hidden="true"></span></button></mt-for>
+            </section>
           </div>
         </div>
       </mt-if>
 `;
-

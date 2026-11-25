@@ -1,87 +1,44 @@
-// Plantilla de "Tasas por banco": dos cifras por entidad, una barra para leer de un vistazo y el detalle al tocar
+// Plantilla de «Comparar bancos»: la cuota con la tasa de cada entidad, de la más baja a la más alta, y una oferta propia para comparar
 
 const Plantillatasas = `
       <mt-if value="{{ Estasas }}">
-        <div class="mt-scroll m3l">
-          <div class="m3m"><button class="m3n" al-clic="{{ Cerrarpanel }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>Volver</button><span class="m3o">TASAS POR BANCO</span></div>
-          <div style="margin:14px 18px 0;display:flex;flex-direction:column;gap:4px">
-            <h2 class="mee" style="margin:0">Tasas por banco</h2>
-            <span class="m3t">{{ Tasasfuente }}</span>
-          </div>
-          <mt-if value="{{ Tasassindatos }}">
-            <p class="m3t" style="margin:18px 18px 0;line-height:1.5">Aún no tenemos las tasas de la Superintendencia en este celular. Conéctate a internet y vuelve a abrir esta sección.</p>
-          </mt-if>
-          <mt-if value="{{ Tasasdisponibles }}">
-            <div style="position:relative;margin-top:14px">
-              <div style="filter:{{ Tasasdesenfoque }};pointer-events:{{ Tasaseventos }};display:flex;flex-direction:column;gap:12px;padding:0 14px">
-                <div data-tutorial="oferta" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><mt-for list="{{ Tasasmodos }}" as="Modo"><button type="button" al-clic="{{ Modo.Alclic }}" style="height:40px;border-radius:20px;border:1px solid {{ Modo.Borde }};background:{{ Modo.Fondo }};color:{{ Modo.Color }};font:600 13px 'Familjen Grotesk',sans-serif">{{ Modo.Etiqueta }}</button></mt-for></div>
-                <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px"><mt-for list="{{ Tasasproductos }}" as="Producto"><button type="button" al-clic="{{ Producto.Alclic }}" style="flex:none;height:32px;padding:0 12px;border-radius:16px;border:1px solid {{ Producto.Borde }};background:{{ Producto.Fondo }};color:{{ Producto.Color }};font:600 12px 'Hanken Grotesk',sans-serif;white-space:nowrap">{{ Producto.Etiqueta }}</button></mt-for></div>
-                <span class="m4k">{{ Tasasresumen }}</span>
-
-                <mt-if value="{{ Tasasmodoperfil }}">
-                  <div style="display:flex;flex-direction:column;background:var(--cd);border:1px solid var(--ln);border-radius:22px;overflow:hidden">
-                    <div style="display:flex;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--ln)"><span class="m42">{{ Tasasorden }}</span></div>
-                    <mt-for list="{{ Tasasfilas }}" as="Fila">
-                      <button type="button" al-clic="{{ Fila.Alternar }}" aria-expanded="{{ Fila.Abiertaetiqueta }}" style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-bottom:1px solid var(--ln);text-align:left;width:100%;background:none">
-                        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%">
-                          <span style="font:600 14.5px 'Familjen Grotesk',sans-serif;color:var(--ik);min-width:0">{{ Fila.Nombre }}</span>
-                          <span style="font:600 15px 'IBM Plex Mono',monospace;color:var(--ik);white-space:nowrap">{{ Fila.Cuota }}<small style="font:500 11px 'Hanken Grotesk',sans-serif;color:var(--mu)">/mes</small></span>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:10px;width:100%">
-                          <span style="flex:none;width:92px;font:500 12px 'IBM Plex Mono',monospace;color:var(--mu)">{{ Fila.Tasa }}</span>
-                          <div style="position:relative;flex:1;height:6px;border-radius:3px;background:var(--c2)">
-                            <span aria-hidden="true" style="position:absolute;top:-4px;bottom:-4px;left:{{ Tasasmercadopunto }};width:2px;background:var(--mu);border-radius:1px"></span>
-                            <span aria-hidden="true" style="position:absolute;top:50%;left:{{ Fila.Punto }};width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:6px;background:var(--ac)"></span>
-                          </div>
-                        </div>
-                        <mt-if value="{{ Fila.Tienemarca }}"><span style="align-self:flex-start;padding:2px 8px;border-radius:8px;background:var(--c2);font:600 10.5px 'IBM Plex Mono',monospace;color:var(--mu)">{{ Fila.Marca }}</span></mt-if>
-                        <mt-if value="{{ Fila.Expandida }}">
-                          <div style="display:grid;grid-template-columns:1fr auto;gap:6px 12px;width:100%;padding-top:6px;border-top:1px dashed var(--ln);font:400 12.5px/1.4 'Hanken Grotesk',sans-serif;color:var(--mu)">
-                            <span>Rango de tasas</span><span style="color:var(--ik)">{{ Fila.Rango }}</span>
-                            <span>Datos</span><span style="color:var(--ik)">{{ Fila.Creditos }}</span>
-                            <span>Te prestaría hasta</span><span style="color:var(--ik)">{{ Fila.Prestamo }}</span>
-                            <span>Total pagado</span><span style="color:var(--ik)">{{ Fila.Total }}</span>
-                            <span style="grid-column:1/-1;color:var(--at)">{{ Fila.Comparacion }}</span>
-                          </div>
-                        </mt-if>
-                      </button>
-                    </mt-for>
-                    <span style="padding:10px 16px;font:400 11.5px 'Hanken Grotesk',sans-serif;color:var(--mu)">La línea vertical es el promedio del mercado. {{ Tasasmercadotexto }}</span>
-                  </div>
-                </mt-if>
-
-                <mt-if value="{{ Tasasmodooferta }}">
-                  <div style="display:flex;flex-direction:column;gap:12px;background:var(--cd);border:1px solid var(--ln);border-radius:22px;padding:16px">
-                    <label style="display:flex;flex-direction:column;gap:6px"><span class="m42">TASA QUE TE OFRECIERON (% E.A.)</span>
-                      <input class="my" maxlength="6" value="{{ Tasasofertavalor }}" al-escribir="{{ Escribirtasaoferta }}" inputMode="decimal" placeholder="Ej. 13,5" aria-label="Tasa que te ofrecieron" style="width:100%"></label>
-                    <mt-if value="{{ Tasasofertalista }}">
-                      <div style="position:relative;height:6px;border-radius:3px;background:var(--c2);margin:8px 0 4px">
-                        <span aria-hidden="true" style="position:absolute;top:-4px;bottom:-4px;left:{{ Tasasmercadopunto }};width:2px;background:var(--mu)"></span>
-                        <span aria-hidden="true" style="position:absolute;top:50%;left:{{ Tasasofertapunto }};width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:7px;background:var(--ac)"></span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="m3t">Tu cuota con esa tasa</span><span style="font:600 18px 'IBM Plex Mono',monospace;color:var(--ik)">{{ Tasasofertacuota }}</span></div>
-                      <p style="margin:0;font:500 13px/1.5 'Hanken Grotesk',sans-serif;color:var(--ik)">{{ Tasasofertamensaje }}</p>
-                    </mt-if>
-                    <span style="font:400 11.5px 'Hanken Grotesk',sans-serif;color:var(--mu)">{{ Tasasmercadotexto }}</span>
-                  </div>
-                </mt-if>
-
-                <div style="display:flex;flex-direction:column;gap:8px;padding:4px 4px 0">
-                  <p style="margin:0;font:400 11.5px/1.5 'Hanken Grotesk',sans-serif;color:var(--mu)">{{ Tasasavisooficial }}</p>
-                  <p style="margin:0;font:400 11.5px/1.5 'Hanken Grotesk',sans-serif;color:var(--mu)"><b style="color:var(--ik)">Vivienda nueva o usada.</b> La mayoría de entidades financia vivienda nueva y usada, pero algunas líneas de crédito y subsidios tienen restricciones (por ejemplo, Mi Casa Ya se orienta a vivienda nueva y solo en algunos casos aplica a usada, y algunas entidades limitan la antigüedad del inmueble). Las tasas de esta sección incluyen créditos de vivienda nueva y usada. <b style="color:var(--ik)">Antes de decidir, verifica estas condiciones con la entidad con la que te interesa financiar.</b></p>
-                  <p style="margin:0;font:400 11.5px/1.5 'Hanken Grotesk',sans-serif;color:var(--mu)">{{ Tasasavisocuota }}</p>
-                </div>
-              </div>
+        <div class="mt-scroll m3l detalle">
+          <div class="barra-detalle"><button type="button" class="volver" al-clic="{{ Cerrarpanel }}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg><span>{{ Tasasvolver }}</span></button><span class="barra-detalle-espacio"></span><button type="button" class="barra-icono" al-clic="{{ Abrirayuda }}" aria-label="Ayuda y glosario"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"></path></svg></button></div>
+          <h1 class="titulo-detalle">Comparar bancos</h1>
+          <div class="detalle-cuerpo">
+            <p class="texto-guia">{{ Tasasguia }}</p>
+            <span class="bancos-fuente"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9 10v9M15 10v9M3 21h18"></path></svg>{{ Tasasfuente }}</span>
+            <mt-if value="{{ Tasassindatos }}"><p class="texto-pequeno">Aún no tenemos las tasas de la Superintendencia en este celular. Conéctate a internet y vuelve a abrir esta sección.</p></mt-if>
+            <mt-if value="{{ Tasasdisponibles }}">
+              <div class="bancos-grupo"><span id="bancos-producto" class="bancos-rotulo">Tipo de crédito</span><div class="bancos-fichas" role="group" aria-labelledby="bancos-producto"><mt-for list="{{ Tasasproductos }}" as="Producto"><button type="button" class="bancos-ficha {{ Producto.Clase }}" aria-pressed="{{ Producto.Activo }}" al-clic="{{ Producto.Alclic }}">{{ Producto.Etiqueta }}</button></mt-for></div></div>
               <mt-if value="{{ Tasassinpro }}">
-                <div style="position:absolute;left:14px;right:14px;top:96px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--cd);border:1px solid var(--ln);border-radius:24px;padding:22px 18px;box-shadow:0 18px 40px rgba(0,0,0,.35)">
-                  <span style="padding:4px 10px;border-radius:8px;background:var(--ac);color:var(--oa);font:700 11px 'IBM Plex Mono',monospace;letter-spacing:.06em">3 VIDEOS CORTOS</span>
-                  <span style="font:700 17px/1.3 'Familjen Grotesk',sans-serif;color:var(--ik)">Compara tu cuota en cada banco con datos de la Superintendencia</span>
-                  <span style="font:500 13px 'Hanken Grotesk',sans-serif;color:var(--mu)">{{ Tasasanunciosprogreso }}</span>
-                  <button type="button" al-clic="{{ Desbloqueartasas }}" style="height:46px;padding:0 24px;border-radius:23px;background:var(--ac);color:var(--oa);font:700 14px 'Familjen Grotesk',sans-serif;cursor:pointer">{{ Tasasbotontexto }}</button>
-                </div>
+                <section class="tarjeta bancos-candado"><h2 class="titulo-tarjeta">Compara tu cuota en cada banco</h2><p class="texto-pequeno">Con los datos de la Superintendencia Financiera. Mira 3 videos cortos para abrir la comparación; queda abierta desde ese momento.</p><span class="texto-pequeno texto-tinta">{{ Tasasanunciosprogreso }}</span><button type="button" class="boton-primario" al-clic="{{ Desbloqueartasas }}">{{ Tasasbotontexto }}</button></section>
               </mt-if>
-            </div>
-          </mt-if>
+              <div class="bancos-contenido {{ Tasasbloqueoclase }}" aria-hidden="{{ Tasasbloqueado }}" inert="{{ Tasasbloqueado }}">
+                <mt-if value="{{ Tasasdiferenciavisible }}"><div class="bancos-idea"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg><p>Entre la tasa más baja y la más alta hay <b>{{ Tasasdiferenciames }} al mes</b> de diferencia. En {{ Tasasanios }} años son <b>{{ Tasasdiferenciatotal }}</b>.</p></div></mt-if>
+                <p class="texto-pequeno">{{ Tasasorden }}</p>
+                <ol class="bancos-lista" aria-label="Entidades ordenadas de menor a mayor cuota">
+                  <mt-for list="{{ Tasasfilas }}" as="Fila"><li class="bancos-fila {{ Fila.Clase }}">
+                    <button type="button" class="bancos-fila-boton" al-clic="{{ Fila.Alternar }}" aria-expanded="{{ Fila.Abiertaetiqueta }}"><span class="bancos-puesto" aria-hidden="true">{{ Fila.Puesto }}</span><span class="bancos-textos"><span class="bancos-nombre">{{ Fila.Nombre }}</span><span class="texto-pequeno">{{ Fila.Tasa }}</span></span><span class="bancos-cuota"><span class="bancos-cuota-valor">{{ Fila.Cuota }}</span><span class="texto-pequeno">al mes</span></span></button>
+                    <div class="bancos-barra" aria-hidden="true"><div class="bancos-barra-relleno" style="width:{{ Fila.Ancho }}"></div></div>
+                    <mt-if value="{{ Fila.Esmasbaja }}"><span class="bancos-etiqueta">La cuota más baja</span></mt-if>
+                    <mt-if value="{{ Fila.Tienenota }}"><span class="texto-pequeno">{{ Fila.Nota }}</span></mt-if>
+                    <mt-if value="{{ Fila.Expandida }}"><dl class="bancos-detalle"><div><dt>Rango de tasas</dt><dd>{{ Fila.Rango }}</dd></div><div><dt>Datos</dt><dd>{{ Fila.Creditos }}</dd></div><div><dt>Te prestaría hasta</dt><dd>{{ Fila.Prestamo }}</dd></div><div><dt>Total pagado</dt><dd>{{ Fila.Total }}</dd></div><p class="texto-pequeno">{{ Fila.Comparacion }}</p></dl></mt-if>
+                  </li></mt-for>
+                </ol>
+                <section class="tarjeta" data-tutorial="oferta">
+                  <h2 class="titulo-tarjeta bancos-subtitulo">¿Ya te ofrecieron una tasa?</h2>
+                  <p class="texto-pequeno">Escríbela y te decimos si está por encima o por debajo del promedio.</p>
+                  <label class="bancos-oferta"><span class="solo-lector">Tasa anual que te ofrecieron</span><input class="bancos-oferta-entrada" maxlength="6" value="{{ Tasasofertavalor }}" al-escribir="{{ Escribirtasaoferta }}" inputMode="decimal" placeholder="Ej.: 13,5"><span class="bancos-oferta-unidad">% anual</span></label>
+                  <mt-if value="{{ Tasasofertalista }}"><div class="bancos-oferta-resultado"><span class="texto-pequeno">Tu cuota con esa tasa</span><span class="bancos-cuota-valor">{{ Tasasofertacuota }}</span></div><p class="texto-cuerpo">{{ Tasasofertamensaje }}</p></mt-if>
+                  <p class="texto-pequeno">{{ Tasasmercadotexto }}</p>
+                </section>
+              </div>
+              <p class="texto-pequeno">{{ Tasasavisooficial }}</p>
+              <p class="texto-pequeno"><b class="texto-tinta">Vivienda nueva o usada.</b> La mayoría de entidades financia vivienda nueva y usada, pero algunas líneas de crédito y subsidios tienen restricciones (por ejemplo, Mi Casa Ya se orienta a vivienda nueva y solo en algunos casos aplica a usada, y algunas entidades limitan la antigüedad del inmueble). Las tasas de esta sección incluyen créditos de vivienda nueva y usada. <b class="texto-tinta">Antes de decidir, verifica estas condiciones con la entidad con la que te interesa financiar.</b></p>
+              <p class="texto-pequeno">{{ Tasasavisocuota }}</p>
+            </mt-if>
+          </div>
         </div>
       </mt-if>
 `;

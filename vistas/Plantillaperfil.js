@@ -1,3 +1,3 @@
-// Une en una sola pieza las plantillas de bienvenida, perfil de usuario, ayuda y barra superior
+// Une en una sola pieza las plantillas de entrada, cuestionario, perfil, ayuda y barra superior
 
-const Plantillaperfil = Plantillabienvenida + Plantillaperfilusuario + Plantillaayuda + Plantillanavegacionsuperior;
+const Plantillaperfil = Plantillabienvenida + Plantillacuestionario + Plantillaperfilusuario + Plantillaayuda + Plantillanavegacionsuperior;
