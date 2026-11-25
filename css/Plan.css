@@ -1,0 +1,48 @@
+/* Mi plan: los seis pasos para comprar vivienda, el plan de ahorro del paso en el que va la persona
+   y la pantalla «Tus deudas» */
+
+.plan { display:flex; flex-direction:column; gap:16px; padding:6px 20px 24px; }
+.plan-pasos { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; }
+
+/* Cada paso: insignia con el número (o el chulo si ya está hecho), título, detalle y flecha */
+.plan-paso { position:relative; display:flex; align-items:center; gap:14px; width:100%; min-height:66px; padding:14px 14px 14px 16px; border-radius:18px; background:var(--sf); border:1px solid var(--ln); color:var(--ink); text-align:left; box-sizing:border-box; }
+button.plan-paso { cursor:pointer; }
+.plan-paso.is-actual { border:2px solid var(--bar); padding:13px 13px 13px 15px; }
+.plan-insignia { width:32px; height:32px; border-radius:16px; flex:none; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--fa); color:var(--mu); font:700 14px/1 'Familjen Grotesk',sans-serif; box-sizing:border-box; }
+.plan-insignia.is-hecho { border:0; background:var(--bar); color:var(--sf); }
+.plan-insignia.is-actual { border:0; background:var(--ac); color:var(--on-ac); }
+.plan-paso-textos { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.plan-paso-titulo { font:700 16px/1.25 'Familjen Grotesk',sans-serif; }
+.plan-paso-flecha { color:var(--mu); flex:none; }
+button.plan-paso:focus-visible { outline:2px solid var(--at); outline-offset:3px; }
+
+/* Paso abierto: plan de ahorro con el plazo que elige la persona */
+.plan-ahorro { border:2px solid var(--bar); gap:14px; color:var(--ink); }
+.plan-ahorro-cabecera { display:flex; align-items:center; gap:14px; }
+.plan-plazo { display:flex; flex-direction:column; gap:10px; }
+.plan-pregunta { font:600 15px/1.3 'Hanken Grotesk',sans-serif; color:var(--ink); }
+.plan-cifra { display:flex; flex-direction:column; gap:4px; padding:14px 16px; border-radius:16px; background:var(--sf2); }
+.plan-cifra-valor { font:700 26px/1.15 'Familjen Grotesk',sans-serif; letter-spacing:-.02em; color:var(--ink); }
+.plan-cifra-mes { font:500 15px 'Hanken Grotesk',sans-serif; color:var(--mu); letter-spacing:0; }
+.plan-mensaje { font-weight:600; color:var(--at); }
+.plan-mensaje.is-alerta { color:var(--warn-t); }
+
+/* Tus deudas: tarjeta azul con el presupuesto si las marcadas estuvieran pagadas */
+.deudas-heroe { background:var(--hero); color:var(--hero-ink); border-radius:24px; padding:18px 20px; display:flex; flex-direction:column; gap:12px; }
+.deudas-heroe-rotulo { font:600 14px/1.4 'Hanken Grotesk',sans-serif; color:var(--hero-mu); }
+.deudas-heroe-precio { margin:0; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.deudas-heroe-cifra { font:700 44px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.03em; }
+.deudas-heroe-millones { font:600 17px/1 'Familjen Grotesk',sans-serif; color:var(--hero-mu); }
+.deudas-heroe-cambio { font:600 14px 'Hanken Grotesk',sans-serif; color:var(--hero-mu); }
+.deudas-heroe-cambio.is-sube { color:#D4FF3A; }
+.deuda-cabecera { display:flex; gap:12px; align-items:center; }
+.deuda-icono { width:40px; height:40px; border-radius:12px; background:var(--sf2); color:var(--ink); display:flex; align-items:center; justify-content:center; flex:none; }
+.deuda-textos { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.deuda-titulo-fila { display:flex; align-items:center; gap:8px; }
+.deuda-nombre { flex:1; min-width:0; font-size:17px; overflow-wrap:anywhere; }
+.deuda-editar { width:44px; height:44px; margin:-12px -12px -12px 0; border-radius:22px; border:0; background:transparent; color:var(--mu); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
+.deuda-ganancia { display:flex; gap:10px; align-items:center; padding:12px 14px; border-radius:14px; background:var(--sf2); font:500 14px/1.4 'Hanken Grotesk',sans-serif; color:var(--ink); }
+.deuda-ganancia svg { color:var(--at); flex:none; }
+.deudas-nota { display:flex; gap:10px; }
+.deudas-nota svg { flex:none; margin-top:1px; }
+.deuda-editar:focus-visible { outline:2px solid var(--at); outline-offset:-2px; }

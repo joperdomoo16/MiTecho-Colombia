@@ -1,0 +1,17 @@
+/* Tipo de vivienda en Simular y en el perfil: marca de la modalidad recomendada y aviso de la elegida.
+   La hoja que explica el tipo de vivienda usa las piezas de Componentes.css y los estilos de Inicio.css */
+
+/* Marca «Para ti» sobre la modalidad recomendada; el anillo del color del fondo la separa del botón elegido */
+.tipo-opcion { position:relative; }
+.tipo-insignia { position:absolute; top:-9px; right:8px; height:18px; padding:0 8px; border-radius:9px; background:var(--ac); color:var(--oa); font:700 12px/18px 'Familjen Grotesk',sans-serif; white-space:nowrap; box-shadow:0 0 0 2px var(--bg); }
+.tipo-opcion:focus-visible { outline:2px solid var(--at); outline-offset:3px; }
+
+/* Aviso de la modalidad elegida: verde si aplica, naranja si no aplica o no se recomienda, gris para leasing */
+.tipo-aviso { margin:10px 14px 0; padding:14px 16px; border-radius:20px; border:1px solid var(--ln); background:var(--cd); display:flex; flex-direction:column; gap:4px; }
+.tipo-aviso-titulo { font:700 14px/1.3 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.tipo-aviso-texto { font:400 13.5px/1.45 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.tipo-aviso.is-ok { border-color:var(--ad); }
+.tipo-aviso.is-ok .tipo-aviso-titulo { color:var(--at); }
+.tipo-aviso.is-alerta { border-color:var(--al); background:var(--al); }
+.tipo-aviso.is-alerta .tipo-aviso-titulo, .tipo-aviso.is-alerta .tipo-aviso-texto { color:#120A05; }
+.tipo-aviso.is-info { background:var(--c2); }

@@ -17,7 +17,7 @@
 .tutorial-cuerpo h2, .tutorial-hoja h2 { margin: 0 0 4px; font: 700 17px/1.25 'Familjen Grotesk', sans-serif; color: var(--ik); }
 .tutorial-cuerpo p, .tutorial-hoja p { margin: 0; font: 400 13.5px/1.45 'Hanken Grotesk', sans-serif; color: var(--mu); }
 .tutorial-pie { display: flex; align-items: center; gap: 8px; }
-.tutorial-contador { flex: 1; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; color: var(--mu); }
+.tutorial-contador { flex: 1; font: 600 12px 'IBM Plex Mono', monospace; letter-spacing: .08em; color: var(--mu); }
 .tutorial-saltar { height: 40px; padding: 0 12px; border: none; background: transparent; color: var(--mu); font: 600 13.5px 'Familjen Grotesk', sans-serif; cursor: pointer; }
 .tutorial-siguiente { height: 40px; padding: 0 20px; border: none; border-radius: 20px; background: var(--ac); color: var(--oa); font: 700 14px 'Familjen Grotesk', sans-serif; cursor: pointer; }
 .tutorial-hoja {

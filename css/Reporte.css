@@ -1,0 +1,33 @@
+/* Pantalla Tu reporte en PDF: vista previa tipo hoja blanca, lista de contenido y acciones */
+
+.reporte-hoja { margin:0; background:#FFFFFF; color:#0F110C; border-radius:20px; padding:18px; border:1px solid var(--ln); box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px; }
+.reporte-hoja-cabeza { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.reporte-hoja-marca { display:flex; align-items:center; gap:8px; font:700 14px/1 'Familjen Grotesk',sans-serif; color:#0F110C; }
+.reporte-hoja-logo { width:24px; height:24px; border-radius:6px; display:block; }
+.reporte-hoja-fecha { font:500 12px/1 'Hanken Grotesk',sans-serif; color:#6D7363; }
+.reporte-hoja-titulos { display:flex; flex-direction:column; gap:3px; }
+.reporte-hoja-titulo { margin:0; font:700 16px/1.25 'Familjen Grotesk',sans-serif; color:#0F110C; }
+.reporte-hoja-sub { margin:0; font:400 12.5px/1.35 'Hanken Grotesk',sans-serif; color:#6D7363; }
+.reporte-celdas { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.reporte-celda { background:#F3F3EE; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+.reporte-celda-rotulo { font:500 11.5px/1.2 'Hanken Grotesk',sans-serif; color:#6D7363; }
+.reporte-celda-valor { font:700 16px/1.15 'Familjen Grotesk',sans-serif; color:#0F110C; overflow-wrap:anywhere; }
+.reporte-barra { display:flex; gap:4px; height:6px; }
+.reporte-tramo-banco { border-radius:3px; background:#1A2E52; }
+.reporte-tramo-propio { border-radius:3px; background:#E09F1F; }
+.reporte-hoja-pie { margin:0; font:400 11.5px/1.35 'Hanken Grotesk',sans-serif; color:#6D7363; }
+
+.reporte-incluye { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; }
+.reporte-incluye li { display:flex; align-items:flex-start; gap:10px; font:400 14px/1.4 'Hanken Grotesk',sans-serif; color:var(--ink); }
+.reporte-incluye svg { color:var(--at); flex:none; margin-top:2px; }
+
+.reporte-aviso { background:var(--sf); border:1px solid var(--ln); border-radius:16px; padding:12px 14px; display:flex; align-items:flex-start; gap:10px; font:400 13px/1.45 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.reporte-aviso svg { flex:none; margin-top:1px; }
+.reporte-centro { text-align:center; }
+
+.reporte-listo { border-color:rgba(212,255,58,.28); gap:12px; }
+.reporte-listo-cabeza { display:flex; align-items:flex-start; gap:12px; }
+.reporte-listo-check { width:32px; height:32px; border-radius:16px; background:var(--ac); color:var(--on-ac); display:flex; align-items:center; justify-content:center; flex:none; }
+.reporte-listo-textos { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.reporte-listo-titulo { margin:0; font:700 15px/1.25 'Familjen Grotesk',sans-serif; color:var(--ink); }
+.reporte-listo-acciones { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }

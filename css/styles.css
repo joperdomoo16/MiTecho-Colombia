@@ -3,6 +3,10 @@ body { margin: 0; background: #E4E3DC; font-family: 'Hanken Grotesk', system-ui,
 a { color: #4E6E00; }
 a:hover { color: #0B0C0A; }
 button { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; color: inherit; }
+/* Todo botón se puede tocar en un área de al menos 44 × 44 px aunque se vea más pequeño; :where no le gana
+   a ninguna clase ni estilo que ya ubique el botón */
+:where(.m1) button { position: relative; }
+.m1 button::before { content: ''; position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; min-width: 44px; min-height: 44px; transform: translate(-50%, -50%); }
 input { font: inherit; }
 /* Nada de la app se selecciona ni se copia, y tocar no deja el cuadro azul; en los campos sí se escribe y se pega */
 html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -10,8 +14,8 @@ html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: 
 .m1 button:focus:not(:focus-visible), .m1 a:focus:not(:focus-visible), .m1 [role="checkbox"]:focus:not(:focus-visible), #mt-pdf-viewer button:focus:not(:focus-visible) { outline: none; }
 /* Marco base e indicadores de estado superior */
 .m3k { height:40px; color:var(--mu); font:600 13px 'Familjen Grotesk',sans-serif; }
-.m1 { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px 16px; box-sizing:border-box; --bg:#0B0C0A; --cd:#16180F; --c2:#24271C; --ln:rgba(255,255,255,.07); --ik:#F2F4EC; --mu:#A3A898; --fa:#6F7466; --ac:#D4FF3A; --oa:#0B0C0A; --at:#D4FF3A; --al:#FF6A2B; --dk:#1C1E15; --di:#A3A898; --fb:#F2F4EC; --of:#0B0C0A; --dm:#2A2D22; --ad:#5E6B2A; }
-.m2 { display:flex; gap:10px; align-items:center; font:500 11px 'IBM Plex Mono',monospace; letter-spacing:.06em; color:rgba(0,0,0,.5); }
+.m1 { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px 16px; box-sizing:border-box; --bg:#0B0C0A; --cd:#16180F; --c2:#22251B; --ln:rgba(255,255,255,.09); --ik:#F2F4EC; --mu:#B3B8A7; --fa:#8F947F; --ac:#D4FF3A; --oa:#0B0C0A; --at:#D4FF3A; --al:#FF8A4C; --dk:#1C1E15; --di:#A3A898; --fb:#F2F4EC; --of:#0B0C0A; --dm:#2A2D22; --ad:#5E6B2A; --sf:#16180F; --sf2:#22251B; --trk:#2C3022; --ink:#F2F4EC; --on-ac:#0B0C0A; --bar:#D4FF3A; --hero:#1A2E52; --hero-ink:#F4F6FB; --hero-mu:#B9C6E4; --hero-ln:rgba(255,255,255,.14); --warn:#FFD23F; --warn-t:#FFD23F; --al-t:#FF8A4C; --nav:#121410; --scrim:rgba(0,0,0,.62); --sel:#F2F4EC; --sel-t:#0B0C0A; --soft-ac:rgba(212,255,58,.10); --soft-warn:rgba(255,210,63,.10); --soft-al:rgba(255,138,76,.12); --shadow:0 12px 32px rgba(0,0,0,.5); }
+.m2 { display:flex; gap:10px; align-items:center; font:500 12px 'IBM Plex Mono',monospace; letter-spacing:.06em; color:rgba(0,0,0,.5); }
 .m3 { width:390px; height:844px; border:11px solid #0d0d0c; border-radius:56px; overflow:hidden; position:relative; background:var(--bg); box-shadow:0 1px 0 1px rgba(0,0,0,.15),0 24px 48px -28px rgba(0,0,0,.4); transition:background .25s ease-out; }
 .m4 { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:118px; height:34px; background:#000; border-radius:20px; z-index:40; }
 .m5 { display:flex; gap:6px; align-items:center; }
@@ -28,8 +32,9 @@ html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: 
 @media (max-width: 960px), (max-height: 600px), (hover: none) and (pointer: coarse) {
   :root {
     --sat-eff: max(var(--sat, 0px), env(safe-area-inset-top, 0px));
+    --sab-base: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px));
     /* Si hay un anuncio abajo, todo lo que va pegado al borde inferior sube su altura */
-    --sab-eff: calc(max(var(--sab, 0px), env(safe-area-inset-bottom, 0px)) + var(--alto-anuncio, 0px));
+    --sab-eff: calc(var(--sab-base) + var(--alto-anuncio, 0px));
     --sal-eff: max(var(--sal, 0px), env(safe-area-inset-left, 0px));
     --sar-eff: max(var(--sar, 0px), env(safe-area-inset-right, 0px));
   }
@@ -64,33 +69,31 @@ html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: 
   .m1z { padding: 0 22px 18px !important; }
   .m3h { padding: 0 18px 16px !important; }
   .m3l { top: 0 !important; padding: calc(var(--sat-eff) + 8px) var(--sar-eff) calc(var(--sab-eff) + 28px) var(--sal-eff) !important; }
-  .m75 { top: 0 !important; padding: 0 var(--sar-eff) calc(var(--sab-eff) + 92px) var(--sal-eff) !important; overflow-x: hidden !important; }
-  .m76 { padding: calc(var(--sat-eff) + 8px) 18px 10px !important; }
-  .m7m { font-size: clamp(72px, 23vw, 112px) !important; }
+  .m3l.detalle { padding-top: calc(var(--sat-eff) + 6px) !important; }
+  .m3l.ayuda-capa { z-index: 24 !important; }
+  .m75 { top: 0 !important; padding: 0 var(--sar-eff) calc(var(--sab-eff) + 104px) var(--sal-eff) !important; overflow-x: hidden !important; }
+  .m75.es-detalle { padding: calc(var(--sat-eff) + 6px) var(--sar-eff) calc(var(--sab-eff) + 28px) var(--sal-eff) !important; }
+  .m76 { padding: calc(var(--sat-eff) + 6px) max(14px, calc(var(--sar-eff) + 14px)) 6px max(20px, calc(var(--sal-eff) + 20px)) !important; }
   .m33 { font-size: clamp(68px, 22vw, 104px) !important; }
-  .mbo { font-size: clamp(64px, 21vw, 96px) !important; }
-  .mcc { font-size: clamp(62px, 20vw, 92px) !important; }
-  .mcq { font-size: clamp(60px, 19vw, 88px) !important; }
-  .mdu { bottom: calc(var(--sab-eff) + 10px) !important; left: max(12px, calc(var(--sal-eff) + 12px)) !important; right: max(12px, calc(var(--sar-eff) + 12px)) !important; max-width: 500px !important; margin: 0 auto !important; }
-  .mt-sheet { padding: 10px max(18px, calc(var(--sar-eff) + 18px)) calc(var(--sab-eff) + 20px) max(18px, calc(var(--sal-eff) + 18px)) !important; max-height: 88dvh !important; overflow-y: auto !important; box-sizing: border-box !important; max-width: 600px !important; margin: 0 auto !important; }
+  /* La barra de pestañas va pegada abajo; debajo quedan el espacio del anuncio y la barra del celular */
+  .barra-inferior { padding-bottom: var(--sab-base); }
+  /* Con anuncio, una línea y más aire lo separan de la barra de pestañas para evitar toques por error */
+  .con-anuncio .m3::after { border-top: 1px solid var(--ln); }
+  /* Con una hoja abierta el banner se oculta, así que la hoja solo respeta la barra del celular */
+  .mt-sheet { padding: 10px max(18px, calc(var(--sar-eff) + 18px)) calc(var(--sab-base) + 20px) max(18px, calc(var(--sal-eff) + 18px)) !important; max-height: 88dvh !important; overflow-y: auto !important; box-sizing: border-box !important; max-width: 600px !important; margin: 0 auto !important; }
+  /* Las hojas nuevas llevan 20 px a los lados, como en el diseño */
+  .hoja.mt-sheet { padding-left: max(20px, calc(var(--sal-eff) + 20px)) !important; padding-right: max(20px, calc(var(--sar-eff) + 20px)) !important; }
 }
 
 @media (min-width: 540px) and (max-width: 960px), (orientation: landscape) and (max-height: 600px) {
   .m75 > *:not(.m76), .m26 > *, .m3l > *:not(.m3m) { max-width: 640px !important; margin-left: auto !important; margin-right: auto !important; box-sizing: border-box !important; }
-  .m7t, .m8a, .m8d, .m8g, .m9q, .mb8, .mcw, .m57 { width: calc(100% - 28px) !important; max-width: 612px !important; }
-  .m7m, .m33, .mbo, .mcc, .mcq { font-size: clamp(50px, 14dvh, 76px) !important; }
+  .m9q, .m57 { width: calc(100% - 28px) !important; max-width: 612px !important; }
+  .m33 { font-size: clamp(50px, 14dvh, 76px) !important; }
+  .heroe-cifra { font-size: clamp(44px, 12dvh, 54px); }
   .m1a, .m28, .m5j, .m65 { font-size: clamp(24px, 6.5dvh, 34px) !important; }
-  .mdu { height: 56px !important; }
 }
 
-/* Celulares angostos (320 a 360 px): el monto y el ingreso no se pegan, la barra superior no toca el borde y el botón + cabe */
-.m7n { flex-wrap: wrap; gap: 4px 12px; }
+/* Celulares angostos (320 a 360 px): los nombres de las pestañas caben */
 @media (max-width: 360px) {
-  .m77 { gap: 8px; }
-  .m7c { gap: 6px; min-width: 0; }
-  .m7e { padding: 0 10px; min-width: 0; }
-  .m7f { max-width: 82px; }
-  .mdu { padding: 0 6px !important; }
-  .mdu > button:not(.mdw) { padding: 0 8px !important; }
-  .mdw { width: 44px; height: 44px; }
+  .pestana-texto { letter-spacing: -.03em; }
 }

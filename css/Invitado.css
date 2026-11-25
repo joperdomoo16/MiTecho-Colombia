@@ -1,0 +1,48 @@
+/* Modo sin cuenta: botón del inicio de sesión, aviso antes de entrar, elección de datos al vincular y tarjeta del perfil */
+
+/* Botón de texto subrayado: se ve liviano pero tiene 44px de alto para tocarlo fácil */
+.invitado-boton { width:100%; min-height:44px; padding:0 12px; background:none; border:0; color:var(--ik); font:600 14px/1.2 'Familjen Grotesk',sans-serif; text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+.invitado-boton:focus-visible,
+.invitado-principal:focus-visible,
+.invitado-secundario:focus-visible,
+.vincular-opcion:focus-visible,
+.vincular-google:focus-visible,
+.vincular-correo:focus-visible { outline:2px solid var(--at); outline-offset:3px; }
+
+/* Nota arriba de los botones cuando el invitado abre el inicio de sesión para vincular su cuenta */
+.invitado-nota { margin:0 0 4px; padding:12px 14px; border-radius:18px; background:var(--c2); border:1px solid var(--ln); font:500 13.5px/1.45 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+
+/* Velo y hoja inferior: mismas capas que las demás ventanas de la app (58 y 59) */
+.invitado-velo { position:absolute; inset:0; z-index:58; background:rgba(0,0,0,.62); }
+.invitado-hoja { position:absolute; left:0; right:0; bottom:0; z-index:59; display:flex; flex-direction:column; gap:14px; max-height:92dvh; overflow-y:auto; box-sizing:border-box; padding:12px 18px 28px; border-radius:32px 32px 0 0; border-top:1px solid var(--ln); background:var(--cd); animation:invitado-subir .22s ease-out; }
+.invitado-manija { flex:none; width:40px; height:5px; border-radius:3px; background:var(--c2); align-self:center; }
+.invitado-icono { flex:none; width:48px; height:48px; border-radius:24px; display:flex; align-items:center; justify-content:center; background:rgba(255,106,43,.14); color:var(--al); }
+.invitado-titulo { margin:0; font:700 21px/1.2 'Familjen Grotesk',sans-serif; letter-spacing:-.015em; color:var(--ik); }
+.invitado-texto { margin:0; font:400 15px/1.5 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.invitado-principal { flex:none; width:100%; min-height:54px; border:0; border-radius:27px; background:var(--ac); color:var(--oa); font:700 15px 'Familjen Grotesk',sans-serif; cursor:pointer; transition:transform .15s ease-out; }
+.invitado-secundario { flex:none; width:100%; min-height:50px; border:1px solid var(--ln); border-radius:25px; background:transparent; color:var(--ik); font:600 14.5px 'Familjen Grotesk',sans-serif; cursor:pointer; transition:transform .15s ease-out; }
+
+/* Opciones cuando la cuenta que se vincula ya tenía un perfil guardado */
+.vincular-opcion { flex:none; width:100%; min-height:64px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:4px; padding:12px 16px; border:1px solid var(--ln); border-radius:20px; background:var(--c2); color:var(--ik); text-align:left; cursor:pointer; box-sizing:border-box; transition:transform .15s ease-out; }
+.vincular-opciontitulo { font:700 15px/1.25 'Familjen Grotesk',sans-serif; }
+.vincular-opciontexto { font:400 13.5px/1.4 'Hanken Grotesk',sans-serif; color:var(--mu); }
+
+/* Ícono de persona en la foto de perfil mientras no hay nombre escrito */
+.sin-nombre-icono { width:46%; height:46%; display:block; }
+
+/* Tarjeta del perfil para quien entró sin cuenta */
+.vincular-tarjeta { margin:18px 14px 0; padding:18px; display:flex; flex-direction:column; gap:12px; border-radius:22px; background:var(--cd); border:1px solid var(--ln); }
+.vincular-cabecera { display:flex; gap:12px; align-items:flex-start; }
+.vincular-cabecera .invitado-icono { width:40px; height:40px; }
+.vincular-titulo { margin:0; font:700 17px/1.25 'Familjen Grotesk',sans-serif; color:var(--ik); }
+.vincular-texto { margin:4px 0 0; font:400 14px/1.5 'Hanken Grotesk',sans-serif; color:var(--ik); text-wrap:pretty; }
+.vincular-google { width:100%; min-height:52px; display:flex; align-items:center; justify-content:center; gap:10px; border:1px solid rgba(15,17,12,.14); border-radius:26px; background:#FFFFFF; color:#1F1F1F; font:600 15px 'Familjen Grotesk',sans-serif; cursor:pointer; transition:transform .15s ease-out; }
+.vincular-correo { width:100%; min-height:48px; border:1px solid var(--ln); border-radius:24px; background:var(--c2); color:var(--ik); font:600 14.5px 'Familjen Grotesk',sans-serif; cursor:pointer; transition:transform .15s ease-out; }
+
+.invitado-principal:active, .invitado-secundario:active, .vincular-opcion:active, .vincular-google:active, .vincular-correo:active { transform:scale(.98); }
+
+@keyframes invitado-subir { from { transform:translateY(24px); opacity:0; } to { transform:none; opacity:1; } }
+@media (prefers-reduced-motion: reduce) {
+  .invitado-hoja { animation:none; }
+  .invitado-principal, .invitado-secundario, .vincular-opcion, .vincular-google, .vincular-correo { transition:none; }
+}
