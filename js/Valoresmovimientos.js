@@ -55,7 +55,7 @@ function Generarvaloresmovimientos(Calculo) {
   // Gastos del mes o del año: pagos de deudas y gastos del día por tipo
   const Gastosperiodo = Vista === 'ano' ? Egresos.filter(Gasto => Fechaderegistro(Gasto).slice(0, 4) === Anio) : Registrosdelmes(Egresos, Mesactual);
   const Mesescongasto = Vista === 'ano' ? Math.max(1, new Set(Gastosperiodo.map(Gasto => Fechaderegistro(Gasto).slice(0, 7))).size) : 1;
-  const Deudasmes = (Estadoactual.Deudas || []).reduce((Suma, Deuda) => Suma + (Deuda.Cuota || 0), 0);
+  const Deudasmes = (Estadoactual.Deudas || []).filter(Deuda => Deuda.Activa !== false).reduce((Suma, Deuda) => Suma + (Deuda.Cuota || 0), 0);
   const Diariosmes = Sumamontos(Gastosperiodo) / Mesescongasto;
   const Porcategoria = {};
   Gastosperiodo.forEach(Gasto => { Porcategoria[Gasto.Categoria] = (Porcategoria[Gasto.Categoria] || 0) + (Gasto.Monto || 0) / Mesescongasto; });
@@ -132,7 +132,13 @@ function Generarvaloresmovimientos(Calculo) {
       ...Extras.map((Fila, Indice) => ({
         Icono: Iconomovimiento(Iconosfijo, Fila.Nombreitem), Titulo: Fila.Nombreitem, Detalle: 'Cada mes', Monto: Formatoenteropesos(Fila.Monto), Puedequitar: true,
         Quitaretiqueta: 'Quitar ' + Fila.Nombreitem,
-        Quitar: () => this.Cambiarestado(Estadoprevio => ({ Ingresosfijosextra: Estadoprevio.Ingresosfijosextra.filter((Ignorado, Posicion) => Posicion !== Indice) }))
+        Quitar: () => this.Cambiarestado(Estadoprevio => {
+          const Cambiafuente = Estadoprevio.Fuenteingreso === 'manual' ? { Fuenteingreso: 'perfil', Usarautomatico: true } : {};
+          return {
+            ...Cambiafuente,
+            Ingresosfijosextra: Estadoprevio.Ingresosfijosextra.filter((Ignorado, Posicion) => Posicion !== Indice)
+          };
+        })
       }))
     ],
     Movsinfijos: !Fijostotal,

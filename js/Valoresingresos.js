@@ -63,11 +63,15 @@ function Generarvaloresingresos(Calculo, Configuracion, Seleccion, Fichaseleccio
         return;
       }
       const Ingresofijonombre = (Ingresofijoform.Tipo === 'Otro ingreso fijo' && (Ingresofijoform.Nombre || '').trim()) || Ingresofijoform.Tipo;
-      this.Cambiarestado(Estadoprevio => ({
-        Ingresosfijosextra: [...Estadoprevio.Ingresosfijosextra, { Nombreitem: Ingresofijonombre, Monto: Ingresofijoform.Monto }],
-        Hoja: false,
-        Formularioingresofijo: { ...Estadoprevio.Formularioingresofijo, Monto: 0, Nombre: '' }
-      }));
+      this.Cambiarestado(Estadoprevio => {
+        const Cambiafuente = Estadoprevio.Fuenteingreso === 'manual' ? { Fuenteingreso: 'perfil', Usarautomatico: true } : {};
+        return {
+          ...Cambiafuente,
+          Ingresosfijosextra: [...Estadoprevio.Ingresosfijosextra, { Nombreitem: Ingresofijonombre, Monto: Ingresofijoform.Monto }],
+          Hoja: false,
+          Formularioingresofijo: { ...Estadoprevio.Formularioingresofijo, Monto: 0, Nombre: '' }
+        };
+      });
       this.Aviso(Ingresofijonombre + ' agregado: +' + Formatoenteropesos(Ingresofijoform.Monto) + '/mes. Tu presupuesto sube $' + Formatomillones(Ingresofijoform.Monto * Calculo.Tope * Calculo.Factor / Financiacionactiva) + ' M.');
     },
     Gastomontotexto: Gasto.Monto ? Formatonumero(Gasto.Monto) : '',

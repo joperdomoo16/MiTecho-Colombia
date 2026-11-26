@@ -29,7 +29,7 @@ function Generarvaloresdeudas(Calculo) {
   }
 
   const Saldo = Marcadas.reduce((Suma, Deuda) => Suma + (Deuda.Saldo || 0), 0);
-  const Ahorro = Estadoactual.Ahorro || 0;
+  const Ahorro = Calculo.Ahorrohogar || 0;
   let Aviso = '';
   if (Saldo > 0) {
     if (Ahorro > Saldo) {

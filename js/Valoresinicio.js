@@ -64,6 +64,11 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
   const Primernombre = (Estadoactual.Nombre || '').trim().split(/\s+/)[0];
 
   let Ahorroaviso = 'Ya tienes la cuota inicial y los gastos de notaría y registro.';
+  if (Estadoactual.Modalidadelegida === 'leasing') {
+    Ahorroaviso = 'Ya tienes el pago inicial requerido para tu leasing.';
+  } else if (Estadoactual.Financiargastos) {
+    Ahorroaviso = 'Ya tienes la cuota inicial (notaría y registro van dentro del crédito).';
+  }
   if (!Tienetecho) {
     if (Calculo.Ingresototal > 0) {
       Ahorroaviso = 'Tus cuotas de deudas se llevan todo tu ingreso, así el banco no te presta. Cada cuota que termines de pagar sube tu presupuesto.';
@@ -84,6 +89,12 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
     Viviendasresumen = 'Mira los proyectos de referencia en ' + Estadoactual.Ciudad;
   }
 
+  const Bancoparte = Tienetecho ? Math.max(0, Calculo.Preciotecho - Calculo.Cuotainicialtecho) : 0;
+  const Pesobanco = Tienetecho ? Math.round(Bancoparte / Calculo.Preciotecho * 1000) : 0;
+  let Nombresubsidio = 'de Caja';
+  if (Calculo.Subsidiocaja > 0 && Calculo.Subsidiomicasaya > 0) Nombresubsidio = 'de Caja y Mi Casa Ya';
+  else if (Calculo.Subsidiomicasaya > 0) Nombresubsidio = 'Mi Casa Ya';
+
   return {
     Raizreferencia: this.Raizreferencia,
     Desplazamientoreferencia: this.Desplazamientoreferencia,
@@ -103,11 +114,11 @@ function Generarvaloresinicio(Calculo, Configuracion, Seleccion, Oscuroactivo) {
     Pestanaactual,
     Saludotitulo: Primernombre ? 'Hola, ' + Primernombre : 'Hola',
     Abrirayuda: () => this.Cambiarestado({ Ayuda: true, Menu: false }),
-    Heroebancopeso: Tienetecho ? Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 1000) : 0,
-    Heroepropiopeso: Tienetecho ? 1000 - Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 1000) : 0,
-    Heroepropiomillones: '$' + Formatomillones(Math.max(0, Calculo.Preciotecho - Calculo.Creditotecho)) + ' M',
-    Heroepropionota: (Tienetecho ? 100 - Math.round(Calculo.Creditotecho / Calculo.Preciotecho * 100) : 0) + '% · cuota inicial',
-    Heroesubsidiotexto: 'Tu subsidio ' + (Calculo.Subsidiomicasayasalarios ? 'de Caja y Mi Casa Ya' : 'de Caja') + ' cubre $' + Formatomillones(Subsidiousado) + ' M de esa cuota inicial.',
+    Heroebancopeso: Pesobanco,
+    Heroepropiopeso: Tienetecho ? 1000 - Pesobanco : 0,
+    Heroepropiomillones: '$' + Formatomillones(Calculo.Cuotainicialtecho) + ' M',
+    Heroepropionota: (Tienetecho ? Math.round(Calculo.Cuotainicialtecho / Calculo.Preciotecho * 100) : 0) + '% · cuota inicial',
+    Heroesubsidiotexto: 'Tu subsidio ' + Nombresubsidio + ' cubre $' + Formatomillones(Subsidiousado) + ' M de esa cuota inicial.',
     Ahorroporcentaje,
     Ahorroporcentajetexto: Ahorroporcentaje + '%',
     Ahorroancho: Ahorroporcentaje + '%',

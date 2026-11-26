@@ -111,7 +111,8 @@ class Aplicacionmitecho extends Componentebase {
       }
     }, 2000);
     const Auxiliar = this.Calcular().Preciotecho;
-    if (this.Pantallaanterior !== this.Pantalla) {
+    const Vistaactiva = this.Pantalla === 'app' && this.Pestana === 'inicio' && !this.Estadocomponente.Panel;
+    if (this.Pantallaanterior !== this.Pantalla || !Vistaactiva) {
       this.Pantallaanterior = this.Pantalla;
       cancelAnimationFrame(this.Cuadroanimacion);
       this.Metaanimacion = Auxiliar;

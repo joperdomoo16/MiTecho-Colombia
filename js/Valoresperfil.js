@@ -20,6 +20,8 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
   const Fijovalor = Estadoactual.Tipo === 'variable' ? 0 : (Estadoactual.Fijo || 0);
   const Variablevalor = Estadoactual.Tipo === 'fijo' ? 0 : (Estadoactual.Variable || 0);
   const Ingresomensual = Fijovalor + Variablevalor;
+  const Sumaextras = (Estadoactual.Ingresosfijosextra || []).reduce((Suma, Fila) => Suma + (Fila.Monto || 0), 0);
+  const Ingresototalresumen = Ingresomensual + Sumaextras;
   const Deudasactivas = (Estadoactual.Deudas || []).filter(Dato => Dato.Activa !== false);
   const Sumadeudas = Deudasactivas.reduce((Suma, Dato) => Suma + (Dato.Cuota || 0), 0);
 
@@ -27,7 +29,7 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
   const Faltantes = [];
   if ((Estadoactual.Nombre || '').trim()) Completos++; else Faltantes.push('tu nombre');
   if (Estadoactual.Edad >= 18) Completos++; else Faltantes.push('tu edad');
-  if (Ingresomensual > 0) Completos++; else Faltantes.push('tus ingresos');
+  if (Ingresototalresumen > 0) Completos++; else Faltantes.push('tus ingresos');
   if ((Estadoactual.Ahorro || 0) > 0 || (Estadoactual.Ahorromes || 0) > 0) Completos++; else Faltantes.push('tu ahorro');
   if (Estadoactual.Caja || Estadoactual.Sisben) Completos++; else Faltantes.push('tus datos de Caja y subsidios');
   const Avance = Math.round(Completos / 5 * 100);
@@ -51,8 +53,8 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
 
   const Datospersonales = [Estadoactual.Nombre ? Partes[0] : '', Estadoactual.Edad ? Estadoactual.Edad + ' años' : '', Estadoactual.Ciudad || 'Bogotá'].filter(Boolean).join(' · ');
   let Ingresotextoresumen = 'Sin registrar';
-  if (Ingresomensual > 0) {
-    Ingresotextoresumen = Formatoenteropesos(Ingresomensual) + ' al mes' + (Estadoactual.Tipo !== 'fijo' ? ' (promedio)' : '');
+  if (Ingresototalresumen > 0) {
+    Ingresotextoresumen = Formatoenteropesos(Ingresototalresumen) + ' al mes' + (Estadoactual.Tipo !== 'fijo' ? ' (promedio)' : '');
   }
   const Ahorroresumentexto = (Estadoactual.Ahorro || 0) > 0 || (Estadoactual.Ahorromes || 0) > 0
     ? Formatoenteropesos(Estadoactual.Ahorro || 0) + ' · ahorras ' + Formatoenteropesos(Estadoactual.Ahorromes || 0) + ' al mes'
@@ -78,6 +80,14 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
     ? Directoriociudades.filter(([Nombreciudad, Dato]) => Normalizartexto(Nombreciudad).includes(Busqueda) || Normalizartexto(Dato).includes(Busqueda))
     : Directoriociudades;
 
+  let Resumendeudas = 'Sin deudas registradas';
+  if (Deudasactivas.length > 0) {
+    const Etiquetadeuda = Deudasactivas.length === 1 ? ' deuda activa · ' : ' deudas activas · ';
+    Resumendeudas = Deudasactivas.length + Etiquetadeuda + Formatoenteropesos(Sumadeudas) + ' al mes';
+  } else if (Estadoactual.Deudas.length > 0) {
+    Resumendeudas = 'Todas marcadas como pagadas · $0 al mes';
+  }
+
   return {
     Esperfil: this.Pantalla === 'app' && Estadoactual.Panel === 'perfil',
     Esrecordatorio: this.Pantalla === 'app' && Estadoactual.Panel === 'rem',
@@ -99,7 +109,7 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
     Perfilresumenpersonales: Datospersonales,
     Perfilresumeningresos: Ingresotextoresumen,
     Perfilresumenahorro: Ahorroresumentexto,
-    Perfilresumendeudas: Estadoactual.Deudas.length ? Estadoactual.Deudas.length + (Estadoactual.Deudas.length === 1 ? ' deuda · ' : ' deudas · ') + Formatoenteropesos(Sumadeudas) + ' al mes' : 'Sin deudas registradas',
+    Perfilresumendeudas: Resumendeudas,
     Perfilresumencaja: Cajasubsidio,
     Perfilcajacompletar: !Estadoactual.Caja && !Estadoactual.Sisben,
     Abrirperfilpersonales: () => this.Cambiarestado({ Perfildato: 'personales', Ciudadabierta: false }),
@@ -157,14 +167,14 @@ function Generarvaloresperfil(Calculo, Fichaseleccion) {
     Perfiltipofichas: [['fijo', 'Salario fijo'], ['variable', 'Ingresos que cambian'], ['mixto', 'Las dos cosas']].map(([Clave, Etiquetatexto]) => ({
       Etiqueta: Etiquetatexto,
       ...Fichaseleccion(Estadoactual.Tipo === Clave),
-      Alclic: () => this.Cambiarestado({ Tipo: Clave, Usarautomatico: true })
+      Alclic: () => this.Cambiarestado({ Tipo: Clave, Fuenteingreso: 'perfil', Usarautomatico: true })
     })),
     Perfilmostrarfijo: Estadoactual.Tipo !== 'variable',
     Perfilmostrarvariable: Estadoactual.Tipo !== 'fijo',
     Perfilfijo: Estadoactual.Fijo ? Formatoenteropesos(Estadoactual.Fijo) : '',
-    Escribirperfilfijo: (Elemento) => this.Cambiarestado({ Fijo: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Usarautomatico: true }),
+    Escribirperfilfijo: (Elemento) => this.Cambiarestado({ Fijo: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Fuenteingreso: 'perfil', Usarautomatico: true }),
     Perfilvariable: Estadoactual.Variable ? Formatoenteropesos(Estadoactual.Variable) : '',
-    Escribirperfilvariable: (Elemento) => this.Cambiarestado({ Variable: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Usarautomatico: true }),
+    Escribirperfilvariable: (Elemento) => this.Cambiarestado({ Variable: Digitos(Elemento, Limitesfinancieros.Ingresomensual), Fuenteingreso: 'perfil', Usarautomatico: true }),
     Perfilingresototal: Formatoenteropesos(Ingresomensual),
     Perfilahorro: Estadoactual.Ahorro ? Formatoenteropesos(Estadoactual.Ahorro) : '',
     Escribirperfilahorro: (Elemento) => this.Cambiarestado({ Ahorro: Digitos(Elemento, Limitesfinancieros.Ahorro) }),
