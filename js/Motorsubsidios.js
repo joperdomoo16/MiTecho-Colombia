@@ -71,17 +71,18 @@ function Calcularsubsidioshogar(Estadoactual, Ingresototal, Egresocategoria, Egr
 
 // Aplica las mismas reglas del cierre financiero sobre la vivienda objetivo que definió la persona
 function Armarobjetivovivienda(Contexto, Objetivo, Techo) {
-  let Esnovis = Contexto.Modalidadelegida === 'novis' || Objetivo > Contexto.Topevis;
+  const Esleasing = Contexto.Modalidadelegida === 'leasing';
+  let Esnovis = !Esleasing && (Contexto.Modalidadelegida === 'novis' || Objetivo > Contexto.Topevis);
   if (Techo) Esnovis = Techo.Novis;
 
-  let Tasagastos = Contexto.Porcentajegastos;
+  let Tasagastos = Esleasing ? 0 : Contexto.Porcentajegastos;
   if (Esnovis && Modalidadesvivienda.novis.Gastos !== undefined) {
     Tasagastos = Modalidadesvivienda.novis.Gastos;
   }
 
   const Gastostotal = Math.round(Objetivo * Tasagastos);
-  const Gastospropios = Contexto.Financiargastos ? 0 : Gastostotal;
-  const Subsidios = Esnovis ? 0 : (Contexto.Subsidiocajamonto + Contexto.Subsidiomicasayamonto);
+  const Gastospropios = Contexto.Financiargastos || Esleasing ? 0 : Gastostotal;
+  const Subsidios = Esnovis || Esleasing ? 0 : (Contexto.Subsidiocajamonto + Contexto.Subsidiomicasayamonto);
   const Gastoscredito = Gastostotal - Gastospropios;
   const Porcentajefinanciacion = Esnovis ? Contexto.Financiacionnovis : Contexto.Financiacionvis;
   const Topebanco = Math.round(Objetivo * Porcentajefinanciacion);

@@ -141,7 +141,10 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
     };
   }
 
-  const Recursosvis = Ahorrobaseusuario + Subsidiocajamonto + Subsidiomicasayamonto;
+  const Esleasing = Modalidadelegida === 'leasing';
+  const Subsidiocajaefectivo = Esleasing ? 0 : Subsidiocajamonto;
+  const Subsidiomicasayaefectivo = Esleasing ? 0 : Subsidiomicasayamonto;
+  const Recursosvis = Ahorrobaseusuario + Subsidiocajaefectivo + Subsidiomicasayaefectivo;
   const Preciocapacidadvis = (Creditoporcapacidad + Recursosvis) / (1 + Porcentajegastos);
   const Preciogastosvis = !Financiargastos && Porcentajegastos > 0 ? Ahorrobaseusuario / Porcentajegastos : Infinity;
   const Divisorvis = Financiargastos ? (1 - Financiacionvis) : (1 - Financiacionvis + Porcentajegastos);
@@ -149,23 +152,23 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
   const Preciovisteorico = Math.min(Preciocapacidadvis, Preciorecursosvis);
 
   // Techo máximo respaldado por ingresos; si se financia la escrituración, esa suma entra en el cupo
-  const Gastosvis = Financiargastos ? Porcentajegastos : 0;
+  const Gastosvis = Financiargastos && !Esleasing ? Porcentajegastos : 0;
   const Gastosnovis = Financiargastos ? Gastosnovisbase : 0;
   const Cupovis = Creditoporcapacidad / (Financiacionvis + Gastosvis);
   const Esnovisexplicito = Modalidadmanual === 'novis' || (Modalidadelegida === 'novis' && !Modalidadmanual);
-  const Noviscupo = Esnovisexplicito || Cupovis > Topevis;
+  const Noviscupo = !Esleasing && (Esnovisexplicito || Cupovis > Topevis);
   const Preciocupo = Math.round(Noviscupo ? Creditoporcapacidad / (Financiacionnovis + Gastosnovis) : Cupovis);
-  const Gastoscupototal = Math.round(Preciocupo * (Noviscupo ? Gastosnovisbase : Porcentajegastos));
-  const Creditocupo = Math.min(Creditoporcapacidad - (Financiargastos ? Gastoscupototal : 0), Preciocupo);
+  const Gastoscupototal = Esleasing ? 0 : Math.round(Preciocupo * (Noviscupo ? Gastosnovisbase : Porcentajegastos));
+  const Creditocupo = Math.min(Creditoporcapacidad - (Financiargastos && !Esleasing ? Gastoscupototal : 0), Preciocupo);
   const Cuotainicialcupo = Math.max(0, Preciocupo - Creditocupo);
-  const Subsidiocupo = Noviscupo ? 0 : Math.min(Cuotainicialcupo, Subsidiocajamonto + Subsidiomicasayamonto);
-  const Gastoscupo = Financiargastos ? 0 : Gastoscupototal;
+  const Subsidiocupo = Noviscupo || Esleasing ? 0 : Math.min(Cuotainicialcupo, Subsidiocajaefectivo + Subsidiomicasayaefectivo);
+  const Gastoscupo = Financiargastos || Esleasing ? 0 : Gastoscupototal;
   const Faltacupo = Math.max(0, Cuotainicialcupo + Gastoscupo - Ahorrobaseusuario - Subsidiocupo);
 
   let Modalidad = 'VIS';
   let Modalidadfinal = 'vis';
-  let Subsidiocajaaplicado = Subsidiocajamonto;
-  let Subsidiomicasayaaplicado = Subsidiomicasayamonto;
+  let Subsidiocajaaplicado = Subsidiocajaefectivo;
+  let Subsidiomicasayaaplicado = Subsidiomicasayaefectivo;
   let Recursospropios = Recursosvis;
   let Financiacionmaxima = Financiacionvis;
   let Preciomax = 0;
@@ -177,7 +180,22 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
   const Preciorecursosnovis = Ahorrobaseusuario / Divisornovis;
   const Precionovisteorico = Math.min(Preciocapacidadnovis, Preciorecursosnovis);
 
-  if (Esnovisexplicito || (Preciovisteorico > Topevis && Precionovisteorico > Topevis)) {
+  if (Esleasing) {
+    Modalidad = 'LEASING';
+    Modalidadfinal = 'leasing';
+    Subsidiocajaaplicado = 0;
+    Subsidiomicasayaaplicado = 0;
+    Recursospropios = Ahorrobaseusuario;
+    Financiacionmaxima = Financiacionvis;
+    Preciomax = Math.round(Preciovisteorico);
+    if (Preciorecursosvis < Preciocapacidadvis) {
+      Limitante = 'recursos_propios';
+      Estado = 'falta_cuota_inicial';
+    } else {
+      Limitante = 'capacidad_pago';
+      Estado = 'cierre_completo';
+    }
+  } else if (Esnovisexplicito || (Preciovisteorico > Topevis && Precionovisteorico > Topevis)) {
     Modalidad = 'NO_VIS';
     Modalidadfinal = 'novis';
     Subsidiocajaaplicado = 0;
@@ -238,12 +256,12 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
   const Contecho = Limitante === 'recursos_propios';
   const Preciotecho = Contecho ? Preciocupo : Preciomax;
   let Creditotecho = Credito;
-  if (Contecho) Creditotecho = Creditocupo + (Financiargastos ? Gastoscupototal : 0);
+  if (Contecho) Creditotecho = Creditocupo + (Financiargastos && !Esleasing ? Gastoscupototal : 0);
   const Cuotatecho = Math.round(Creditotecho * (1 - Opcioncompra * Valorn) / Anualidad.Factoranualidad);
-  const Techosobretopevis = Modalidadelegida !== 'novis' && (Contecho ? Noviscupo : Modalidadfinal === 'novis');
+  const Techosobretopevis = !Esleasing && Modalidadelegida !== 'novis' && (Contecho ? Noviscupo : Modalidadfinal === 'novis');
 
-  let Gastostechopropios = Math.max(0, Gastos - (Financiargastos ? Credito - (Preciomax - Cuotainicial) : 0));
-  if (Contecho) Gastostechopropios = Financiargastos ? 0 : Gastoscupototal;
+  let Gastostechopropios = Math.max(0, Gastos - (Financiargastos && !Esleasing ? Credito - (Preciomax - Cuotainicial) : 0));
+  if (Contecho) Gastostechopropios = Financiargastos || Esleasing ? 0 : Gastoscupototal;
 
   const Techo = {
     Novis: Modalidadfinal === 'novis' || Techosobretopevis,
@@ -335,8 +353,8 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
     Sensibilidad: 100000 * Tope * Factor / Financiacionmaxima,
     Sensibilidadcredito: 100000 * Tope * Factor,
     Financiargastos,
-    Gastosfinanciados: Financiargastos ? Gastos : 0,
-    Proyeccionuvr: Calcularproyeccionuvr(Creditoporcapacidad || Credito, Estadoactual.Plazomesesfijo || (Plazoanios * 12), Estadoactual.Tasatipo === 'uvr' ? Tasaanual : 0.075),
+    Gastosfinanciados: Financiargastos && !Esleasing ? Gastos : 0,
+    Proyeccionuvr: Calcularproyeccionuvr(Creditotecho || Creditoporcapacidad, Estadoactual.Plazomesesfijo || (Plazoanios * 12), Usaruvr ? Tasaanual : Margenuvr),
     N,
     Historial,
     Variablepromedio,
