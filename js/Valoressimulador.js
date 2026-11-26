@@ -280,6 +280,55 @@ function Valoresresultadosimulador(Calculo, Seleccion, Fuenteactual, Alternarpar
   if (Esleasing) Simmonedachip = 'Leasing habitacional';
   else if (Esuvr) Simmonedachip = 'Crédito en UVR';
 
+  // Compara el cierre sin y con financiación de escrituración para mostrar el efecto real en pesos
+  let Sinfinanciargastos = Calculo;
+  let Confinanciargastos = Calculo;
+  if (!Esleasing) {
+    if (Estadoactual.Financiargastos) {
+      Sinfinanciargastos = this.Calcular({ ...Estadoactual, Financiargastos: false });
+    } else {
+      Confinanciargastos = this.Calcular({ ...Estadoactual, Financiargastos: true });
+    }
+  }
+  const Deltaprecio = Confinanciargastos.Preciotecho - Sinfinanciargastos.Preciotecho;
+  const Deltacredito = Confinanciargastos.Creditotecho - Sinfinanciargastos.Creditotecho;
+  const Deltacuota = Confinanciargastos.Cuotatecho - Sinfinanciargastos.Cuotatecho;
+  const Deltafalta = Confinanciargastos.Faltatecho - Sinfinanciargastos.Faltatecho;
+  const Deltapreciohoy = Confinanciargastos.Preciohoy - Sinfinanciargastos.Preciohoy;
+  const Ahorroliberado = Math.max(0, Sinfinanciargastos.Faltatecho - Confinanciargastos.Faltatecho, Confinanciargastos.Margendespuescierre - Sinfinanciargastos.Margendespuescierre);
+
+  let Financiargastosnota = 'La Ley 2434 de 2024 permite incluir notaría y registro dentro del préstamo hipotecario.';
+  if (Deltacuota > 0) {
+    Financiargastosnota = 'La Ley 2434 de 2024 lo permite. Necesitas ' + Formatoenteropesos(Ahorroliberado) + ' menos de ahorro, y la cuota sube ' + Formatoenteropesos(Deltacuota) + ' al mes.';
+  } else if (Deltaprecio < 0) {
+    Financiargastosnota = 'La Ley 2434 de 2024 lo permite. Como tu cuota ya está en el tope, no sube: te falta ' + Formatoenteropesos(Math.abs(Deltafalta)) + ' menos de ahorro y el precio máximo baja ' + Formatoenteropesos(Math.abs(Deltaprecio)) + '.';
+  }
+
+  const Financiargastosfilas = [];
+  if (!Esleasing && Estadoactual.Financiargastos) {
+    if (Deltacredito > 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Préstamo del banco', Valorfila: '+' + Formatoenteropesos(Deltacredito), Clase: '' });
+    } else {
+      Financiargastosfilas.push({ Etiqueta: 'Préstamo del banco', Valorfila: 'Sin cambio (en tu tope)', Clase: '' });
+    }
+    if (Deltacuota > 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Cuota mensual', Valorfila: '+' + Formatoenteropesos(Deltacuota) + '/mes', Clase: '' });
+    } else {
+      Financiargastosfilas.push({ Etiqueta: 'Cuota mensual', Valorfila: 'Sin cambio', Clase: '' });
+    }
+    if (Deltafalta < 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Ahorro que te falta', Valorfila: '− ' + Formatoenteropesos(Math.abs(Deltafalta)), Clase: 'is-mejora' });
+    } else if (Ahorroliberado > 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Ahorro que conservas', Valorfila: '+' + Formatoenteropesos(Ahorroliberado), Clase: 'is-mejora' });
+    }
+    if (Deltaprecio < 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Precio máximo de vivienda', Valorfila: '− ' + Formatoenteropesos(Math.abs(Deltaprecio)), Clase: '' });
+    }
+    if (Deltapreciohoy > 0) {
+      Financiargastosfilas.push({ Etiqueta: 'Vivienda que cierras hoy', Valorfila: '+' + Formatoenteropesos(Deltapreciohoy), Clase: 'is-mejora' });
+    }
+  }
+
   return {
     Simquien: [[false, 'Solo yo'], [true, 'Con alguien más']].map(([Valor, Etiqueta]) => ({
       Etiqueta,
@@ -303,6 +352,10 @@ function Valoresresultadosimulador(Calculo, Seleccion, Fuenteactual, Alternarpar
     Abrirtasassimulador: () => this.Cambiarestado({ Panel: 'tasas' }),
     Simfaltarotulo: Calculo.Faltatecho > 0 ? 'Te falta' : 'Cuota inicial cubierta',
     Simfaltaclase: Calculo.Faltatecho > 0 ? 'is-alerta' : '',
+    Mostrarfinanciargastos: !Esleasing,
+    Financiargastosnota,
+    Financiargastosimpacto: !Esleasing && Estadoactual.Financiargastos && Financiargastosfilas.length > 0,
+    Financiargastosfilas,
     Financiargastosclase: Estadoactual.Financiargastos ? 'is-activo' : '',
     Simpdfvisible: !Estadoactual.Desbloqueadopdf,
     Simpdfnota: 'Gratis: antes verás ' + (Faltanpdf === 1 ? '1 video corto.' : Faltanpdf + ' videos cortos.')

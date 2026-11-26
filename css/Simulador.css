@@ -59,17 +59,24 @@
 .sim-cuota { margin:0 0 6px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
 .sim-cuota-cifra { font:700 34px/1 'Familjen Grotesk',sans-serif; letter-spacing:-.02em; color:var(--ink); }
 .sim-cuota-plazo { font:500 15px 'Hanken Grotesk',sans-serif; color:var(--mu); }
-.sim-fila { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--ln); font:500 15px/1.3 'Hanken Grotesk',sans-serif; color:var(--ink); }
-.sim-fila-textos { display:flex; flex-direction:column; gap:2px; text-align:left; }
-.sim-fila-valor { font:700 15px/1.3 'Familjen Grotesk',sans-serif; white-space:nowrap; }
-.sim-falta { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:12px 0 4px; }
-.sim-falta-rotulo { font:700 17px 'Familjen Grotesk',sans-serif; color:var(--ink); }
-.sim-falta-valor { font:700 22px 'Familjen Grotesk',sans-serif; color:var(--at); white-space:nowrap; }
+.sim-fila { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; width:100%; min-width:0; box-sizing:border-box; padding:10px 0; border-bottom:1px solid var(--ln); font:500 15px/1.3 'Hanken Grotesk',sans-serif; color:var(--ink); }
+.sim-fila > span:first-child, .sim-fila-textos { flex:1 1 auto; min-width:0; }
+.sim-fila-textos { display:flex; flex-direction:column; gap:2px; text-align:left; overflow-wrap:break-word; }
+.sim-fila-valor { flex:0 0 auto; font:700 15px/1.3 'Familjen Grotesk',sans-serif; white-space:nowrap; text-align:right; }
+.sim-falta { display:flex; justify-content:space-between; align-items:baseline; gap:12px; width:100%; min-width:0; box-sizing:border-box; padding:12px 0 4px; }
+.sim-falta-rotulo { flex:1 1 auto; min-width:0; font:700 17px 'Familjen Grotesk',sans-serif; color:var(--ink); }
+.sim-falta-valor { flex:0 0 auto; font:700 22px 'Familjen Grotesk',sans-serif; color:var(--at); white-space:nowrap; text-align:right; }
 .sim-falta-valor.is-alerta { color:var(--warn-t); }
 .sim-candado { display:flex; flex-direction:column; gap:10px; padding:14px 0 6px; }
 .sim-uvr { display:flex; flex-direction:column; }
 .sim-detalle .sim-grupo { padding-top:12px; }
 .sim-detalle .interruptor-fila { margin-top:8px; padding-top:10px; border-top:1px solid var(--ln); }
+.sim-gastos-impacto { margin-top:8px; padding:10px 12px; border-radius:14px; background:var(--sf2); border:1px solid var(--ln); display:flex; flex-direction:column; gap:6px; }
+.sim-gastos-impacto-titulo { font:700 13px/1.3 'Familjen Grotesk',sans-serif; color:var(--ink); }
+.sim-gastos-impacto-fila { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font:500 13px/1.35 'Hanken Grotesk',sans-serif; color:var(--mu); }
+.sim-gastos-impacto-fila > span:first-child { flex:1 1 auto; min-width:0; }
+.sim-gastos-impacto-valor { flex:0 0 auto; font:700 13px/1.3 'Familjen Grotesk',sans-serif; color:var(--ink); white-space:nowrap; text-align:right; }
+.sim-gastos-impacto-valor.is-mejora { color:var(--at); }
 .sim-detalle .enlace { margin-top:6px; }
 .sim-aviso { margin:0; }
 .sim-botones { display:flex; flex-direction:column; gap:8px; }

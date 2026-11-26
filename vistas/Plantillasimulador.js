@@ -63,8 +63,12 @@ const Plantillasimulador = `
                 <label class="sim-campo"><span class="sim-campo-rotulo">Su ahorro y cesantías</span><input class="sim-campo-entrada" maxlength="15" value="{{ Parejaahorrotexto }}" al-escribir="{{ Escribirparejaahorro }}" inputMode="numeric" placeholder="$0"></label>
                 <label class="sim-campo"><span class="sim-campo-rotulo">Su actividad</span><input class="sim-campo-entrada" maxlength="60" value="{{ Parejaactividadcampo }}" al-escribir="{{ Escribirparejaactividad }}" placeholder="Ej: Empleada"></label>
               </div>
-              <div class="sim-fila-total"><span class="texto-pequeno">Solo tú: {{ Parejasolomillones }}</span><span class="sim-total">Juntos: {{ Parejajuntosmillones }}</span></div>
-              <mt-if value="{{ Parejasubsidioaviso }}"><p class="texto-pequeno texto-tinta">{{ Parejasubsidiomensaje }}</p></mt-if>
+              <mt-if value="{{ Parejacondatos }}">
+                <div class="sim-fila-total"><span class="texto-pequeno">Solo tú: {{ Parejasolomillones }}</span><span class="sim-total">Juntos: {{ Parejajuntosmillones }}</span></div>
+                <mt-if value="{{ Parejasubsidioaviso }}"><p class="texto-pequeno texto-tinta">{{ Parejasubsidiomensaje }}</p></mt-if>
+              </mt-if>
+              <mt-if value="{{ Parejasindatos }}"><p class="texto-pequeno">Escribe al menos el ingreso o el ahorro de la otra persona para calcular juntos.</p></mt-if>
+              <button type="button" class="boton-secundario" al-clic="{{ Eliminarpareja }}">Quitar y borrar estos datos</button>
             </mt-if>
             <mt-if value="{{ Parejainactiva }}"><p class="texto-pequeno">Con tu pareja o un familiar pueden pedir el crédito juntos y sumar ingresos.</p></mt-if>
           </section>
@@ -124,7 +128,15 @@ const Plantillasimulador = `
             <mt-if value="{{ Esleasing }}"><div class="sim-fila"><span>Opción de compra al final ({{ Opcioncompraporcentaje }})</span><span class="sim-fila-valor">{{ Opcioncompratexto }}</span></div></mt-if>
             <p class="texto-pequeno">A esto los bancos le llaman <b class="texto-tinta">cierre financiero</b>.</p>
             <mt-if value="{{ Limiteahorro }}"><p class="texto-pequeno">Con lo que tienes hoy cierras hasta <b class="texto-tinta">{{ Preciohoymillones }}</b>.</p></mt-if>
-            <button type="button" class="interruptor-fila" al-clic="{{ Alternarfinanciargastos }}" aria-pressed="{{ Financiargastosactivo }}"><span class="sim-fila-textos"><span>Sumar la notaría y el registro al préstamo</span><span class="texto-pequeno">La Ley 2434 de 2024 lo permite. Necesitas menos ahorro, aunque la cuota sube un poco.</span></span><span class="interruptor {{ Financiargastosclase }}" aria-hidden="true"></span></button>
+            <mt-if value="{{ Mostrarfinanciargastos }}">
+              <button type="button" class="interruptor-fila" al-clic="{{ Alternarfinanciargastos }}" aria-pressed="{{ Financiargastosactivo }}"><span class="sim-fila-textos"><span>Sumar la notaría y el registro al préstamo</span><span class="texto-pequeno">{{ Financiargastosnota }}</span></span><span class="interruptor {{ Financiargastosclase }}" aria-hidden="true"></span></button>
+              <mt-if value="{{ Financiargastosimpacto }}">
+                <div class="sim-gastos-impacto" role="status" aria-live="polite">
+                  <span class="sim-gastos-impacto-titulo">Efecto frente a pagar notaría con ahorro</span>
+                  <mt-for list="{{ Financiargastosfilas }}" as="Fila"><div class="sim-gastos-impacto-fila"><span>{{ Fila.Etiqueta }}</span><span class="sim-gastos-impacto-valor {{ Fila.Clase }}">{{ Fila.Valorfila }}</span></div></mt-for>
+                </div>
+              </mt-if>
+            </mt-if>
           </section>
 
           <p class="texto-pequeno sim-aviso">Es un estimado con las reglas de la Superintendencia Financiera. La aprobación final depende del estudio de crédito del banco.</p>
