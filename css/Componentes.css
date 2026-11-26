@@ -15,7 +15,7 @@
 .heroe, .tarjeta, .heroe-parte, .tarjeta-fila, .sim-detalle, .plan-cifra, .subsidios-heroe { min-width: 0; max-width: 100%; box-sizing: border-box; }
 .heroe-cifra, .mov-cifra, .sim-cuota-cifra, .sim-ingreso-cifra, .plan-cifra-valor, .deudas-heroe-cifra, .tarjeta-cifra,
 .sim-total, .sim-fila-valor, .sim-falta-valor, .mov-fila-monto, .mov-parte-valor, .proyecto-precio, .bancos-cuota-valor, .meta-cifra { max-width: 100%; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
-.sim-total, .sim-fila-valor, .mov-fila-monto, .proyecto-precio, .bancos-cuota-valor { white-space: normal; text-align: right; }
+.sim-total, .mov-fila-monto, .proyecto-precio, .bancos-cuota-valor { white-space: normal; text-align: right; }
 .m75, .m3l { overflow-x: hidden; }
 
 /* Tarjetas */
@@ -60,7 +60,7 @@
 .hoja-velo { position:absolute; inset:0; background:var(--scrim); border:0; padding:0; cursor:pointer; }
 .hoja-velo::before { display:none; }
 .hoja { position:relative; width:100%; background:var(--sf); border-radius:28px 28px 0 0; border-top:1px solid var(--ln); padding:10px 20px 34px; display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow); max-height:92dvh; overflow-y:auto; box-sizing:border-box; animation:hoja-subir .22s ease-out; }
-.hoja-manija { width:40px; height:5px; border-radius:3px; background:var(--trk); align-self:center; flex:none; }
+.hoja-manija { width:40px; height:5px; border-radius:3px; background:var(--trk); align-self:center; flex:none; touch-action:none; }
 .hoja-cabecera { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .hoja-titulo { margin:0; font:700 21px/1.25 'Familjen Grotesk',sans-serif; letter-spacing:-.01em; color:var(--ink); }
 .hoja-cerrar { width:44px; height:44px; margin:-6px -10px 0 0; border:0; border-radius:22px; background:transparent; color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
@@ -106,7 +106,7 @@
 .pestana-registrar { justify-content:flex-end; }
 .pestana-mas { width:52px; height:52px; margin-top:-26px; border-radius:26px; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); }
 .pestana:focus-visible { outline:2px solid var(--at); outline-offset:-2px; border-radius:14px; }
-.barra-anuncio { height:var(--alto-anuncio, 0px); }
+.barra-anuncio { height:var(--alto-banner, var(--alto-anuncio, 0px)); }
 .con-anuncio .barra-anuncio { border-top:1px solid var(--ln); }
 
 @keyframes hoja-subir { from { transform:translateY(24px); opacity:0; } to { transform:none; opacity:1; } }

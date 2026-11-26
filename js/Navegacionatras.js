@@ -77,7 +77,10 @@ function Volverlugaranterior() {
 function Manejaratras() {
   const Estado = this.Estadocomponente;
 
-  // Cierra primero las hojas y ventanas abiertas encima de la pantalla actual
+  // Cierra primero el visor de PDF o las hojas abiertas encima de la pantalla actual
+  if (typeof Cerrarvisorcertificado === 'function' && Cerrarvisorcertificado()) {
+    return;
+  }
   if (Estado.Vinculacionpendiente) {
     Cancelarvinculacioninvitado.call(this);
     return;

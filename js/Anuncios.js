@@ -22,10 +22,11 @@ function Pluginanuncios() {
   return Esnativo && Capacitor.Plugins && Capacitor.Plugins.AdMob ? Capacitor.Plugins.AdMob : null;
 }
 
-// La altura del banner sube la barra de navegación para que no quede tapada; la clase dibuja la línea que los separa
+// La altura del banner sube la barra de navegación y las hojas para que nada quede tapado
 function Fijaralturaanuncio(Alto) {
   const Valor = Math.max(0, Math.round(Alto || 0));
   document.documentElement.style.setProperty('--alto-anuncio', Valor + 'px');
+  document.documentElement.style.setProperty('--alto-banner', Valor + 'px');
   document.documentElement.classList.toggle('con-anuncio', Valor > 0);
 }
 

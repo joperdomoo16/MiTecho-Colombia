@@ -67,6 +67,7 @@ class Aplicacionmitecho extends Componentebase {
     this.Reiniciarbarras();
     this.Sincronizarcuenta();
     Conectarnotificacionesandroid(this, Guardado);
+    if (typeof Conectararrastrehojas === 'function') Conectararrastrehojas(this);
     if (typeof Cargartasasmercado === 'function') {
       Cargartasasmercado().then(Cambio => Cambio && this.Cambiarestado({ Tasasactualizadas: Date.now() })).catch(() => null);
     }
@@ -87,7 +88,11 @@ class Aplicacionmitecho extends Componentebase {
     if (typeof Sincronizarbanner !== 'function') return;
     const Estado = this.Estadocomponente;
     const Autorizado = typeof Versionpolitica === 'undefined' || Estado.Autorizacionversion === Versionpolitica;
-    const Ventanaencima = Boolean(Estado.Hoja || Estado.Soporteabierto || Estado.Eliminacionabierta || Estado.Menu || Estado.Tipoviviendaabierto || Estado.Calculoabierto || Estado.Vinculacionpendiente);
+    const Ventanaencima = Boolean(
+      Estado.Hoja || Estado.Soporteabierto || Estado.Eliminacionabierta || Estado.Menu ||
+      Estado.Tipoviviendaabierto || Estado.Calculoabierto || Estado.Vinculacionpendiente ||
+      Estado.Perfildato || Estado.Avisoinvitado
+    );
     const Modoventana = Ventanaencima ? 'reservar' : 'ver';
     Sincronizarbanner(Boolean(Estado.Ingresado && this.Pantalla === 'app' && !Estado.Pro && Autorizado && Estado.Tutorialvisto && !Recorridoactual(this)) ? Modoventana : 'nada');
   }

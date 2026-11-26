@@ -34,7 +34,7 @@ html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: 
     --sat-eff: max(var(--sat, 0px), env(safe-area-inset-top, 0px));
     --sab-base: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px));
     /* Si hay un anuncio abajo, todo lo que va pegado al borde inferior sube su altura */
-    --sab-eff: calc(var(--sab-base) + var(--alto-anuncio, 0px));
+    --sab-eff: calc(var(--sab-base) + var(--alto-banner, var(--alto-anuncio, 0px)));
     --sal-eff: max(var(--sal, 0px), env(safe-area-inset-left, 0px));
     --sar-eff: max(var(--sar, 0px), env(safe-area-inset-right, 0px));
   }
@@ -79,8 +79,8 @@ html, body, .m1, .m1 *, #mt-pdf-viewer, #mt-pdf-viewer * { -webkit-user-select: 
   .barra-inferior { padding-bottom: var(--sab-base); }
   /* Con anuncio, una línea y más aire lo separan de la barra de pestañas para evitar toques por error */
   .con-anuncio .m3::after { border-top: 1px solid var(--ln); }
-  /* Con una hoja abierta el banner se oculta, así que la hoja solo respeta la barra del celular */
-  .mt-sheet { padding: 10px max(18px, calc(var(--sar-eff) + 18px)) calc(var(--sab-base) + 20px) max(18px, calc(var(--sal-eff) + 18px)) !important; max-height: 88dvh !important; overflow-y: auto !important; box-sizing: border-box !important; max-width: 600px !important; margin: 0 auto !important; }
+  /* Toda hoja inferior deja margen para el banner y la barra del celular, así el botón principal nunca queda tapado */
+  .mt-sheet { padding: 10px max(18px, calc(var(--sar-eff) + 18px)) calc(var(--sab-eff) + 20px) max(18px, calc(var(--sal-eff) + 18px)) !important; max-height: 88dvh !important; overflow-y: auto !important; box-sizing: border-box !important; max-width: 600px !important; margin: 0 auto !important; }
   /* Las hojas nuevas llevan 20 px a los lados, como en el diseño */
   .hoja.mt-sheet { padding-left: max(20px, calc(var(--sal-eff) + 20px)) !important; padding-right: max(20px, calc(var(--sar-eff) + 20px)) !important; }
 }
