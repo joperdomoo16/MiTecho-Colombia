@@ -12,18 +12,21 @@ function Generarvaloressubsidios(Calculo) {
     return { Infoentidad: { ...(Previo.Infoentidad || {}), caja: Siguiente } };
   });
 
-  const Salarios = Calculo.Salariosminimos;
+  const Ingresototal = Calculo.Ingresototal || 0;
   const Dos = 2 * Salariominimo;
   const Cuatro = 4 * Salariominimo;
+  const Menorados = Ingresototal <= Dos;
+  const Menoracuatro = Ingresototal <= Cuatro;
+  const Sobretopecuatro = Ingresototal > Cuatro;
   let Potencial = 0;
-  if (Salarios <= 2) Potencial = 30 * Salariominimo;
-  else if (Salarios <= 4) Potencial = 20 * Salariominimo;
+  if (Menorados) Potencial = 30 * Salariominimo;
+  else if (Menoracuatro) Potencial = 20 * Salariominimo;
 
   const Montoheroe = Calculo.Subsidio > 0 ? Calculo.Subsidio : Potencial;
 
   let Heroerotulo = 'Con los ingresos de tu hogar podrías postularte a un subsidio de hasta';
   let Heroenota = 'Se suma a tu cuota inicial para comprar vivienda VIS.';
-  if (Salarios > 4) {
+  if (Sobretopecuatro) {
     Heroerotulo = 'Tu hogar supera el tope de 4 salarios mínimos';
     Heroenota = 'Los subsidios de Caja aplican hasta ' + Formatoenteropesos(Cuatro) + ' al mes.';
   } else if (Calculo.Subsidio > 0) {
@@ -43,7 +46,9 @@ function Generarvaloressubsidios(Calculo) {
     }
   }
 
-  const Esvis = Calculo.Preciotecho > 0 && !Calculo.Techosobretopevis;
+  const Esleasing = Estadoactual.Modalidadelegida === 'leasing';
+  const Esnovisexplicito = Estadoactual.Modalidadelegida === 'novis';
+  const Esvis = Calculo.Preciotecho > 0 && !Esleasing && !Esnovisexplicito && !Calculo.Techosobretopevis;
   const Vigencia = Mesesvigencia(Caja.Vencesubsidio);
   let Vigilabel = '';
   let Vigiaclase = '';
@@ -60,7 +65,11 @@ function Generarvaloressubsidios(Calculo) {
   }
 
   let Notavis = 'Completa tus ingresos para revisar el tope VIS.';
-  if (Calculo.Preciotecho > 0) {
+  if (Esleasing) {
+    Notavis = 'Elegiste leasing habitacional: en esta modalidad no sumamos subsidio de vivienda.';
+  } else if (Esnovisexplicito) {
+    Notavis = 'Elegiste vivienda No VIS: los subsidios aplican solo a vivienda VIS.';
+  } else if (Calculo.Preciotecho > 0) {
     if (Esvis) {
       Notavis = 'Tu presupuesto ($' + Formatomillones(Calculo.Preciotecho) + ' M) es VIS.';
     } else {
@@ -92,17 +101,17 @@ function Generarvaloressubsidios(Calculo) {
     Subsidiosheroenota: Heroenota,
     Subsidiotramounorango: 'Hasta ' + Formatoenteropesos(Dos) + ' al mes',
     Subsidiotramounomonto: Formatoenteropesos(30 * Salariominimo),
-    Subsidiotramounohogar: Salarios <= 2,
-    Subsidiotramounoclase: Salarios <= 2 ? 'is-hogar' : '',
+    Subsidiotramounohogar: Menorados,
+    Subsidiotramounoclase: Menorados ? 'is-hogar' : '',
     Subsidiotramodosrango: 'De ' + Formatoenteropesos(Dos + 1) + ' a ' + Formatoenteropesos(Cuatro),
     Subsidiotramodosmonto: Formatoenteropesos(20 * Salariominimo),
-    Subsidiotramodoshogar: Salarios > 2 && Salarios <= 4,
-    Subsidiotramodosclase: Salarios > 2 && Salarios <= 4 ? 'is-hogar' : '',
+    Subsidiotramodoshogar: !Menorados && Menoracuatro,
+    Subsidiotramodosclase: !Menorados && Menoracuatro ? 'is-hogar' : '',
     Subsidiotramotresrango: 'Más de ' + Formatoenteropesos(Cuatro),
-    Subsidiotramotreshogar: Salarios > 4,
-    Subsidiotramotresclase: Salarios > 4 ? 'is-hogar' : '',
-    Subsidiosingresook: Salarios <= 4,
-    Subsidiosingresono: Salarios > 4,
+    Subsidiotramotreshogar: Sobretopecuatro,
+    Subsidiotramotresclase: Sobretopecuatro ? 'is-hogar' : '',
+    Subsidiosingresook: Menoracuatro,
+    Subsidiosingresono: Sobretopecuatro,
     Subsidiosingresotope: Formatoenteropesos(Cuatro),
     Subsidiosingresohogar: Formatoenteropesos(Calculo.Ingresototal),
     Subsidiosvisok: Esvis,

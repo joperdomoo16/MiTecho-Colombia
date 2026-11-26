@@ -23,8 +23,12 @@ function Generarvaloresviviendas(Calculo) {
     const Financiacion = Modalidadesvivienda[Modalidadproyecto].Financiacion;
     const Cupo = Modalidadproyecto === 'vis' ? Math.min(Calculoproyecto.Preciotecho, Calculoproyecto.Topevis) : Calculoproyecto.Preciotecho;
     const Bancoaprueba = Proyecto.Precioproyecto <= Cupo + 1;
-    const Gastosproyecto = Estadoactual.Financiargastos ? 0 : Proyecto.Precioproyecto * (Modalidadesvivienda[Modalidadproyecto].Gastos ?? 0.03);
-    const Creditoproyecto = Math.min(Calculoproyecto.Creditoporcapacidad, Proyecto.Precioproyecto * Financiacion);
+    const Gastostotalproyecto = Math.round(Proyecto.Precioproyecto * (Modalidadesvivienda[Modalidadproyecto].Gastos ?? 0.03));
+    const Gastosproyecto = Estadoactual.Financiargastos ? 0 : Gastostotalproyecto;
+    const Cupocreditovivienda = Estadoactual.Financiargastos
+      ? Math.max(0, Calculoproyecto.Creditoporcapacidad - Gastostotalproyecto)
+      : Calculoproyecto.Creditoporcapacidad;
+    const Creditoproyecto = Math.min(Cupocreditovivienda, Math.round(Proyecto.Precioproyecto * Financiacion));
     const Cuotainicialproyecto = Math.max(0, Proyecto.Precioproyecto - Creditoproyecto);
     const Subsidioproyecto = Modalidadproyecto === 'novis' ? 0 : Math.min(Cuotainicialproyecto, (Calculoproyecto.Subsidiocajamonto || 0) + (Calculoproyecto.Subsidiomicasayamonto || 0));
     const Faltaproyecto = Math.max(0, Cuotainicialproyecto + Gastosproyecto - Subsidioproyecto - Calculoproyecto.Ahorrohogar);

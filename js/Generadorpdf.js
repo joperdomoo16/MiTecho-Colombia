@@ -60,8 +60,8 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
   const Ahorrotitular = (Estadoactual.Ahorro || 0) + Ahorroentidad;
   const Ahorropareja = Espareja ? (Estadoactual.Parejaahorro || 0) : 0;
 
-  const Porcentajecredito = Calculo.Financiacionporcentaje > 0 ? Calculo.Financiacionporcentaje : 80;
-  const Porcentajecuotainicial = Number((100 - Porcentajecredito).toFixed(1));
+  const Porcentajecuotainicial = Calculo.Precio > 0 ? Number(((Calculo.Cuotainicial / Calculo.Precio) * 100).toFixed(1)) : 20;
+  const Porcentajecredito = Calculo.Precio > 0 ? Number((100 - Porcentajecuotainicial).toFixed(1)) : 80;
   const Anchocredito = Math.round(720 * (Porcentajecredito / 100));
   const Anchocuotainicial = 720 - Anchocredito;
 

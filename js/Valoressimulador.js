@@ -22,6 +22,12 @@ function Armarmensajesubsidiosimulador(Estadoactual, Calculo) {
 function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaseleccion) {
   const Estadoactual = this.Estadocomponente;
   const Fuenteactual = Estadoactual.Fuenteingreso || (Estadoactual.Usarautomatico ? 'promedio' : 'manual');
+  const Financiacionactiva = Calculo.Techosobretopevis
+    ? Modalidadesvivienda.novis.Financiacion
+    : (Calculo.Financiacion || Configuracion.Financiacion);
+  const Ingresototal = Calculo.Ingresototal || 0;
+  const Dosminimos = 2 * Salariominimo;
+  const Cuatrominimos = 4 * Salariominimo;
   const Deudafichas = Estadoactual.Deudas.map(Dato => ({
     Etiqueta: Dato.Corto + ' ' + Formatoenteropesos(Dato.Cuota),
     Activa: Boolean(Dato.Activa),
@@ -42,7 +48,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
   }));
   const Cuota = Calculo.Cuotatecho;
   const Formactual = Estadoactual.Formulario;
-  const Formularioganancia = Formactual.Monto / Calculo.N * Calculo.Tope * Calculo.Factor / Configuracion.Financiacion;
+  const Formularioganancia = Formactual.Monto / Calculo.N * Calculo.Tope * Calculo.Factor / Financiacionactiva;
 
   const Alternarpareja = async () => {
     if (!Estadoactual.Desbloqueadopareja) {
@@ -59,11 +65,10 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     this.Cambiarestado({ Pareja: !Estadoactual.Pareja });
   };
 
-  const Salariosminimos = Calculo.Salariosminimos;
   let Potencialsalarios = 0;
   if (!Estadoactual.Caja) {
-    if (Salariosminimos <= 2) Potencialsalarios = 30;
-    else if (Salariosminimos <= 4) Potencialsalarios = 20;
+    if (Ingresototal <= Dosminimos) Potencialsalarios = 30;
+    else if (Ingresototal <= Cuatrominimos) Potencialsalarios = 20;
   }
   const Subsidiosalarios = Calculo.Subsidiocajasalarios + Calculo.Subsidiomicasayasalarios;
 
@@ -78,14 +83,15 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     } else {
       Perfilsubsidiomensaje = 'No estás afiliado. Con tus ingresos tampoco aplicarías a subsidio de Caja.';
     }
-  } else if (Salariosminimos > 4) {
+  } else if (Ingresototal > Cuatrominimos) {
     Perfilsubsidiomensaje = 'Con ingresos mayores a 4 SMMLV no aplicas a subsidio de Caja.';
   }
 
   const Cajalista = Subsidiosalarios > 0;
   const Subsidiocajausado = Calculo.Techosobretopevis ? 0 : Math.min(Calculo.Subsidiocajamonto, Calculo.Subsidiotecho);
   const Subsidiomicasayausado = Calculo.Techosobretopevis ? 0 : Math.max(0, Calculo.Subsidiotecho - Subsidiocajausado);
-  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Salariosminimos <= 4;
+  const Mostrarafiliacion = !Estadoactual.Caja && Estadoactual.Tipo !== 'fijo' && Ingresototal <= Cuatrominimos;
+  const Factorpreciovivienda = Configuracion.Financiacion + (Estadoactual.Financiargastos && Estadoactual.Modalidadelegida !== 'leasing' ? Configuracion.Gastos : 0);
 
   let Gastosetiquetacierre = 'Para poner la vivienda a tu nombre (' + Math.round((Calculo.Techosobretopevis ? Modalidadesvivienda.novis : Configuracion).Gastos * 100) + '% del precio)';
   if (Estadoactual.Modalidadelegida === 'leasing') Gastosetiquetacierre = 'Los asume el leasing';
@@ -158,7 +164,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     ...Valoresresultadosimulador.call(this, Calculo, Seleccion, Fuenteactual, Alternarpareja),
     Visaviso: Calculo.Topado || Calculo.Techosobretopevis,
     Vistopadafila: Calculo.Topado,
-    Preciosintopetexto: Formatoenteropesos(Calculo.Creditoporcapacidad / Configuracion.Financiacion + (Estadoactual.Financiargastos ? Calculo.Gastosescrituracion : 0)),
+    Preciosintopetexto: Formatoenteropesos(Calculo.Creditoporcapacidad / Factorpreciovivienda),
     Financiacionetiquetaultima: Calculo.Topado
       ? 'TOPE VIS (' + Consultartopevis(Estadoactual.Ciudad) + ' SMMLV)'
       : '÷ ' + Math.round(Calculo.Financiaciontecho * 100) + '% FINANCIADO' + (Calculo.Techosobretopevis ? ' · NO VIS' : ''),
@@ -168,7 +174,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Topeetiqueta: '× ' + Math.round(Calculo.Tope * 100) + '% CAPACIDAD',
     Capacidadcuotatexto: Formatoenteropesos(Calculo.Capacidadcuota),
     Creditocadenatexto: Formatoenteropesos(Calculo.Creditoporcapacidad),
-    Financiacionetiqueta: '÷ ' + Math.round(Configuracion.Financiacion * 100) + '% VIVIENDA',
+    Financiacionetiqueta: '÷ ' + Math.round(Financiacionactiva * 100) + '% VIVIENDA',
     Preciotexto: Formatoenteropesos(Calculo.Preciotecho),
     Cuotamensual: Formatoenteropesos(Cuota),
     Bloqueado: !Estadoactual.Desbloqueado,
@@ -180,7 +186,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
       this.Cambiarestado({ Desbloqueado: Boolean(Resultado.ok), Desbloqueando: false });
       if (!Resultado.ok) this.Aviso(Resultado.error);
     },
-    Cuotainicialtitulo: 'Cuota inicial ' + Math.round((1 - Configuracion.Financiacion) * 100) + '% + gastos',
+    Cuotainicialtitulo: 'Cuota inicial ' + Math.round((1 - Financiacionactiva) * 100) + '% + gastos',
     Cuotainicialtexto: Formatoenteropesos(Calculo.Cuotainicialtecho),
     Gastosetiqueta: Configuracion.Glosario,
     Gastosetiquetacierre,
@@ -200,7 +206,7 @@ function Generarvaloressimulador(Calculo, Configuracion, Seleccion, Fichaselecci
     Escribirdeudacuota: (Elemento) => this.Cambiarestado({ Formulariodeuda: { ...Estadoactual.Formulariodeuda, Cuota: Limpiardigitos(Elemento.target.value, Limitesfinancieros.Deudacuota) }, Formularioerror: '' }),
     Escribirdeudasaldo: (Elemento) => this.Cambiarestado({ Formulariodeuda: { ...Estadoactual.Formulariodeuda, Saldo: Limpiardigitos(Elemento.target.value, Limitesfinancieros.Deudasaldo) } }),
     Escribirdeudaentidad: (Elemento) => this.Cambiarestado({ Formulariodeuda: { ...Estadoactual.Formulariodeuda, Entidad: Textoseguro(Elemento.target.value, 60) } }),
-    Formdeudapista: Estadoactual.Formulariodeuda.Cuota ? 'Esta cuota le resta $' + Formatomillones(Estadoactual.Formulariodeuda.Cuota * Calculo.Tope * Calculo.Factor / Configuracion.Financiacion) + ' M a tu vivienda. Podrás apagarla en Plan para ver cuánto liberas.' : 'Incluye solo cuotas fijas que aparecen en tu historial crediticio o que pagas cada mes.',
+    Formdeudapista: Estadoactual.Formulariodeuda.Cuota ? 'Esta cuota le resta $' + Formatomillones(Estadoactual.Formulariodeuda.Cuota * Calculo.Tope * Calculo.Factor / Financiacionactiva) + ' M a tu vivienda. Podrás apagarla en Plan para ver cuánto liberas.' : 'Incluye solo cuotas fijas que aparecen en tu historial crediticio o que pagas cada mes.',
     Guardardeudaetiqueta,
     Formdeudaeditando: Boolean(Estadoactual.Deudaeditandoid),
     Eliminardeudaactual: () => { if (Estadoactual.Deudaeditandoid) this.Eliminardeuda(Estadoactual.Deudaeditandoid); },

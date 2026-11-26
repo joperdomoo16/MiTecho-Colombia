@@ -4,9 +4,9 @@
 // El arriendo y los otros egresos fijos no se "terminan de pagar", por eso no se sugieren como deuda a cerrar
 const Egresosnoterminables = ['Arriendo', 'Egreso'];
 
-// Subsidio de vivienda que podría recibir un hogar según sus salarios mínimos (de Caja, hasta 4 SMMLV)
-function Subsidiopotencial(Salariosminimos) {
-  return (Salariosminimos <= 2 ? 30 : 20) * Salariominimo;
+// Subsidio de vivienda que podría recibir un hogar según sus ingresos (de Caja, hasta 4 SMMLV)
+function Subsidiopotencial(Ingresototal) {
+  return (Ingresototal <= 2 * Salariominimo ? 30 : 20) * Salariominimo;
 }
 
 // Cómo se nombra cada tipo de deuda en «Termina de pagar…»
@@ -27,8 +27,8 @@ function Elegirsiguientepaso(Calculo, Tiporecomendado) {
   }
 
   // Prioriza el subsidio en vivienda VIS cuando el hogar gana hasta 4 SMMLV
-  if (!Estadoactual.Caja && Calculo.Salariosminimos <= 4 && Tiporecomendado === 'vis') {
-    const Potencial = Subsidiopotencial(Calculo.Salariosminimos);
+  if (!Estadoactual.Caja && Calculo.Ingresototal <= 4 * Salariominimo && Tiporecomendado === 'vis') {
+    const Potencial = Subsidiopotencial(Calculo.Ingresototal);
     const Alcanza = Calculo.Faltatecho > 0 && Potencial >= Calculo.Faltatecho ? ': más de lo que te falta' : '';
     if (Estadoactual.Tipo === 'variable') {
       return { Titulo: 'Pide un subsidio de vivienda', Texto: 'Si te afilias a una Caja de compensación y cumples los requisitos, podrías recibir hasta **$' + Formatomillones(Potencial) + ' M**' + Alcanza + '. Como independiente, empieza pronto: suelen pedir 12 meses de aportes.', Accion: 'Ver si puedo pedirlo', Ir: Irsubsidios };

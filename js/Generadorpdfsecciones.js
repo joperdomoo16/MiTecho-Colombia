@@ -35,7 +35,7 @@ function Armarcascadapdf(Estadoactual, Calculo, Datos) {
     } else if (Esnovis) {
       Motivomicasaya = 'No aplica: la vivienda es No VIS';
     } else if (Estadoactual.Sisben) {
-      Motivomicasaya = Calculo.Salariosminimos > 4 ? 'No aplica: ingresos superan 4 SMMLV' : 'Sin valor estimado';
+      Motivomicasaya = Calculo.Ingresototal > 4 * Salariominimo ? 'No aplica: ingresos superan 4 SMMLV' : 'Sin valor estimado';
     }
     Html += '<div class="cascada__fila nulo"><dt><span class="op">+</span>Mi Casa Ya / concurrente</dt><dd class="pista"><em>' + Motivomicasaya + '</em></dd><dd>$0</dd></div>';
   }
@@ -89,11 +89,17 @@ function Armartarjetacajapdf(Estadoactual, Calculo, Cajanombreescapado, Tasaanua
 
   if (Estadoactual.Caja) {
     const Cajalogo = Logocaja(Estadoactual.Cajanombre);
-    const Chiprazon = !Calculo.Subsidiocajaelegible ? 'Supera 4 SMMLV' : 'No VIS';
-    const Salariostexto = Calculo.Salariosminimos.toLocaleString('es-CO', { maximumFractionDigits: 1 });
-    const Detallerazon = !Calculo.Subsidiocajaelegible
-      ? 'Ingresos del hogar (' + Salariostexto + ' SMMLV) superan el tope de subsidio'
-      : 'La vivienda del techo pasa el tope VIS';
+    const Esleasing = Estadoactual.Modalidadelegida === 'leasing';
+    let Chiprazon = 'No VIS';
+    let Detallerazon = 'La vivienda del techo pasa el tope VIS';
+    if (Esleasing) {
+      Chiprazon = 'Leasing';
+      Detallerazon = 'El subsidio de Caja no se suma en leasing habitacional';
+    } else if (!Calculo.Subsidiocajaelegible) {
+      Chiprazon = 'Supera 4 SMMLV';
+      const Salariostexto = Calculo.Salariosminimos.toLocaleString('es-CO', { maximumFractionDigits: 1 });
+      Detallerazon = 'Ingresos del hogar (' + Salariostexto + ' SMMLV) superan el tope de subsidio';
+    }
     const Titulotasa = Calculo.Entidadclave === 'caja' ? 'Tasa de crédito de tu Caja' : 'Tasa de referencia';
 
     return '<div class="caja__grid"><div class="caja__entidad"><div class="caja__logo" aria-hidden="true">' + Cajalogo + '</div><div><h3>' + Cajanombreescapado + '</h3><p>Caja de compensación familiar<br>Línea de crédito hipotecario</p></div></div>'

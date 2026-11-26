@@ -4,10 +4,12 @@
 const Productostasas = ['vis_pesos', 'novis_pesos', 'vis_uvr', 'novis_uvr', 'leasing_novis_pesos', 'leasing_vis_pesos'];
 
 // Cuota fija mensual de un crédito con tasa efectiva anual
-function Cuotaconcredito(Credito, Tasaanual, Meses) {
+function Cuotaconcredito(Credito, Tasaanual, Meses, Opcioncompra = 0) {
   const Mensual = Math.pow(1 + Tasaanual, 1 / 12) - 1;
   if (!(Credito > 0) || !(Meses > 0)) return 0;
-  return Mensual > 0 ? Credito * Mensual / (1 - Math.pow(1 + Mensual, -Meses)) : Credito / Meses;
+  const Valorn = Mensual > 0 ? Math.pow(1 + Mensual, -Meses) : 1;
+  const Descuento = 1 - (Opcioncompra || 0) * Valorn;
+  return Mensual > 0 ? Credito * Descuento * Mensual / (1 - Valorn) : Credito * Descuento / Meses;
 }
 
 // Cuánto prestaría la entidad con la cuota máxima del usuario a esa tasa
@@ -35,14 +37,16 @@ function Generarvalorestasas(Calculo, Seleccion) {
   const Meses = Math.round(Calculo.Plazo * 12);
   const Credito = Calculo.Creditotecho;
   const Esuvr = Elegido.endsWith('_uvr');
+  const Esleasingproducto = Elegido.startsWith('leasing_');
+  const Opcionproducto = Esleasingproducto ? (Estadoactual.Opcioncompra ?? 0.10) : 0;
 
-  const Filas = Datos.Entidades.map(Entidad => ({ ...Entidad, Cuota: Cuotaconcredito(Credito, Entidad.Tasa, Meses) })).sort((Una, Otra) => Una.Cuota - Otra.Cuota);
+  const Filas = Datos.Entidades.map(Entidad => ({ ...Entidad, Cuota: Cuotaconcredito(Credito, Entidad.Tasa, Meses, Opcionproducto) })).sort((Una, Otra) => Una.Cuota - Otra.Cuota);
   const Masbaja = Filas.length ? Filas[0].Cuota : 0, Masalta = Filas.length ? Filas[Filas.length - 1].Cuota : 0;
   const Abierta = Estadoactual.Tasasabierta || '';
 
   const Oferta = Leertasaescrita(Estadoactual.Tasasoferta);
-  const Cuotaoferta = Oferta ? Cuotaconcredito(Credito, Oferta, Meses) : 0;
-  const Cuotamercado = Datos.Mercado ? Cuotaconcredito(Credito, Datos.Mercado, Meses) : 0;
+  const Cuotaoferta = Oferta ? Cuotaconcredito(Credito, Oferta, Meses, Opcionproducto) : 0;
+  const Cuotamercado = Datos.Mercado ? Cuotaconcredito(Credito, Datos.Mercado, Meses, Opcionproducto) : 0;
   const Diferenciaoferta = Oferta && Datos.Mercado ? (Oferta - Datos.Mercado) * 100 : 0;
   // El promedio del mercado va en la lista como una fila más, en el puesto que le toca por su cuota
   const Lista = (Datos.Mercado ? [...Filas, { Nombre: 'Promedio del mercado', Tasa: Datos.Mercado, Cuota: Cuotamercado, Esmercado: true }] : Filas).sort((Una, Otra) => Una.Cuota - Otra.Cuota);
@@ -112,8 +116,8 @@ function Generarvalorestasas(Calculo, Seleccion) {
         Alternar: () => this.Cambiarestado({ Tasasabierta: Expandida ? '' : Fila.Nombre }),
         Rango: 'De ' + Formatoporcentaje(Fila.Minima) + ' a ' + Formatoporcentaje(Fila.Maxima),
         Creditos: Fila.Creditos.toLocaleString('es-CO') + ' créditos en la ventana',
-        Prestamo: Credito > 0 ? Formatoenteropesos(Creditoconcuota(Calculo.Capacidadcuota, Fila.Tasa, Meses, Calculo.Opcioncompra)) : '—',
-        Total: Credito > 0 ? Formatoenteropesos(Fila.Cuota * Meses) : '—',
+        Prestamo: Credito > 0 ? Formatoenteropesos(Creditoconcuota(Calculo.Capacidadcuota, Fila.Tasa, Meses, Opcionproducto)) : '—',
+        Total: Credito > 0 ? Formatoenteropesos(Fila.Cuota * Meses + (Esleasingproducto ? Opcionproducto * Credito : 0)) : '—',
         Comparacion: Diferencia < 1 ? 'Es la cuota más baja de la lista' : '+' + Formatoenteropesos(Diferencia) + ' al mes frente a la más baja'
       };
     }),
@@ -122,10 +126,14 @@ function Generarvalorestasas(Calculo, Seleccion) {
     Escribirtasaoferta: (Elemento) => this.Cambiarestado({ Tasasoferta: String(Elemento.target.value || '').replace(/[^\d,.]/g, '').slice(0, 6) }),
     Tasasofertalista: Boolean(Oferta && Datos.Mercado && Credito > 0),
     Tasasofertacuota: Formatoenteropesos(Cuotaoferta),
-    Tasasofertamensaje: !Oferta ? '' : Math.abs(Diferenciaoferta) < 0.05
-      ? 'Tu oferta está en el promedio del mercado.'
-      : ('Tu oferta está ' + Math.abs(Diferenciaoferta).toFixed(2).replace('.', ',') + ' puntos ' + (Diferenciaoferta < 0 ? 'por debajo' : 'por encima') + ' del promedio: ')
-        + Formatoenteropesos(Math.abs(Cuotaoferta - Cuotamercado)) + (Diferenciaoferta < 0 ? ' menos' : ' más') + ' al mes que con la tasa promedio.',
+    Tasasofertamensaje: (() => {
+      if (!Oferta) return '';
+      if (Math.abs(Diferenciaoferta) < 0.05) return 'Tu oferta está en el promedio del mercado.';
+      const Sentido = Diferenciaoferta < 0 ? 'por debajo' : 'por encima';
+      const Cambio = Diferenciaoferta < 0 ? ' menos' : ' más';
+      return 'Tu oferta está ' + Math.abs(Diferenciaoferta).toFixed(2).replace('.', ',') + ' puntos ' + Sentido + ' del promedio: '
+        + Formatoenteropesos(Math.abs(Cuotaoferta - Cuotamercado)) + Cambio + ' al mes que con la tasa promedio.';
+    })(),
     Tasasavisooficial: 'Promedio ponderado de créditos desembolsados por la entidad entre el ' + (Datos.Desde || '—') + ' y el ' + (Datos.Hasta || '—') + ', reportado a la Superintendencia Financiera (Formato 414). No es una oferta ni garantiza aprobación.',
     Tasasavisocuota: 'Cuota estimada sin seguros. La tasa de cada persona puede alejarse 1 a 2 puntos del promedio según el estudio de la entidad.' + (Esuvr ? ' En UVR la cifra es el margen sobre la UVR: la cuota sube con la inflación.' : '')
   };

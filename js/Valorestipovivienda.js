@@ -14,7 +14,7 @@ function Generarvalorestipovivienda(Calculo, Seleccion) {
   const Ciudad = Estadoactual.Ciudad || 'tu ciudad', Topetexto = Formatoenteropesos(Calculovis.Topevis);
   const Techovis = Formatoenteropesos(Calculovis.Preciotecho), Techoactual = Formatoenteropesos(Calculo.Preciotecho);
   // El subsidio de vivienda es para hogares que ganan hasta 4 SMMLV
-  const Consubsidio = Calculovis.Salariosminimos <= 4;
+  const Consubsidio = Calculovis.Ingresototal <= 4 * Salariominimo;
   const Forzadonovis = Elegido === 'novis' && Recomendado === 'vis', Cuentanovis = Elegido === 'novis' || Recomendado === 'novis';
 
   // Texto de la hoja «¿Qué es una vivienda VIS?» según el caso de la persona

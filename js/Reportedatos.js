@@ -59,6 +59,10 @@ function Pasosreporte(Estadoactual, Calculo) {
     const Meses = Estadoactual.Ahorromes > 0 ? Math.ceil(Calculo.Falta / Estadoactual.Ahorromes) : 0;
     const Conceptofalta = Calculo.Financiargastos || Estadoactual.Modalidadelegida === 'leasing' ? 'de cuota inicial' : 'de cuota inicial y gastos';
     Pasos.push('Te faltan <b>' + Formatoenteropesos(Calculo.Falta) + '</b> ' + Conceptofalta + ' para la vivienda de ' + Formatoenteropesos(Calculo.Precio) + (Meses ? ': ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes llegas en ' + Cantidadtexto(Meses, 'mes', 'meses') + '.' : '.') + ' Hoy cierras hasta <b>' + Formatoenteropesos(Calculo.Preciohoyreal) + '</b>.');
+  } else if (Estadoactual.Modalidadelegida === 'leasing') {
+    Pasos.push('Tu pago inicial está cubierto: ya puedes pedir el estudio de leasing en la entidad que elijas.');
+  } else if (Calculo.Financiargastos) {
+    Pasos.push('Tu cuota inicial está cubierta y los gastos de notaría van dentro del crédito: ya puedes pedir el estudio de crédito en la entidad que elijas.');
   } else {
     Pasos.push('Tu cuota inicial y los gastos están cubiertos: ya puedes pedir el estudio de crédito en la entidad que elijas.');
   }

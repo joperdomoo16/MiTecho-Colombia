@@ -24,7 +24,7 @@ function Detallespasos(Estadoactual, Calculo) {
   // Diferencia de cuota entre el banco más caro y el más barato, con el crédito de la persona
   const Datos = Entidadesdelproducto(Productosimulador(Estadoactual.Modalidadelegida, Estadoactual.Tasatipo));
   const Meses = Math.round(Calculo.Plazo * 12);
-  const Cuotas = Calculo.Creditotecho > 0 ? Datos.Entidades.map(Entidad => Cuotaconcredito(Calculo.Creditotecho, Entidad.Tasa, Meses)) : [];
+  const Cuotas = Calculo.Creditotecho > 0 ? Datos.Entidades.map(Entidad => Cuotaconcredito(Calculo.Creditotecho, Entidad.Tasa, Meses, Calculo.Opcioncompra)) : [];
   const Diferencia = Cuotas.length > 1 ? Math.max(...Cuotas) - Math.min(...Cuotas) : 0;
   let Detalledeudas = 'Opcional · mira cuánto pesan tus deudas';
   if (!Deudas.length) Detalledeudas = 'Opcional · no tienes deudas registradas';
@@ -79,8 +79,13 @@ function Generarvaloresplan(Calculo, Tiporecomendado) {
   }
 
   let Subtitulopasodos = 'Primero conoce tu presupuesto';
-  if (Actual === 2) Subtitulopasodos = 'Tienes $' + Formatomillones(Tiene) + ' M de $' + Formatomillones(Necesario) + ' M' + Vivienda;
-  else if (Ahorrolisto) Subtitulopasodos = 'Ya tienes la cuota inicial y los gastos' + Vivienda;
+  if (Actual === 2) {
+    Subtitulopasodos = 'Tienes $' + Formatomillones(Tiene) + ' M de $' + Formatomillones(Necesario) + ' M' + Vivienda;
+  } else if (Ahorrolisto) {
+    if (Estadoactual.Modalidadelegida === 'leasing') Subtitulopasodos = 'Ya tienes el pago inicial' + Vivienda;
+    else if (Estadoactual.Financiargastos) Subtitulopasodos = 'Ya tienes la cuota inicial (gastos en el crédito)' + Vivienda;
+    else Subtitulopasodos = 'Ya tienes la cuota inicial y los gastos' + Vivienda;
+  }
 
   const Pasos = [
     { Titulo: 'Conoce tu presupuesto', Hecho: Tienepresupuesto, Subtitulo: Subtitulopasouno, Ir: () => this.Cambiarestado(Destinopasouno) },
@@ -111,8 +116,8 @@ function Generarvaloresplan(Calculo, Tiporecomendado) {
     Planmensaje: Mensaje,
     Planmensajeclase: Alerta ? 'is-alerta' : '',
     // Como independiente sin Caja, el subsidio puede cubrir buena parte de lo que falta
-    Plansubsidiovisible: Estadoactual.Tipo === 'variable' && !Estadoactual.Caja && Calculo.Salariosminimos <= 4 && Tiporecomendado === 'vis' && Falta > 0,
-    Plansubsidiomonto: '$' + Formatomillones(Subsidiopotencial(Calculo.Salariosminimos)) + ' M',
+    Plansubsidiovisible: Estadoactual.Tipo === 'variable' && !Estadoactual.Caja && Calculo.Ingresototal <= 4 * Salariominimo && Tiporecomendado === 'vis' && Falta > 0,
+    Plansubsidiomonto: '$' + Formatomillones(Subsidiopotencial(Calculo.Ingresototal)) + ' M',
     Irsubsidio: () => this.Cambiarestado({ Panel: 'subsidios', Menu: false })
   };
 }

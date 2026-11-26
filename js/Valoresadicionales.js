@@ -44,13 +44,13 @@ function Generarvaloresadicionales(Calculo, Configuracion, Seleccion) {
   const Solo = this.Calcular({ ...Estadoactual, Pareja: false });
   const Juntos = this.Calcular({ ...Estadoactual, Pareja: true });
   const Digito = (Elemento, Maximo) => Limpiardigitos(Elemento.target.value, Maximo);
-  const Franja = (Opcion) => {
-    if (Opcion <= 2) return 30;
-    if (Opcion <= 4) return 20;
+  const Franja = (Ingreso) => {
+    if (Ingreso <= 2 * Salariominimo) return 30;
+    if (Ingreso <= 4 * Salariominimo) return 20;
     return 0;
   };
-  const Barrasolo = Franja(Solo.Salariosminimos);
-  const Barrajusta = Franja(Juntos.Salariosminimos);
+  const Barrasolo = Franja(Solo.Ingresototal);
+  const Barrajusta = Franja(Juntos.Ingresototal);
   const Advertencia = Barrajusta < Barrasolo;
 
   let Subsidiomensaje = '';
