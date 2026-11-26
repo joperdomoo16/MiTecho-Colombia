@@ -23,7 +23,10 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
   const Fechatexto = Ahora.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
   const Codigoreferencia = 'MT-' + Ahora.getFullYear() + '-' + Generarcodigoaleatorio(5);
 
-  const Espareja = Boolean(Estadoactual.Pareja);
+  const Espareja = Boolean(
+    Estadoactual.Pareja &&
+    ((Estadoactual.Parejaingreso || 0) > 0 || (Estadoactual.Parejadeudas || 0) > 0 || (Estadoactual.Parejaahorro || 0) > 0)
+  );
   const Escapar = typeof Escaparhtml === 'function' ? Escaparhtml : (Opcion => Opcion);
   const Nombretitular = Escapar(Estadoactual.Nombre || 'Solicitante Titular');
   const Nombrepareja = Escapar(Estadoactual.Parejanombre || 'Segundo Solicitante');
@@ -46,6 +49,7 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
   const Deudasactivastitular = Deudaslista.filter(Deuda => Deuda.Activa !== false);
   const Deudastitular = Deudasactivastitular.reduce((Acumulado, Deuda) => Acumulado + (Deuda.Cuota || 0), 0);
   const Saldotitular = Deudasactivastitular.reduce((Acumulado, Deuda) => Acumulado + (Deuda.Saldo || 0), 0);
+  const Tienesaldotitular = Deudasactivastitular.some(Deuda => (Deuda.Saldo || 0) > 0);
   const Deudaspareja = Espareja ? (Estadoactual.Parejadeudas || 0) : 0;
   const Totaldeudasactivas = Deudasactivastitular.length + (Espareja && Deudaspareja > 0 ? 1 : 0);
 
@@ -75,14 +79,15 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
     Fichaestadocierre = '<span class="estado-cierre"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="#0B0C0A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Cuota inicial cubierta</span>';
     Resumencierretexto = 'El banco financia <strong>' + Formatoenteropesos(Calculo.Credito) + '</strong>, el ' + Porcentajereporte(Porcentajecredito) + ' del precio' + Notafinalescritura + ' El hogar cubre la cuota inicial con sus propios recursos' + Notamargen;
   } else if (Calculo.Estadocierre === 'falta_cuota_inicial') {
+    const Detallefalta = Calculo.Financiargastos || Esleasing ? 'de cuota inicial' : 'de cuota inicial y gastos';
     Fichaestadocierre = '<span class="estado-cierre" style="background:var(--mitecho-dorado)"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.8" fill="none" stroke="#0B0C0A" stroke-width="1.6"/><path d="M6 3.2v3.2M6 8.2v.4" stroke="#0B0C0A" stroke-width="1.6" stroke-linecap="round"/></svg>Falta cuota inicial</span>';
-    Resumencierretexto = 'Para la vivienda de <strong>' + Formatoenteropesos(Calculo.Precio) + '</strong> el banco prestaría <strong>' + Formatoenteropesos(Calculo.Credito) + '</strong>. Con los recursos propios de hoy faltan <strong>' + Formatoenteropesos(Calculo.Falta) + '</strong> de cuota inicial y gastos; mientras tanto, el hogar puede cerrar una compra de hasta <strong>' + Formatoenteropesos(Calculo.Preciohoyreal) + '</strong>.';
+    Resumencierretexto = 'Para la vivienda de <strong>' + Formatoenteropesos(Calculo.Precio) + '</strong> el banco prestaría <strong>' + Formatoenteropesos(Calculo.Credito) + '</strong>. Con los recursos propios de hoy faltan <strong>' + Formatoenteropesos(Calculo.Falta) + '</strong> ' + Detallefalta + '; mientras tanto, el hogar puede cerrar una compra de hasta <strong>' + Formatoenteropesos(Calculo.Preciohoyreal) + '</strong>.';
   } else {
     Fichaestadocierre = '<span class="estado-cierre" style="background:var(--mitecho-naranja);color:#FFF"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.8" fill="none" stroke="#FFF" stroke-width="1.6"/><path d="M4 4l4 4M8 4l-4 4" stroke="#FFF" stroke-width="1.6" stroke-linecap="round"/></svg>Sin capacidad</span>';
     Resumencierretexto = 'El nivel de obligaciones financieras activas supera los ingresos reportados, por lo que no se cuenta con margen de cuota hipotecaria en este momento.';
   }
   if (Calculo.Techosobretopevis) {
-    Resumencierretexto += ' Este techo pasa el tope VIS (' + Calculo.Topevissalarios + ' SMMLV = ' + Formatoenteropesos(Calculo.Topevis) + '): a ese precio la vivienda es No VIS, el banco financia hasta el 70% y no aplica subsidio.';
+    Resumencierretexto += ' Este techo pasa el tope VIS (' + Calculo.Topevissalarios + ' SMMLV = ' + Formatoenteropesos(Calculo.Topevis) + '): a ese precio la vivienda es No VIS, el banco financia hasta el ' + Math.round(Modalidadesvivienda.novis.Financiacion * 100) + '% y no aplica subsidio.';
   }
 
   const Porcentajegastos = Calculo.Precio > 0 ? Calculo.Gastostecho / Calculo.Precio * 100 : 0;
@@ -101,7 +106,7 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
     Espareja, Escapar, Codigoreferencia, Nombrecompleto, Nombretitular, Nombrepareja,
     Nombretitularcorto, Nombreparejacorto, Cajanombreescapado, Sisbengrupoescapado, Ciudadescapada,
     Aportetitular, Aportepareja, Perfiltitular, Perfilpareja,
-    Deudaslista, Deudasactivastitular, Deudastitular, Saldotitular, Deudaspareja,
+    Deudaslista, Deudasactivastitular, Deudastitular, Saldotitular, Tienesaldotitular, Deudaspareja,
     Ahorrotitular, Ahorropareja, Escalamaxima, Ejemarcas, Pasovalor, Porcentajecuotainicial, Porcentajegastos,
     Anchoahorrotitularporcentaje: (Ahorrotitular / Escalamaxima * 100).toFixed(3),
     Anchoahorroparejaporcentaje: (Ahorropareja / Escalamaxima * 100).toFixed(3),
@@ -155,7 +160,16 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
   if (Esuvr) Subtitulototal = 'Con inflación de ' + Porcentajereporte(Inflacionanual * 100) + ' al año, sin seguros';
   else if (Esleasing) Subtitulototal = 'Incluye la opción de compra';
 
-  const Topemedidorfinanciacion = Math.round((Calculo.Techosobretopevis ? 0.7 : Calculo.Configuracion.Financiacion) * 100);
+  const Topemedidorfinanciacion = Math.round((Calculo.Techosobretopevis ? Modalidadesvivienda.novis.Financiacion : Calculo.Configuracion.Financiacion) * 100);
+  const Esnovis = Calculo.Modalidadelegida === 'novis' || Calculo.Techosobretopevis;
+  let Descripcionrecursos = 'Cuota inicial requerida cubierta con ahorros y subsidios.';
+  if (Esleasing) Descripcionrecursos = 'Pago inicial requerido cubierto con ahorros y cesantías.';
+  else if (Esnovis) Descripcionrecursos = 'Cuota inicial requerida cubierta con ahorros y cesantías.';
+
+  let Saldototaltexto = '—';
+  if (Tienesaldotitular) Saldototaltexto = Formatoenteropesos(Saldotitular) + (Espareja && Deudaspareja > 0 ? '*' : '');
+  else if (Totaldeudasactivas > 0) Saldototaltexto = 'No registra';
+
   const Bloquepasoshojados = !Espareja && Deudaslista.length <= 3 && !Calculo.Subsidiocajavencido
     ? '<section class="bloque"><div class="bloque__cab"><h2>Próximos pasos</h2><p>Según las cifras de este reporte</p></div>' + Pasosreporte(Estadoactual, Calculo) + '</section>'
     : '';
@@ -187,7 +201,7 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
     + '<section class="bloque"><div class="bloque__cab"><h2>Medidores clave de capacidad</h2><p>Indicadores frente a los límites del sistema financiero</p></div><div class="medidores">'
     + '<div class="medidor"><div class="medidor__cab"><span>Endeudamiento</span><strong>' + Porcentajereporte(Calculo.Endeudamientoporcentaje) + '</strong></div><div class="medidor__pista"><i style="width:' + Math.min(100, (Calculo.Endeudamientoporcentaje / 30) * 100) + '%"></i><b style="left:100%"></b></div><p>Compromisos actuales sobre el ingreso. Muchos bancos prefieren que no pasen del 30%.</p></div>'
     + '<div class="medidor"><div class="medidor__cab"><span>Financiación bancaria</span><strong>' + Porcentajereporte(Porcentajecredito) + '</strong></div><div class="medidor__pista"><i style="width:' + Porcentajecredito + '%"></i><b style="left:' + Topemedidorfinanciacion + '%"></b></div><p>Parte del precio cubierta con ' + (Esleasing ? 'el leasing' : 'crédito hipotecario') + ' (máx. ' + Topemedidorfinanciacion + '%).</p></div>'
-    + '<div class="medidor"><div class="medidor__cab"><span>Recursos propios</span><strong>' + Porcentajereporte((Calculo.Cuotainicial / Math.max(1, Calculo.Precio)) * 100) + '</strong></div><div class="medidor__pista"><i style="width:' + Math.min(100, ((Calculo.Cuotainicial / Math.max(1, Calculo.Precio)) * 100)) + '%"></i></div><p>Cuota inicial requerida cubierta con ahorros y subsidios.</p></div>'
+    + '<div class="medidor"><div class="medidor__cab"><span>Recursos propios</span><strong>' + Porcentajereporte((Calculo.Cuotainicial / Math.max(1, Calculo.Precio)) * 100) + '</strong></div><div class="medidor__pista"><i style="width:' + Math.min(100, ((Calculo.Cuotainicial / Math.max(1, Calculo.Precio)) * 100)) + '%"></i></div><p>' + Descripcionrecursos + '</p></div>'
     + '</div></section></div>'
     + '<footer class="pie"><span>MiTecho Colombia · Reporte de simulación, no es una aprobación de crédito</span><span class="pie__ref"><span class="mono">' + Codigoreferencia + '</span><span>Hoja 1 de 3</span></span></footer></section>'
     + '<section class="hoja" aria-label="Hoja 2 de 3">'
@@ -197,10 +211,10 @@ function Construircertificadohtml(Estadoactual, Calculobase) {
     + '<section class="bloque"><div class="caja">' + Cajatarjetahtml + '</div></section>'
     + '<section class="bloque"><div class="bloque__cab"><h2>Deudas reportadas por cada solicitante</h2><p>Las activas se restan del ingreso antes de calcular la cuota</p></div>'
     + '<table class="deudas"><thead><tr><th scope="col">Obligación</th><th scope="col" class="num">Cuota mensual</th><th scope="col" class="num">Saldo pendiente</th><th scope="col">En el cálculo</th></tr></thead>' + Deudascuerpotabla
-    + '<tfoot><tr><th scope="row">Total del hogar</th><td class="num">' + Formatoenteropesos(Calculo.Deudasmes) + '</td><td class="num">' + Formatoenteropesos(Saldotitular) + (Espareja && Deudaspareja > 0 ? '*' : '') + '</td><td>' + Cantidadtexto(Totaldeudasactivas, 'deuda activa', 'deudas activas') + '</td></tr></tfoot></table>'
-    + (Espareja && Deudaspareja > 0 ? '<p class="nota-calculo">* El saldo total no incluye las deudas de ' + Nombreparejacorto + ', porque solo se declaró su cuota mensual.</p>' : '')
+    + '<tfoot><tr><th scope="row">Total del hogar</th><td class="num">' + Formatoenteropesos(Calculo.Deudasmes) + '</td><td class="num">' + Saldototaltexto + '</td><td>' + Cantidadtexto(Totaldeudasactivas, 'deuda activa', 'deudas activas') + '</td></tr></tfoot></table>'
+    + (Espareja && Deudaspareja > 0 && Tienesaldotitular ? '<p class="nota-calculo">* El saldo total no incluye las deudas de ' + Nombreparejacorto + ', porque solo se declaró su cuota mensual.</p>' : '')
     + '</section>' + Bloquepasoshojados
-    + '<section class="bloque legal"><div><h2>Nota legal y condiciones de uso</h2><p>Este reporte es una simulación educativa que genera MiTecho Colombia con la información que declaran los solicitantes, sin verificarla. MiTecho no es una entidad financiera y este documento no sirve como soporte ante un banco. Usa las fórmulas de capacidad de pago de la Ley 546 de 1999, los decretos reglamentarios vigentes en 2026 y las tasas promedio de referencia de la Superintendencia Financiera de Colombia. No es una aprobación de crédito ni una carta de compromiso. La aprobación final depende del estudio de títulos, de la capacidad de pago y del análisis de riesgo en centrales de información (Datacrédito, TransUnion) que haga el banco o la entidad que otorgue el crédito. La cuota estimada no incluye los seguros de vida e incendio que exige el banco. El subsidio depende de la vigencia de su asignación por parte de la Caja de Compensación.</p></div>'
+    + '<section class="bloque legal"><div><h2>Nota legal y condiciones de uso</h2><p>Este reporte es una simulación educativa que genera MiTecho Colombia con la información que declaran los solicitantes, sin verificarla. MiTecho no es una entidad financiera y este documento no sirve como soporte ante un banco. Usa las fórmulas de capacidad de pago de la Ley 546 de 1999, los decretos reglamentarios vigentes en ' + Aniovigente + ' y las tasas promedio de referencia de la Superintendencia Financiera de Colombia. No es una aprobación de crédito ni una carta de compromiso. La aprobación final depende del estudio de títulos, de la capacidad de pago y del análisis de riesgo en centrales de información (Datacrédito, TransUnion) que haga el banco o la entidad que otorgue el crédito. La cuota estimada no incluye los seguros de vida e incendio que exige el banco. El subsidio depende de la vigencia de su asignación por parte de la Caja de Compensación.</p></div>'
     + '<div class="verifica"><span>Número de consulta<br><span class="mono">' + Codigoreferencia + '</span><br>Úsalo si nos escribes a soporte</span></div></section></div>'
     + '<footer class="pie"><span>MiTecho Colombia · Reporte de simulación, no es una aprobación de crédito</span><span class="pie__ref"><span class="mono">' + Codigoreferencia + '</span><span>Hoja 2 de 3</span></span></footer></section>'
     + Construirhojatreshtml(Estadoactual, Calculo, Metricas)

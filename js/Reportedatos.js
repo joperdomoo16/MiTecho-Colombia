@@ -57,7 +57,8 @@ function Pasosreporte(Estadoactual, Calculo) {
   const Pasos = [];
   if (Calculo.Falta > 0) {
     const Meses = Estadoactual.Ahorromes > 0 ? Math.ceil(Calculo.Falta / Estadoactual.Ahorromes) : 0;
-    Pasos.push('Te faltan <b>' + Formatoenteropesos(Calculo.Falta) + '</b> de cuota inicial y gastos para la vivienda de ' + Formatoenteropesos(Calculo.Precio) + (Meses ? ': ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes llegas en ' + Cantidadtexto(Meses, 'mes', 'meses') + '.' : '.') + ' Hoy cierras hasta <b>' + Formatoenteropesos(Calculo.Preciohoyreal) + '</b>.');
+    const Conceptofalta = Calculo.Financiargastos || Estadoactual.Modalidadelegida === 'leasing' ? 'de cuota inicial' : 'de cuota inicial y gastos';
+    Pasos.push('Te faltan <b>' + Formatoenteropesos(Calculo.Falta) + '</b> ' + Conceptofalta + ' para la vivienda de ' + Formatoenteropesos(Calculo.Precio) + (Meses ? ': ahorrando ' + Formatoenteropesos(Estadoactual.Ahorromes) + ' al mes llegas en ' + Cantidadtexto(Meses, 'mes', 'meses') + '.' : '.') + ' Hoy cierras hasta <b>' + Formatoenteropesos(Calculo.Preciohoyreal) + '</b>.');
   } else {
     Pasos.push('Tu cuota inicial y los gastos están cubiertos: ya puedes pedir el estudio de crédito en la entidad que elijas.');
   }

@@ -116,6 +116,50 @@ if (Htmlcarlosdiana.includes('Supera 4 SMMLV') && Htmlcarlosdiana.includes('Falt
   Errores++;
 }
 
+// Cuarto caso: deudas activas sin saldo registrado, gastos sin financiar y luego financiados
+const Usuariosinsaldo = {
+  ...Usuarioindividual,
+  Fijo: 6000000,
+  Ingresomanual: 6000000,
+  Ahorro: 10000000,
+  Deudas: [{ Nombreitem: 'Tarjeta de crédito', Cuota: 600000, Saldo: 0, Activa: true }],
+  Financiargastos: false
+};
+const Htmlsinsaldo = Construircertificadohtml(Usuariosinsaldo, Calcularcapacidad(Usuariosinsaldo));
+const Htmlfinanciado = Construircertificadohtml({ ...Usuariosinsaldo, Financiargastos: true }, Calcularcapacidad({ ...Usuariosinsaldo, Financiargastos: true }));
+const Htmlleasing = Construircertificadohtml({ ...Usuariosinsaldo, Modalidadelegida: 'leasing', Caja: true }, Calcularcapacidad({ ...Usuariosinsaldo, Modalidadelegida: 'leasing', Caja: true }));
+
+if (Htmlsinsaldo.includes('Cuota inicial y gastos faltantes') && Htmlfinanciado.includes('Cuota inicial faltante')) {
+  console.log('[BIEN] Paso 4 Hoja 3: Coincide con Financiargastos activo o inactivo.');
+} else {
+  console.error('[FALLA] Paso 4 Hoja 3 no ajustó el rótulo según Financiargastos.');
+  Errores++;
+}
+
+if (Htmlsinsaldo.includes('<td class="num">No registra</td><td>1 deuda activa</td>') && Htmlsinsaldo.includes('equivale al <b>')) {
+  console.log('[BIEN] Hoja 2 y 3: Muestra No registra en saldo total sin capital y explica el tope sobre ingreso libre.');
+} else {
+  console.error('[FALLA] Faltó No registra en saldo total o la aclaración del tope en Hoja 3.');
+  Errores++;
+}
+
+if (Htmlleasing.includes('No aplica en leasing habitacional') && Htmlleasing.includes('Notaría (leasing)')) {
+  console.log('[BIEN] Modalidad leasing: Ajusta subsidios y notaría en Hoja 2 y 3.');
+} else {
+  console.error('[FALLA] Modalidad leasing no adaptó los textos de subsidio o notaría.');
+  Errores++;
+}
+
+const Parejaencero = { ...Usuarioindividual, Pareja: true, Parejaingreso: 0, Parejadeudas: 0, Parejaahorro: 0 };
+const Calculoparejacero = Calcularcapacidad(Parejaencero);
+const Htmlparejacero = Construircertificadohtml(Parejaencero, Calculoparejacero);
+if (Calculoparejacero.Ingresototal === Calculoindividual.Ingresototal && Htmlparejacero.includes('solicitantes--individual') && !Htmlparejacero.includes('<article class="persona persona--2">')) {
+  console.log('[BIEN] Pareja en ceros: No suma montos ficticios ni genera segundo solicitante en el PDF.');
+} else {
+  console.error('[FALLA] Pareja en ceros alteró el cálculo o generó segundo solicitante fantasma.');
+  Errores++;
+}
+
 if (Errores === 0) {
   console.log('\nREVISIÓN DEL CERTIFICADO EXITOSA: Todos los perfiles se adaptan bien.');
   process.exit(0);

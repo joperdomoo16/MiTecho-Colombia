@@ -160,22 +160,23 @@ const Estiloscertificadocomplemento = `
 .medidor-guia{
   display:grid;
   grid-template-columns:1.5fr 1fr;
-  gap:30px;
+  gap:28px;
   align-items:center;
-  padding:6px 18px;
+  padding:10px 18px 14px;
   border:1px solid var(--linea);
   border-radius:12px;
   background:var(--papel-alto);
 }
-.mg{display:flex;align-items:center;gap:10px;padding:30px 0}
+.mg{display:flex;align-items:center;gap:10px;padding:34px 0 36px}
 .mg > span{font:500 10.5px var(--f-mono);color:var(--mitecho-tenue)}
 .mg__pista{position:relative;flex:1;height:14px;border-radius:7px;background:var(--linea)}
 .mg__pista > i{position:absolute;inset:0 auto 0 0;border-radius:7px;background:var(--mitecho-azul)}
 .mg__pista > b{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:var(--tinta);border-radius:1px}
-.mg__tag{position:absolute;display:flex;height:26px;font-size:11px;line-height:1.2;color:var(--tinta-2);white-space:nowrap}
+.mg__tag{position:absolute;display:flex;height:24px;font-size:11px;line-height:1.2;color:var(--tinta-2);white-space:nowrap}
 .mg__tag strong{font:700 13px/1 var(--f-display);color:var(--tinta);margin-right:5px}
 .mg__tag--linea{bottom:100%;margin-bottom:6px;margin-left:-.75px;padding-left:7px;border-left:1.5px solid var(--tinta);align-items:flex-start}
-.mg__tag--valor{top:100%;margin-top:2px;transform:translateX(-100%);margin-left:.75px;padding-right:7px;border-right:1.5px solid var(--mitecho-azul);align-items:flex-end}
+.mg__tag--valor{top:100%;margin-top:4px;transform:translateX(-100%);margin-left:.75px;padding-right:7px;border-right:1.5px solid var(--mitecho-azul);align-items:flex-end}
+.mg__tag--valor-der{transform:none;margin-left:-.75px;padding-right:0;padding-left:7px;border-right:0;border-left:1.5px solid var(--mitecho-azul)}
 .medidor-guia__regla{font-size:12px;line-height:1.5;color:var(--tinta-2)}
 .medidor-guia__regla b{display:block;margin-bottom:2px;font:600 12.5px/1.3 var(--f-display);color:var(--tinta)}
 

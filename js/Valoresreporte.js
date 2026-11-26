@@ -19,9 +19,12 @@ function Generarvaloresreporte(Calculo) {
   const Vistos = Number(Estadoactual.Anunciospdf || 0);
   const Faltan = Math.max(0, 3 - Vistos);
   const Desbloqueado = Boolean(Estadoactual.Desbloqueadopdf);
-  const Botontexto = Desbloqueado
-    ? 'Descargar reporte en PDF'
-    : (Vistos > 0 ? 'Ver un video corto y descargar (' + (Vistos + 1) + '/3)' : 'Ver un video corto y descargar');
+  let Botontexto = 'Ver un video corto y descargar';
+  if (Desbloqueado) {
+    Botontexto = 'Descargar reporte en PDF';
+  } else if (Vistos > 0) {
+    Botontexto = 'Ver un video corto y descargar (' + (Vistos + 1) + '/3)';
+  }
   const Pienota = Desbloqueado
     ? 'Se abrirá la vista previa para guardarlo en PDF o imprimirlo.'
     : 'Es gratis: lo pagan los anuncios. Faltan ' + Faltan + (Faltan === 1 ? ' video corto' : ' videos cortos') + ' (si no hay video disponible, igual se descarga).';

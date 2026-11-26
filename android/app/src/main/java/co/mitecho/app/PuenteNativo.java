@@ -78,4 +78,10 @@ public final class PuenteNativo {
     public String obtenerDestinoPendiente() {
         return actividad.obtenerDestinoPendiente();
     }
+
+    // Abre el diálogo nativo de Android para guardar como PDF o imprimir el reporte
+    @JavascriptInterface
+    public void imprimirReporte(final String contenidoHtml, final String titulo) {
+        actividad.runOnUiThread(() -> actividad.imprimirHtmlReporte(contenidoHtml, titulo));
+    }
 }

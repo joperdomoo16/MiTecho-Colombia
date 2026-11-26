@@ -10,12 +10,17 @@ function Armarcascadapdf(Estadoactual, Calculo, Datos) {
     Html += '<div class="cascada__fila"><dt><span class="op">+</span>Ahorro y cesantías de ' + Datos.Nombreparejacorto + '</dt><dd class="pista"><i class="c-p2" style="left:' + Datos.Izquierdaahorroparejaporcentaje + '%;width:' + Datos.Anchoahorroparejaporcentaje + '%"></i></dd><dd>' + Formatoenteropesos(Datos.Ahorropareja) + '</dd></div>';
   }
 
+  const Esleasing = Estadoactual.Modalidadelegida === 'leasing';
+  const Esnovis = Calculo.Modalidadelegida === 'novis' || Calculo.Techosobretopevis;
+
   if (Calculo.Subsidiocaja > 0) {
     Html += '<div class="cascada__fila"><dt><span class="op">+</span>Subsidio de la Caja (' + Datos.Cajanombreescapado + ')</dt><dd class="pista"><i class="c-caja" style="left:' + Datos.Izquierdasubsidioporcentaje + '%;width:' + Datos.Anchosubsidioporcentaje + '%"></i></dd><dd>' + Formatoenteropesos(Calculo.Subsidiocaja) + '</dd></div>';
-  } else if (Estadoactual.Caja && (Calculo.Techosobretopevis || !Calculo.Subsidiocajaelegible)) {
+  } else if (Esleasing) {
+    Html += '<div class="cascada__fila nulo"><dt><span class="op">+</span>Subsidio de Caja de Compensación</dt><dd class="pista"><em>No aplica en leasing habitacional</em></dd><dd>$0</dd></div>';
+  } else if (Estadoactual.Caja && (Esnovis || !Calculo.Subsidiocajaelegible)) {
     const Motivocaja = !Calculo.Subsidiocajaelegible
       ? 'No aplica: ingresos del hogar superan 4 SMMLV'
-      : 'No aplica: la vivienda pasa el tope VIS';
+      : 'No aplica: la vivienda es No VIS';
     Html += '<div class="cascada__fila nulo"><dt><span class="op">+</span>Subsidio de la Caja (' + Datos.Cajanombreescapado + ')</dt><dd class="pista"><em>' + Motivocaja + '</em></dd><dd>$0</dd></div>';
   } else {
     Html += '<div class="cascada__fila nulo"><dt><span class="op">+</span>Subsidio de Caja de Compensación</dt><dd class="pista"><em>No aplica: el hogar no reporta afiliación a Caja</em></dd><dd>$0</dd></div>';
@@ -25,17 +30,22 @@ function Armarcascadapdf(Estadoactual, Calculo, Datos) {
     Html += '<div class="cascada__fila"><dt><span class="op">+</span>Subsidio Mi Casa Ya (' + Datos.Sisbengrupoescapado + ')</dt><dd class="pista"><i class="c-caja" style="left:' + Datos.Izquierdamicasayaporcentaje + '%;width:' + Datos.Anchomicasayaporcentaje + '%"></i></dd><dd>' + Formatoenteropesos(Calculo.Subsidiomicasaya) + '</dd></div>';
   } else {
     let Motivomicasaya = 'No aplica: el hogar no registra Sisbén';
-    if (Calculo.Techosobretopevis) {
-      Motivomicasaya = 'No aplica: la vivienda pasa el tope VIS';
+    if (Esleasing) {
+      Motivomicasaya = 'No aplica en leasing habitacional';
+    } else if (Esnovis) {
+      Motivomicasaya = 'No aplica: la vivienda es No VIS';
     } else if (Estadoactual.Sisben) {
       Motivomicasaya = Calculo.Salariosminimos > 4 ? 'No aplica: ingresos superan 4 SMMLV' : 'Sin valor estimado';
     }
     Html += '<div class="cascada__fila nulo"><dt><span class="op">+</span>Mi Casa Ya / concurrente</dt><dd class="pista"><em>' + Motivomicasaya + '</em></dd><dd>$0</dd></div>';
   }
 
-  const Notaescritura = Calculo.Financiargastos ? ' (va en el crédito)' : ', ' + Porcentajereporte(Datos.Porcentajegastos);
+  let Notaescritura = ', ' + Porcentajereporte(Datos.Porcentajegastos);
+  if (Esleasing) Notaescritura = ' (asumidos por leasing)';
+  else if (Calculo.Financiargastos) Notaescritura = ' (va en el crédito)';
+  const Rotuloinicial = Esleasing ? 'Pago inicial, ' : 'Cuota inicial, ';
   Html += '<div class="cascada__fila suma"><dt><span class="op">=</span>Recursos propios del hogar</dt><dd class="pista"><i class="c-total" style="left:0;width:' + Datos.Anchorecursostotalporcentaje + '%"></i></dd><dd>' + Formatoenteropesos(Calculo.Efectivo) + '</dd></div>'
-    + '<div class="cascada__fila resta"><dt><span class="op">−</span>Cuota inicial, ' + Porcentajereporte(Datos.Porcentajecuotainicial) + ' del precio</dt><dd class="pista"><i class="c-cuota" style="left:' + Datos.Izquierdacuotainicialporcentaje + '%;width:' + Datos.Anchocuotainicialporcentaje + '%"></i></dd><dd>−' + Formatoenteropesos(Calculo.Cuotainicial) + '</dd></div>'
+    + '<div class="cascada__fila resta"><dt><span class="op">−</span>' + Rotuloinicial + Porcentajereporte(Datos.Porcentajecuotainicial) + ' del precio</dt><dd class="pista"><i class="c-cuota" style="left:' + Datos.Izquierdacuotainicialporcentaje + '%;width:' + Datos.Anchocuotainicialporcentaje + '%"></i></dd><dd>−' + Formatoenteropesos(Calculo.Cuotainicial) + '</dd></div>'
     + '<div class="cascada__fila resta"><dt><span class="op">−</span>Notaría, escritura y registro' + Notaescritura + '</dt><dd class="pista"><i class="c-gastos" style="left:' + Datos.Izquierdagastosporcentaje + '%;width:' + Datos.Anchogastosporcentaje + '%"></i></dd><dd>−' + Formatoenteropesos(Calculo.Gastos) + '</dd></div>';
 
   if (Calculo.Falta > 0) {
@@ -68,7 +78,7 @@ function Armartarjetacajapdf(Estadoactual, Calculo, Cajanombreescapado, Tasaanua
     else if (Calculo.Subsidiocajavencido) Textoasignacion = 'Asignación vencida';
 
     return '<div class="caja__grid"><div class="caja__entidad"><div class="caja__logo" aria-hidden="true">' + Cajalogo + '</div><div><h3>' + Cajanombreescapado + '</h3><p>Caja de compensación familiar<br>a la que está afiliado el hogar</p></div></div>'
-      + '<div class="caja__dato caja__dato--subsidio"><span>Subsidio de vivienda <em class="chip ' + Subsidioficha + '">' + Subsidioestadotexto + '</em></span><strong>' + Formatoenteropesos(Calculo.Subsidiocaja) + '</strong><small>' + Prefijovencido + Salariostexto + ' SMMLV de 2026 (' + Formatoenteropesos(Salariominimo) + ' cada uno)' + Notasubsidio + '</small></div>'
+      + '<div class="caja__dato caja__dato--subsidio"><span>Subsidio de vivienda <em class="chip ' + Subsidioficha + '">' + Subsidioestadotexto + '</em></span><strong>' + Formatoenteropesos(Calculo.Subsidiocaja) + '</strong><small>' + Prefijovencido + Salariostexto + ' SMMLV de ' + Aniovigente + ' (' + Formatoenteropesos(Salariominimo) + ' cada uno)' + Notasubsidio + '</small></div>'
       + '<div class="caja__dato"><span>Tasa de referencia</span><strong>' + Tasaanualtextocampo + '</strong><small>Equivale a ' + Tasamensualtexto + '</small></div></div>'
       + '<ol class="pasos" aria-label="Estado del subsidio">'
       + '<li class="paso hecho"><i>' + Iconopasopdf + '</i><b>Afiliación</b><span>Hogar afiliado</span></li>'
@@ -131,7 +141,11 @@ function Armartarjetacajapdf(Estadoactual, Calculo, Cajanombreescapado, Tasaanua
 }
 
 function Armartabladeudaspdf(Datos) {
-  let Html = '<tbody class="p1"><tr class="titular"><th scope="rowgroup"><i></i>' + Datos.Nombretitular + ' <small>' + Cantidadtexto(Datos.Deudasactivastitular.length, 'activa', 'activas') + '</small></th><td class="num">' + Formatoenteropesos(Datos.Deudastitular) + '</td><td class="num">' + Formatoenteropesos(Datos.Saldotitular) + '</td><td></td></tr>';
+  let Saldotitulartexto = '—';
+  if (Datos.Tienesaldotitular) Saldotitulartexto = Formatoenteropesos(Datos.Saldotitular);
+  else if (Datos.Deudasactivastitular.length > 0) Saldotitulartexto = 'No registra';
+
+  let Html = '<tbody class="p1"><tr class="titular"><th scope="rowgroup"><i></i>' + Datos.Nombretitular + ' <small>' + Cantidadtexto(Datos.Deudasactivastitular.length, 'activa', 'activas') + '</small></th><td class="num">' + Formatoenteropesos(Datos.Deudastitular) + '</td><td class="num">' + Saldotitulartexto + '</td><td></td></tr>';
   if (Datos.Deudaslista.length === 0) {
     Html += '<tr><td colspan="4" style="color:var(--mitecho-tenue);padding-left:12px">No reporta deudas ni compromisos financieros activos</td></tr>';
   } else {

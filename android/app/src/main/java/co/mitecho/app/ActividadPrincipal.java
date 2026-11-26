@@ -1,14 +1,20 @@
 package co.mitecho.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -46,6 +52,7 @@ public class ActividadPrincipal extends BridgeActivity {
     private int margenIzquierdoDp = 0;
     private int margenDerechoDp = 0;
     private String destinoPendiente = null;
+    private WebView visorImpresionActual = null;
 
     @Override
     protected void onCreate(Bundle estadoGuardado) {
@@ -273,5 +280,39 @@ public class ActividadPrincipal extends BridgeActivity {
         String d = destinoPendiente;
         destinoPendiente = null;
         return d;
+    }
+
+    // Abre el diálogo nativo de impresión / Guardar como PDF de Android con el HTML del reporte
+    void imprimirHtmlReporte(String contenidoHtml, String titulo) {
+        if (contenidoHtml == null || contenidoHtml.isEmpty()) return;
+        try {
+            WebView visor = new WebView(this);
+            visor.getSettings().setJavaScriptEnabled(false);
+            visor.getSettings().setAllowFileAccess(false);
+            visor.getSettings().setAllowContentAccess(false);
+            visorImpresionActual = visor;
+            visor.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView vista, String url) {
+                    try {
+                        PrintManager gestor = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                        if (gestor != null) {
+                            String nombre = (titulo != null && !titulo.isEmpty()) ? titulo : "Reporte MiTecho";
+                            PrintDocumentAdapter adaptador = vista.createPrintDocumentAdapter(nombre);
+                            PrintAttributes atributos = new PrintAttributes.Builder()
+                                .setMediaSize(PrintAttributes.MediaSize.NA_LETTER)
+                                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                                .build();
+                            gestor.print(nombre, adaptador, atributos);
+                        }
+                    } finally {
+                        visorImpresionActual = null;
+                    }
+                }
+            });
+            visor.loadDataWithBaseURL("https://localhost/", contenidoHtml, "text/html", "UTF-8", null);
+        } catch (Exception errorImpresion) {
+            visorImpresionActual = null;
+        }
     }
 }
