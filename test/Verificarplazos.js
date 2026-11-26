@@ -1,7 +1,13 @@
 // Revisión de los festivos de Colombia y de la fecha máxima de respuesta que calcula la función registrarlegal
 
+const Archivos = require('fs');
 const Rutas = require('path');
 const Enlace = require('url');
+
+const Carpetaraiz = Rutas.join(__dirname, '..');
+const Carpetaextra = Archivos.existsSync(Rutas.join(Carpetaraiz, 'supabase'))
+  ? Carpetaraiz
+  : (process.env.RUTAEXTRA || Rutas.join(Carpetaraiz, '..', 'admon apps', 'Mi Techo', 'Extra'));
 
 let Errores = 0;
 function Revisar(Condicion, Bien, Mal) {
@@ -11,7 +17,7 @@ function Revisar(Condicion, Bien, Mal) {
 
 (async () => {
   // Node 23.6 o superior lee TypeScript directo, así se prueba el mismo archivo que corre en Supabase
-  const Ruta = Enlace.pathToFileURL(Rutas.join(__dirname, '..', 'supabase', 'functions', 'registrarlegal', 'Festivos.ts')).href;
+  const Ruta = Enlace.pathToFileURL(Rutas.join(Carpetaextra, 'supabase', 'functions', 'registrarlegal', 'Festivos.ts')).href;
   const { Festivosdelanio, Calcularplazos, Textofecha, Hoybogota } = await import(Ruta);
 
   // Festivos 2026 publicados en el calendario oficial
@@ -40,7 +46,7 @@ function Revisar(Condicion, Bien, Mal) {
   Revisar(Textofecha(Hoybogota(new Date('2026-11-10T04:00:00Z'))) === '2026-11-09', 'La fecha de recepción usa la hora de Bogotá.', 'La fecha de recepción no usa la hora de Bogotá.');
 
   // Cuentas sin uso: los términos dicen que se borran a los 12 meses con aviso por correo 30 días antes
-  const Rutaplazo = Enlace.pathToFileURL(Rutas.join(__dirname, '..', 'supabase', 'functions', 'registrarlegal', 'Plazoinactividad.ts')).href;
+  const Rutaplazo = Enlace.pathToFileURL(Rutas.join(Carpetaextra, 'supabase', 'functions', 'registrarlegal', 'Plazoinactividad.ts')).href;
   const { Decidirinactividad, Sumarmeses } = await import(Rutaplazo);
   const Hoy = Date.UTC(2026, 10, 9, 8);
   const Undia = 86400000;

@@ -6,7 +6,11 @@ const Maquinavirtual = require('vm');
 const Cifrado = require('crypto');
 
 const Carpetaraiz = Rutas.join(__dirname, '..');
+const Carpetaextra = Archivos.existsSync(Rutas.join(Carpetaraiz, 'supabase'))
+  ? Carpetaraiz
+  : (process.env.RUTAEXTRA || Rutas.join(Carpetaraiz, '..', 'admon apps', 'Mi Techo', 'Extra'));
 const Leer = (Ruta) => Archivos.readFileSync(Rutas.join(Carpetaraiz, Ruta), 'utf8');
+const Leerextra = (Ruta) => Archivos.readFileSync(Rutas.join(Carpetaextra, Ruta), 'utf8');
 let Errores = 0;
 const Revisar = (Condicion, Bien, Falla) => {
   if (Condicion) console.log('[BIEN] ' + Bien);
@@ -40,13 +44,13 @@ Revisar(Migrado.Infoentidad.caja.Montosubsidio === 5000000 && Migrado.Infoentida
 Revisar(JSON.stringify(Migrarestadoantiguo(Migrado)) === JSON.stringify(Migrado), 'Migrar dos veces deja los datos iguales.', 'Migrar dos veces cambió los datos.');
 
 // La plantilla que usa la función de Supabase debe ser la misma de correos/Bienvenida.html
-const Plantillafuncion = Leer('supabase/functions/enviarbienvenida/Plantillabienvenida.ts');
-const Htmlesperado = Leer('correos/Bienvenida.html');
+const Plantillafuncion = Leerextra('supabase/functions/enviarbienvenida/Plantillabienvenida.ts');
+const Htmlesperado = Leerextra('correos/Bienvenida.html');
 Revisar(Plantillafuncion.includes(JSON.stringify(Htmlesperado)), 'La plantilla de la función de bienvenida está al día.', 'Cambió correos/Bienvenida.html: corre node supabase/Actualizarplantilla.js');
 
 // Lo mismo con el aviso de inactividad, que además solo debe tener los tres datos que llena la función
-const Avisofuncion = Leer('supabase/functions/registrarlegal/Plantillainactividad.ts');
-const Avisohtml = Leer('correos/Avisoinactividad.html');
+const Avisofuncion = Leerextra('supabase/functions/registrarlegal/Plantillainactividad.ts');
+const Avisohtml = Leerextra('correos/Avisoinactividad.html');
 Revisar(Avisofuncion.includes(JSON.stringify(Avisohtml)), 'La plantilla del aviso de inactividad está al día.', 'Cambió correos/Avisoinactividad.html: corre node supabase/Actualizarplantilla.js');
 const Datosaviso = [...new Set([...Avisohtml.matchAll(/\{\{(\w+)\}\}/g)].map(Coincidencia => Coincidencia[1]))].sort().join(',');
 Revisar(Datosaviso === 'correo,fecha,nombre', 'El aviso de inactividad solo usa nombre, correo y fecha.', 'El aviso de inactividad usa datos que la función no llena: ' + Datosaviso);
@@ -68,8 +72,8 @@ Revisar(!/script\.google(usercontent)?\.com/.test(Codigoapp), 'La app no llama d
 
 // La versión de la política tiene que ser la misma en la app, en la función del servidor y en la página publicada
 const Versionapp = (Leer('js/Valoresautorizacion.js').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
-const Versionservidor = (Leer('supabase/functions/registrarlegal/index.ts').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
-const Versionpagina = (Leer('sitiolegal/Politicadeprivacidad.html').match(/<span class="chip">Versión ([\d.]+)<\/span>/) || [])[1];
+const Versionservidor = (Leerextra('supabase/functions/registrarlegal/index.ts').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
+const Versionpagina = (Leerextra('sitiolegal/Politicadeprivacidad.html').match(/<span class="chip">Versión ([\d.]+)<\/span>/) || [])[1];
 Revisar(Versionapp && Versionapp === Versionservidor && Versionapp === Versionpagina, 'La versión de la política coincide en la app, el servidor y el sitio legal (' + Versionapp + ').', 'Las versiones de la política no coinciden: app ' + Versionapp + ', servidor ' + Versionservidor + ', sitio ' + Versionpagina + '.');
 
 if (Errores === 0) {

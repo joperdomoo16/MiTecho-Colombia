@@ -5,7 +5,10 @@ const Archivos = require('fs');
 const Rutas = require('path');
 
 const Raiz = Rutas.join(__dirname, '..');
-const Exclusiones = JSON.parse(Archivos.readFileSync(Rutas.join(Raiz, 'firebase.json'), 'utf8')).hosting.ignore;
+const Raizhosting = Archivos.existsSync(Rutas.join(Raiz, 'firebase.json'))
+  ? Raiz
+  : (process.env.RUTAEXTRA || Rutas.join(Raiz, '..', 'admon apps', 'Mi Techo', 'Extra'));
+const Exclusiones = JSON.parse(Archivos.readFileSync(Rutas.join(Raizhosting, 'firebase.json'), 'utf8')).hosting.ignore;
 const Permitidos = [/^404\.html$/,/^sitiolegal\/[^/]+\.(html|css|js|png|webp|svg|ico)$/, /^siterecuperacion\/(?:[a-z]+\/)?[^/]+\.(html|css|js)$/, /^assets\/Logo(app|glyph)\.(png|webp)$/];
 
 // Convierte los patrones de Firebase (** y *) en expresiones regulares
@@ -18,7 +21,7 @@ const Patrones = Exclusiones.map(Patron);
 const Excluido = Ruta => Patrones.some(Expresion => Expresion.test(Ruta));
 
 function Publicados(Carpeta = '') {
-  return Archivos.readdirSync(Rutas.join(Raiz, Carpeta), { withFileTypes: true }).flatMap(Entrada => {
+  return Archivos.readdirSync(Rutas.join(Raizhosting, Carpeta), { withFileTypes: true }).flatMap(Entrada => {
     const Ruta = Carpeta ? Carpeta + '/' + Entrada.name : Entrada.name;
     if (Entrada.isDirectory()) return Excluido(Ruta) || Excluido(Ruta + '/x') ? [] : Publicados(Ruta);
     return Excluido(Ruta) ? [] : [Ruta];
