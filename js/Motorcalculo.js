@@ -22,7 +22,7 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
   } else {
     Ingresotitular = Ingresosegunfuente(Estadoactual, Automatico);
     if (Estadoactual.Pareja) {
-      Ingresovariable = Estadoactual.Parejaingreso ?? 2400000;
+      Ingresovariable = Estadoactual.Parejaingreso || 0;
     }
   }
   const Ingresototal = Ingresotitular + Ingresovariable;
@@ -35,7 +35,7 @@ function Calcularcapacidad(Estadoactual, Deudasmanuales, Modalidadmanual) {
   } else {
     Deudastitular = Deudas.filter(Deuda => Deuda.Activa !== false).reduce((Acumulado, Deuda) => Acumulado + (Deuda.Cuota || 0), 0);
     if (Estadoactual.Pareja) {
-      Deudaspareja = Estadoactual.Parejadeudas ?? 300000;
+      Deudaspareja = Estadoactual.Parejadeudas || 0;
     }
   }
   const Deudasmes = Deudastitular + Deudaspareja;

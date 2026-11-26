@@ -37,8 +37,10 @@ function Generarvaloresadicionales(Calculo, Configuracion, Seleccion) {
     Plazorecomendadonota = '30 años: Cuota mensual más baja para maximizar tu cupo, aunque pagas más intereses en el tiempo.';
   }
 
-  const Pagoinicial = Estadoactual.Parejaingreso ?? 2400000;
-  const Pagodeudas = Estadoactual.Parejadeudas ?? 300000;
+  const Pagoinicial = Estadoactual.Parejaingreso || 0;
+  const Pagodeudas = Estadoactual.Parejadeudas || 0;
+  const Ahorropareja = Estadoactual.Parejaahorro || 0;
+  const Parejacondatos = Boolean(Estadoactual.Pareja && (Pagoinicial > 0 || Pagodeudas > 0 || Ahorropareja > 0));
   const Solo = this.Calcular({ ...Estadoactual, Pareja: false });
   const Juntos = this.Calcular({ ...Estadoactual, Pareja: true });
   const Digito = (Elemento, Maximo) => Limpiardigitos(Elemento.target.value, Maximo);
@@ -189,24 +191,37 @@ function Generarvaloresadicionales(Calculo, Configuracion, Seleccion) {
       this.Cambiarestado({ Soporteocupado: false, Soporteenviado: true, Soporteradicado: String(Resultado.datos.radicado), Soportefechamaxima: String(Resultado.datos.fecha_maxima || '') });
       this.Aviso('Recibimos tu solicitud. Radicado ' + Resultado.datos.radicado + '.');
     },
-    Ingresoetiquetaayuda: Estadoactual.Pareja ? 'Ingreso del hogar (con pareja)' : 'Ingreso mensual',
+    Ingresoetiquetaayuda: Parejacondatos ? 'Ingreso del hogar (con pareja)' : 'Ingreso mensual',
     Topevissalariosminimos: Calculo.Topevissalarios,
     Ingresonecesariotexto: Formatoenteropesos(Calculo.Ingresonecesario),
     ...this.Entidadvalores(Calculo, Seleccion),
     Parejaactiva: Boolean(Estadoactual.Pareja),
+    Parejacondatos,
+    Parejasindatos: Boolean(Estadoactual.Pareja) && !Parejacondatos,
+    Eliminarpareja: () => {
+      this.Cambiarestado({
+        Pareja: false,
+        Parejanombre: '',
+        Parejaingreso: 0,
+        Parejadeudas: 0,
+        Parejaahorro: 0,
+        Parejaactividad: ''
+      });
+      this.Aviso('Quitamos y borramos los datos de la otra persona.');
+    },
     Parejanombrecampo: Estadoactual.Parejanombre || '',
     Escribirparejanombre: (Elemento) => this.Cambiarestado({ Parejanombre: Textoseguro(Elemento.target.value, 70) }),
     Parejaingresotexto: Pagoinicial ? Formatoenteropesos(Pagoinicial) : '',
     Parejadeudastexto: Pagodeudas ? Formatoenteropesos(Pagodeudas) : '',
     Escribirparejaingreso: (Elemento) => this.Cambiarestado({ Parejaingreso: Digito(Elemento, Limitesfinancieros.Ingresomensual) }),
     Escribirparejadeudas: (Elemento) => this.Cambiarestado({ Parejadeudas: Digito(Elemento, Limitesfinancieros.Deudacuota) }),
-    Parejaahorrotexto: Estadoactual.Parejaahorro ? Formatoenteropesos(Estadoactual.Parejaahorro) : '',
+    Parejaahorrotexto: Ahorropareja ? Formatoenteropesos(Ahorropareja) : '',
+    Escribirparejaactividad: (Elemento) => this.Cambiarestado({ Parejaactividad: Textoseguro(Elemento.target.value, 60) }),
     Escribirparejaahorro: (Elemento) => this.Cambiarestado({ Parejaahorro: Digito(Elemento, Limitesfinancieros.Ahorro) }),
     Parejaactividadcampo: Estadoactual.Parejaactividad || '',
-    Escribirparejaactividad: (Elemento) => this.Cambiarestado({ Parejaactividad: Textoseguro(Elemento.target.value, 60) }),
     Parejasolomillones: '$' + Formatomillones(Solo.Preciotecho) + ' M',
     Parejajuntosmillones: '$' + Formatomillones(Juntos.Preciotecho) + ' M',
-    Parejasubsidioaviso: (Advertencia || Juntos.Subsidiocajasobretope) && Estadoactual.Modalidadelegida === 'vis',
+    Parejasubsidioaviso: Parejacondatos && (Advertencia || Juntos.Subsidiocajasobretope) && Estadoactual.Modalidadelegida === 'vis',
     Parejasubsidiomensaje: Subsidiomensaje,
     Parejamiingreso: Formatoenteropesos(Solo.Ingresototal),
     Parejasuingreso: Formatoenteropesos(Pagoinicial),
@@ -214,7 +229,7 @@ function Generarvaloresadicionales(Calculo, Configuracion, Seleccion) {
     Parejaneto: Formatoenteropesos(Juntos.Neto),
     Parejasubsidioayuda: Advertencia ? 'Con tus datos: ' + Subsidiomensaje : 'Con tus datos, sumar ingresos no cambia tu subsidio.',
     Ayudapromediotitulo: Calculo.Variablepromedio > 0
-      ? 'Hoy usas ' + Calculo.N + ' meses: tu ingreso es ' + Formatoenteropesos(Calculo.Ingresotitular) + (Estadoactual.Pareja ? ' (sin pareja)' : '')
+      ? 'Hoy usas ' + Calculo.N + ' meses: tu ingreso es ' + Formatoenteropesos(Calculo.Ingresotitular) + (Parejacondatos ? ' (sin pareja)' : '')
       : 'No tienes ingresos variables',
     Ayudapromediodetalle: Calculo.Variablepromedio > 0
       ? 'Si ganas por ventas, turnos o comisiones, el banco no mira tu mejor mes sino el promedio de tus extractos. Con 3 meses tu ingreso sería ' + Formatoenteropesos(Ayudauno) + ' y con 6 meses ' + Formatoenteropesos(Ayudados) + '. Con 6 meses el promedio es más estable; con 3 pesan más los meses recientes.'
