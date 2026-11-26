@@ -14,8 +14,8 @@ android {
         applicationId "co.mitecho.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 13
-        versionName "1.0.9"
+        versionCode 14
+        versionName "1.0.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             // Ignora carpetas ocultas y archivos temporales al empacar los recursos móviles
