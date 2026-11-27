@@ -4,7 +4,8 @@
   "description": "MiTecho Colombia - App oficial para celular",
   "private": true,
   "scripts": {
-    "test": "node test/Verificarmodulos.js && node test/Verificarsalida.js && node test/Verificarcasos.js && node test/Verificarpdf.js && node test/Verificarreporte.js && node test/Verificarinicio.js && node test/Verificarsincronizacion.js && node test/Verificarrespaldo.js && node test/Verificarseguridad.js && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON test/Verificarplazos.js && node test/Verificardist.js && node test/Verificarhosting.js && node test/Verificartutorial.js"
+    "build": "node build.js",
+    "test": "node test/modulos.test.js && node test/salida.test.js && node test/casos.test.js && node test/pdf.test.js && node test/reporte.test.js && node test/inicio.test.js && node test/sincronizacion.test.js && node test/respaldo.test.js && node test/seguridad.test.js && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON test/plazos.test.js && node test/dist.test.js && node test/hosting.test.js && node test/tutorial.test.js"
   },
   "dependencies": {
     "@capacitor-community/admob": "8.2.1",

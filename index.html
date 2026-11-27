@@ -16,26 +16,9 @@
   <!-- Tipografías locales y hojas de estilo por pantalla -->
   <link rel="preload" href="assets/fuentes/Hankengrotesk.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fuentes/Familjengrotesk.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/Fuentes.css">
-  <link rel="stylesheet" href="css/Estilos.css">
-  <link rel="stylesheet" href="css/Tutorial.css">
-  <link rel="stylesheet" href="css/Formularios.css">
-  <link rel="stylesheet" href="css/Vistas.css">
-  <link rel="stylesheet" href="css/Invitado.css">
-  <link rel="stylesheet" href="css/Tipovivienda.css">
-  <link rel="stylesheet" href="css/Componentes.css">
-  <link rel="stylesheet" href="css/Inicio.css">
-  <link rel="stylesheet" href="css/Plan.css">
-  <link rel="stylesheet" href="css/Movimientos.css">
-  <link rel="stylesheet" href="css/Simulador.css">
-  <link rel="stylesheet" href="css/Registrar.css">
-  <link rel="stylesheet" href="css/Bancos.css">
-  <link rel="stylesheet" href="css/Viviendas.css">
-  <link rel="stylesheet" href="css/Reporte.css">
-  <link rel="stylesheet" href="css/Subsidios.css">
-  <link rel="stylesheet" href="css/Perfil.css">
-  <link rel="stylesheet" href="css/Ayuda.css">
-  <link rel="stylesheet" href="css/Entrada.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
 </head>
 <body>
 <main id="app" role="main"></main>
@@ -43,85 +26,85 @@
 <template id="mt-template"></template>
 
 <!-- Módulos de reglas financieras, reporte PDF, sesión, vistas y arranque -->
-<script src="js/Constantesbancarias.js"></script>
-<script src="js/Validaciones.js"></script>
-<script src="js/Historialregistros.js"></script>
-<script src="js/Listaciudades.js"></script>
-<script src="js/Proyectosaliados.js"></script>
-<script src="js/Tasasmercado.js"></script>
-<script src="js/Motorsubsidios.js"></script>
-<script src="js/Motorcalculo.js"></script>
-<script src="js/Logocertificado.js"></script>
-<script src="js/Estiloscertificadobase.js"></script>
-<script src="js/Estiloscertificado.js"></script>
-<script src="js/Reportedatos.js"></script>
-<script src="js/Generadorpdfsecciones.js"></script>
-<script src="js/Generadorpdfhojatres.js"></script>
-<script src="js/Generadorpdf.js"></script>
-<script src="js/Visorcertificado.js"></script>
-<script src="js/Servicioapi.js"></script>
-<script src="js/Migraciondatos.js"></script>
-<script src="js/Almacenamiento.js"></script>
-<script src="js/Respaldonube.js"></script>
-<script src="js/Sesionusuario.js"></script>
-<script src="js/Sesioninvitado.js"></script>
-<script src="js/Estadobase.js"></script>
-<script src="js/Racha.js"></script>
-<script src="js/Valoresperfil.js"></script>
-<script src="js/Valoresadicionales.js"></script>
-<script src="js/Valoresacceso.js"></script>
-<script src="js/Valoresinicio.js"></script>
-<script src="js/Valoresingresos.js"></script>
-<script src="js/Valoressimulador.js"></script>
-<script src="js/Valoresmenu.js"></script>
-<script src="js/Anuncios.js"></script>
-<script src="js/Valoresautorizacion.js"></script>
-<script src="js/Valorescuenta.js"></script>
-<script src="js/Tutorial.js"></script>
-<script src="js/Valorestutorial.js"></script>
-<script src="js/Valorestasas.js"></script>
-<script src="js/Valoresinvitado.js"></script>
-<script src="js/Valorestipovivienda.js"></script>
-<script src="js/Siguientepaso.js"></script>
-<script src="js/Valorescalculo.js"></script>
-<script src="js/Valoresplan.js"></script>
-<script src="js/Valoresdeudas.js"></script>
-<script src="js/Valoresmovimientos.js"></script>
-<script src="js/Valoresviviendas.js"></script>
-<script src="js/Valoresreporte.js"></script>
-<script src="js/Valoressubsidios.js"></script>
-<script src="js/Valoresayuda.js"></script>
-<script src="js/Valoresbienvenida.js"></script>
-<script src="js/Valorespantallas.js"></script>
-<script src="vistas/Plantillabienvenida.js"></script>
-<script src="vistas/Plantillacuestionario.js"></script>
-<script src="vistas/Plantillaperfilusuario.js"></script>
-<script src="vistas/Plantillaayuda.js"></script>
-<script src="vistas/Plantillanavegacionsuperior.js"></script>
-<script src="vistas/Plantillaperfil.js"></script>
-<script src="vistas/Plantillaingresosplan.js"></script>
-<script src="vistas/Plantillainicio.js"></script>
-<script src="vistas/Plantillaplan.js"></script>
-<script src="vistas/Plantillamovimientos.js"></script>
-<script src="vistas/Plantillasimulador.js"></script>
-<script src="vistas/Plantillaprincipal.js"></script>
-<script src="vistas/Plantillaregistrar.js"></script>
-<script src="vistas/Plantillamodales.js"></script>
-<script src="vistas/Plantillaautorizacion.js"></script>
-<script src="vistas/Plantillaeliminacion.js"></script>
-<script src="vistas/Plantillaavisoinvitado.js"></script>
-<script src="vistas/Plantillatipovivienda.js"></script>
-<script src="vistas/Plantillacalculo.js"></script>
-<script src="vistas/Plantillatutorial.js"></script>
-<script src="vistas/Plantillatasas.js"></script>
-<script src="vistas/Plantilladeudas.js"></script>
-<script src="vistas/Plantillareporte.js"></script>
-<script src="vistas/Plantillasubsidios.js"></script>
-<script src="js/Navegacionatras.js"></script>
-<script src="js/Temaautomatico.js"></script>
-<script src="js/Motorvista.js"></script>
-<script src="js/Gestiondeudaspdf.js"></script>
-<script src="js/Gestohojas.js"></script>
-<script src="js/Aplicacion.js"></script>
+<script src="js/store/constantes-bancarias.js"></script>
+<script src="js/utils/validaciones.js"></script>
+<script src="js/utils/historial-registros.js"></script>
+<script src="js/store/lista-ciudades.js"></script>
+<script src="js/store/proyectos-aliados.js"></script>
+<script src="js/services/tasas-mercado.js"></script>
+<script src="js/utils/motor-subsidios.js"></script>
+<script src="js/utils/motor-calculo.js"></script>
+<script src="js/pdf/pdf-logo.js"></script>
+<script src="js/pdf/pdf-base-styles.js"></script>
+<script src="js/pdf/pdf-styles.js"></script>
+<script src="js/pdf/pdf-report-data.js"></script>
+<script src="js/pdf/pdf-sections.js"></script>
+<script src="js/pdf/pdf-page-three.js"></script>
+<script src="js/pdf/pdf-generator.js"></script>
+<script src="js/pdf/pdf-viewer.js"></script>
+<script src="js/services/api-service.js"></script>
+<script src="js/services/data-migration.js"></script>
+<script src="js/services/storage.js"></script>
+<script src="js/services/cloud-backup.js"></script>
+<script src="js/services/sesion-usuario.js"></script>
+<script src="js/services/sesion-invitado.js"></script>
+<script src="js/store/estado-base.js"></script>
+<script src="js/utils/racha.js"></script>
+<script src="js/store/store-perfil.js"></script>
+<script src="js/store/store-adicionales.js"></script>
+<script src="js/store/store-acceso.js"></script>
+<script src="js/store/store-inicio.js"></script>
+<script src="js/store/store-ingresos.js"></script>
+<script src="js/store/store-simulador.js"></script>
+<script src="js/store/store-menu.js"></script>
+<script src="js/services/anuncios.js"></script>
+<script src="js/store/store-autorizacion.js"></script>
+<script src="js/store/store-cuenta.js"></script>
+<script src="js/utils/tutorial.js"></script>
+<script src="js/store/store-tutorial.js"></script>
+<script src="js/store/store-tasas.js"></script>
+<script src="js/store/store-invitado.js"></script>
+<script src="js/store/store-tipo-vivienda.js"></script>
+<script src="js/utils/siguiente-paso.js"></script>
+<script src="js/store/store-calculo.js"></script>
+<script src="js/store/store-plan.js"></script>
+<script src="js/store/store-deudas.js"></script>
+<script src="js/store/store-movimientos.js"></script>
+<script src="js/store/store-viviendas.js"></script>
+<script src="js/store/store-reporte.js"></script>
+<script src="js/store/store-subsidios.js"></script>
+<script src="js/store/store-ayuda.js"></script>
+<script src="js/store/store-bienvenida.js"></script>
+<script src="js/store/store-pantallas.js"></script>
+<script src="vistas/bienvenida-view.js"></script>
+<script src="vistas/cuestionario-view.js"></script>
+<script src="vistas/perfil-usuario-view.js"></script>
+<script src="vistas/ayuda-view.js"></script>
+<script src="vistas/navegacion-superior-view.js"></script>
+<script src="vistas/perfil-view.js"></script>
+<script src="vistas/ingresos-plan-view.js"></script>
+<script src="vistas/inicio-view.js"></script>
+<script src="vistas/plan-view.js"></script>
+<script src="vistas/movimientos-view.js"></script>
+<script src="vistas/simulador-view.js"></script>
+<script src="vistas/principal-view.js"></script>
+<script src="vistas/registrar-view.js"></script>
+<script src="vistas/modales-view.js"></script>
+<script src="vistas/autorizacion-view.js"></script>
+<script src="vistas/eliminacion-view.js"></script>
+<script src="vistas/aviso-invitado-view.js"></script>
+<script src="vistas/tipo-vivienda-view.js"></script>
+<script src="vistas/calculo-view.js"></script>
+<script src="vistas/tutorial-view.js"></script>
+<script src="vistas/tasas-view.js"></script>
+<script src="vistas/deudas-view.js"></script>
+<script src="vistas/reporte-view.js"></script>
+<script src="vistas/subsidios-view.js"></script>
+<script src="js/utils/navegacion-atras.js"></script>
+<script src="js/utils/tema-automatico.js"></script>
+<script src="js/utils/motor-vista.js"></script>
+<script src="js/pdf/pdf-debts.js"></script>
+<script src="js/utils/gestor-hojas.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

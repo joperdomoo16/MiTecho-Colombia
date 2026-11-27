@@ -7,7 +7,7 @@ const Maquinavirtual = require('vm');
 
 const Raiz = Rutas.join(__dirname, '..');
 const Leer = Ruta => Archivos.readFileSync(Rutas.join(Raiz, Ruta), 'utf8');
-for (const Nombre of ['Constantesbancarias', 'Validaciones', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Respaldonube']) {
+for (const Nombre of ['store/constantes-bancarias', 'utils/validaciones', 'utils/historial-registros', 'utils/motor-subsidios', 'utils/motor-calculo', 'services/cloud-backup']) {
   Maquinavirtual.runInThisContext(Leer('js/' + Nombre + '.js'));
 }
 
@@ -62,9 +62,9 @@ for (const Modalidad of ['vis', 'novis', 'leasing']) {
 const Cargaenvenenada = Acotarcargaperfil({ fijo: Infinity, ahorro: 1e40, nombre: 'x'.repeat(5000), pareja_ing: NaN, datos_perfil: { texto: 'y'.repeat(30000) } });
 Revisar(Cargaenvenenada.fijo === 0 && Cargaenvenenada.ahorro === 1e10 && Cargaenvenenada.nombre.length === 200 && Cargaenvenenada.pareja_ing === 0 && Object.keys(Cargaenvenenada.datos_perfil).length === 0,
   'La carga hacia Supabase descarta Infinity, NaN, números enormes y textos desmedidos.', 'Acotarcargaperfil dejó pasar valores extremos.');
-Revisar(/Acotarcargaperfil\(Perfil\)/.test(Leer('js/Servicioapi.js')), 'Guardarperfilapi pasa el perfil por la limpieza antes de enviarlo.', 'Guardarperfilapi no limpia el perfil.');
+Revisar(/Acotarcargaperfil\(Perfil\)/.test(Leer('js/services/api-service.js')), 'Guardarperfilapi pasa el perfil por la limpieza antes de enviarlo.', 'Guardarperfilapi no limpia el perfil.');
 
-const Anuncios = Leer('js/Anuncios.js');
+const Anuncios = Leer('js/services/anuncios.js');
 const Textos = Leer('android/app/src/main/res/values/strings.xml');
 const Gradle = Leer('android/app/build.gradle');
 const Versioncodigo = (Gradle.match(/versionCode\s+(\d+)/) || [])[1];
@@ -72,7 +72,7 @@ const Versionnombre = (Gradle.match(/versionName\s+"([^"]+)"/) || [])[1];
 Revisar(Versionnombre === JSON.parse(Leer('package.json')).version, 'versionName ' + Versionnombre + ' coincide con package.json (versionCode ' + Versioncodigo + ').', 'versionName y package.json no coinciden.');
 if (/Prueba:\s*true/.test(Anuncios) || /3940256099942544/.test(Textos + Anuncios)) {
   // Es solo informativo: en fase de testing los ID de prueba son lo correcto y no bloquean npm test
-  console.log('\n[AVISO] AdMob está con ID de prueba (Prueba: true). Es lo correcto en testing. Para producción cambia Banner y Recompensa en js/Anuncios.js, Prueba a false, y admob_app_id en strings.xml.');
+  console.log('\n[AVISO] AdMob está con ID de prueba (Prueba: true). Es lo correcto en testing. Para producción cambia Banner y Recompensa en js/services/anuncios.js, Prueba a false, y admob_app_id en strings.xml.');
 } else {
   console.log('[BIEN] AdMob usa ID de producción.');
 }

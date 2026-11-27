@@ -26,17 +26,17 @@ const Scripts = (Politica.match(/script-src ([^;]+)/) || [])[1] || '';
 Revisar(Politica.length > 0, 'index.html tiene política CSP.', 'index.html no tiene política CSP.');
 Revisar(!Scripts.includes('unsafe-inline') && !/\bhttps:/.test(Scripts), 'script-src no permite código en línea ni scripts de cualquier sitio.', 'script-src quedó abierto: ' + Scripts);
 
-Maquinavirtual.runInThisContext(Leer('js/Generadorpdf.js'));
+Maquinavirtual.runInThisContext(Leer('js/pdf/pdf-generator.js'));
 const Huella = Cifrado.createHash('sha256').update(Scriptajustecertificado).digest('base64');
 Revisar(Scripts.includes("'sha256-" + Huella + "'"), 'La huella del script del certificado coincide con la CSP.', 'Cambió el script del certificado: actualiza la CSP con sha256-' + Huella);
 
 // Las plantillas usan atributos al-* y nunca onclick, onerror o similares
-const Plantillas = Archivos.readdirSync(Rutas.join(Carpetaraiz, 'vistas')).map(Nombre => Leer('vistas/' + Nombre)).join('\n') + Leer('js/Aplicacion.js');
+const Plantillas = Archivos.readdirSync(Rutas.join(Carpetaraiz, 'vistas')).map(Nombre => Leer('vistas/' + Nombre)).join('\n') + Leer('js/app.js');
 const Enlinea = Plantillas.match(/\son[a-z]+="/gi) || [];
 Revisar(Enlinea.length === 0, 'Las plantillas no tienen eventos en línea.', 'Hay eventos en línea en las plantillas: ' + Enlinea.slice(0, 5).join(' '));
 
 // Los datos guardados por la versión anterior se convierten y la conversión se puede repetir sin dañar nada
-Maquinavirtual.runInThisContext(Leer('js/Migraciondatos.js'));
+Maquinavirtual.runInThisContext(Leer('js/services/data-migration.js'));
 const Antiguo = { logged: true, debts: [{ id: 'd1', name: 'Tarjeta', cuota: 300000, on: true }], entInfo: { caja: { subMonto: 5000000, mesesReq: 12 } }, rem: { daily: true } };
 const Migrado = Migrarestadoantiguo(Antiguo);
 Revisar(Migrado.Ingresado === true && Migrado.Deudas[0].Cuota === 300000 && Migrado.Deudas[0].id === 'd1', 'La migración convierte el estado y las deudas.', 'La migración no convirtió el estado o las deudas.');
@@ -56,22 +56,26 @@ const Datosaviso = [...new Set([...Avisohtml.matchAll(/\{\{(\w+)\}\}/g)].map(Coi
 Revisar(Datosaviso === 'correo,fecha,nombre', 'El aviso de inactividad solo usa nombre, correo y fecha.', 'El aviso de inactividad usa datos que la función no llena: ' + Datosaviso);
 
 // El nombre del registro solo acepta letras y se valida antes de enviarlo
-Maquinavirtual.runInThisContext(Leer('js/Validaciones.js'));
+Maquinavirtual.runInThisContext(Leer('js/utils/validaciones.js'));
 Revisar(Validarnombre('María José Ñañez') === '' && Validarnombre('<script>') !== '' && Validarnombre(' ') !== '', 'La validación del nombre acepta nombres reales y rechaza código.', 'La validación del nombre no se comporta como debe.');
 
 // Los encabezados de las peticiones tienen que ser los estándar; si uno se escribe mal, Supabase no entiende lo que se le manda
 const Encabezadosvalidos = ['Content-Type', 'Accept', 'apikey', 'Authorization', 'Prefer'];
-const Codigored = Leer('js/Servicioapi.js');
+const Codigored = Leer('js/services/api-service.js');
 const Encabezadosusados = [...Codigored.matchAll(/'([A-Za-z]+(?:-[A-Za-z]+)*)'\s*:\s*['(]/g)].map(Coincidencia => Coincidencia[1]);
 const Desconocidos = [...new Set(Encabezadosusados.filter(Nombre => !Encabezadosvalidos.includes(Nombre)))];
 Revisar(Encabezadosusados.length > 0 && Desconocidos.length === 0, 'Los encabezados de las peticiones son los estándar.', 'Hay encabezados que no existen: ' + Desconocidos.join(', '));
 
 // La app solo habla con Supabase: la hoja de Google se llena desde el servidor, con su clave guardada allá
-const Codigoapp = Leer('index.html') + Archivos.readdirSync(Rutas.join(__dirname, '..', 'js')).map(Nombre => Leer('js/' + Nombre)).join('');
+const Leerjsrecursivo = (Carpeta) => Archivos.readdirSync(Carpeta, { withFileTypes: true }).flatMap(Entrada => {
+  const Ruta = Rutas.join(Carpeta, Entrada.name);
+  return Entrada.isDirectory() ? Leerjsrecursivo(Ruta) : (Entrada.name.endsWith('.js') ? [Archivos.readFileSync(Ruta, 'utf8')] : []);
+});
+const Codigoapp = Leer('index.html') + Leerjsrecursivo(Rutas.join(__dirname, '..', 'js')).join('');
 Revisar(!/script\.google(usercontent)?\.com/.test(Codigoapp), 'La app no llama directo a Google Apps Script.', 'La app todavía tiene direcciones de script.google.com.');
 
 // La versión de la política tiene que ser la misma en la app, en la función del servidor y en la página publicada
-const Versionapp = (Leer('js/Valoresautorizacion.js').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
+const Versionapp = (Leer('js/store/store-autorizacion.js').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
 const Versionservidor = (Leerextra('supabase/functions/registrarlegal/index.ts').match(/const Versionpolitica = '([\d.]+)'/) || [])[1];
 const Versionpagina = (Leerextra('sitiolegal/Politicadeprivacidad.html').match(/<span class="chip">Versión ([\d.]+)<\/span>/) || [])[1];
 Revisar(Versionapp && Versionapp === Versionservidor && Versionapp === Versionpagina, 'La versión de la política coincide en la app, el servidor y el sitio legal (' + Versionapp + ').', 'Las versiones de la política no coinciden: app ' + Versionapp + ', servidor ' + Versionservidor + ', sitio ' + Versionpagina + '.');

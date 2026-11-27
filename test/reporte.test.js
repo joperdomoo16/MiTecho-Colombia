@@ -4,7 +4,7 @@ const Archivos = require('fs');
 const Rutas = require('path');
 const Maquinavirtual = require('vm');
 
-for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Logocertificado', 'Estiloscertificadobase', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfsecciones', 'Generadorpdfhojatres', 'Generadorpdf']) {
+for (const Nombre of ['store/constantes-bancarias', 'utils/historial-registros', 'utils/motor-subsidios', 'utils/motor-calculo', 'pdf/pdf-logo', 'pdf/pdf-base-styles', 'pdf/pdf-styles', 'pdf/pdf-report-data', 'pdf/pdf-sections', 'pdf/pdf-page-three', 'pdf/pdf-generator']) {
   Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/' + Nombre + '.js'), 'utf8'));
 }
 
@@ -31,7 +31,7 @@ for (const Perfil of Perfiles) {
   Revisar(!/Hoja \d de 2/.test(Html), 'Todas las hojas dicen "de 3".', 'Queda una hoja marcada "de 2".');
 }
 
-const Visor = Archivos.readFileSync(Rutas.join(__dirname, '../js/Visorcertificado.js'), 'utf8');
+const Visor = Archivos.readFileSync(Rutas.join(__dirname, '../js/pdf/pdf-viewer.js'), 'utf8');
 Revisar(!Visor.includes('Descargar HTML') && !Visor.includes('mt-btn-dl'), 'El visor no ofrece descargar el HTML editable.', 'El visor todavía tiene el botón Descargar HTML.');
 
 // Ataque de inyección: código HTML en todos los textos que escribe la persona; en el reporte solo puede salir como texto

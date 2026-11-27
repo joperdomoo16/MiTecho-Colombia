@@ -5,7 +5,7 @@ const Rutas = require('path');
 const Maquinavirtual = require('vm');
 
 // Se cargan en el mismo orden que en index.html, así se revisan los mismos topes que usa la app
-for (const Nombre of ['Constantesbancarias', 'Validaciones', 'Respaldonube']) {
+for (const Nombre of ['store/constantes-bancarias', 'utils/validaciones', 'services/cloud-backup']) {
   Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/' + Nombre + '.js'), 'utf8'));
 }
 

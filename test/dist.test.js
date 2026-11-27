@@ -6,7 +6,7 @@ const Sistema = require('os');
 const Maquinavirtual = require('vm');
 const Cifrado = require('crypto');
 const { minify: Limpiarjs } = require('terser');
-const { Prepararcarpeta } = require('../Preparardist.js');
+const { Prepararcarpeta } = require('../build.js');
 
 const Raiz = Rutas.join(__dirname, '..');
 let Errores = 0;
@@ -26,7 +26,7 @@ function Listar(Carpeta, Base = Carpeta) {
 function Resultados(Carpeta) {
   const Contexto = { console, Intl, Date, Math, JSON, crypto: Cifrado.webcrypto };
   Maquinavirtual.createContext(Contexto);
-  for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Logocertificado', 'Estiloscertificadobase', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfsecciones', 'Generadorpdfhojatres', 'Generadorpdf']) {
+  for (const Nombre of ['store/constantes-bancarias', 'utils/historial-registros', 'utils/motor-subsidios', 'utils/motor-calculo', 'pdf/pdf-logo', 'pdf/pdf-base-styles', 'pdf/pdf-styles', 'pdf/pdf-report-data', 'pdf/pdf-sections', 'pdf/pdf-page-three', 'pdf/pdf-generator']) {
     Maquinavirtual.runInContext(Archivos.readFileSync(Rutas.join(Carpeta, 'js', Nombre + '.js'), 'utf8'), Contexto);
   }
   return Maquinavirtual.runInContext(`(() => {

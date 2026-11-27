@@ -29,7 +29,7 @@ Maquinavirtual.createContext(Contexto);
 
 for (const Ruta of Guiones) {
   let Codigo = Leer(Ruta);
-  if (Ruta === 'js/Aplicacion.js') Codigo = Codigo.replace(/\(function Comienzo\(\)[\s\S]*$/, '');
+  if (Ruta === 'js/app.js') Codigo = Codigo.replace(/\(function Comienzo\(\)[\s\S]*$/, '');
   Maquinavirtual.runInContext(Codigo, Contexto, { filename: Ruta });
 }
 Maquinavirtual.runInContext('Object.assign(window, { Aplicacionmitecho, Salariominimo, Catalogoproyectos, Formatoenteropesos, Formatomillones });', Contexto);

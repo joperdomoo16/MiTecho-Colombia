@@ -4,13 +4,13 @@ const Archivos = require('fs');
 const Rutas = require('path');
 const Maquinavirtual = require('vm');
 
-const Rutaconstantes = Rutas.join(__dirname, '../js/Constantesbancarias.js');
-const Rutamotor = Rutas.join(__dirname, '../js/Motorcalculo.js');
-const Rutacasos = Rutas.join(__dirname, 'Casosprueba.json');
+const Rutaconstantes = Rutas.join(__dirname, '../js/store/constantes-bancarias.js');
+const Rutamotor = Rutas.join(__dirname, '../js/utils/motor-calculo.js');
+const Rutacasos = Rutas.join(__dirname, 'casos-prueba.json');
 
 Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutaconstantes, 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Historialregistros.js'), 'utf8'));
-Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/Motorsubsidios.js'), 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/utils/historial-registros.js'), 'utf8'));
+Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/utils/motor-subsidios.js'), 'utf8'));
 Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutamotor, 'utf8'));
 
 const Datosprueba = JSON.parse(Archivos.readFileSync(Rutacasos, 'utf8'));
@@ -23,7 +23,7 @@ console.log('Iniciando revisión de los ' + Datosprueba.casos.length + ' casos d
 
 // Compara cada caso con los resultados esperados sin margen de error en pesos
 for (const Caso of Datosprueba.casos) {
-  // Estos ocho casos se validaron con el tope del 30%, que hoy es el modo conservador; el 40% se revisa en Verificarinicio.js
+  // Estos ocho casos se validaron con el tope del 30%, que hoy es el modo conservador; el 40% se revisa en inicio.test.js
   const Entrada = {
     ...Caso.entrada,
     Topeconservador: true,
