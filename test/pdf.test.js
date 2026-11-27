@@ -4,13 +4,7 @@ const Archivos = require('fs');
 const Rutas = require('path');
 const Maquinavirtual = require('vm');
 
-const Rutaconstantes = Rutas.join(__dirname, '../js/Constantesbancarias.js');
-const Rutamotor = Rutas.join(__dirname, '../js/Motorcalculo.js');
-const Rutaestilos = Rutas.join(__dirname, '../js/Estiloscertificado.js');
-const Rutahojatres = Rutas.join(__dirname, '../js/Generadorpdfhojatres.js');
-const Rutagenerador = Rutas.join(__dirname, '../js/Generadorpdf.js');
-
-for (const Nombre of ['Constantesbancarias', 'Historialregistros', 'Motorsubsidios', 'Motorcalculo', 'Logocertificado', 'Estiloscertificadobase', 'Estiloscertificado', 'Reportedatos', 'Generadorpdfsecciones', 'Generadorpdfhojatres', 'Generadorpdf']) {
+for (const Nombre of ['store/constantes-bancarias', 'utils/historial-registros', 'utils/motor-subsidios', 'utils/motor-calculo', 'pdf/pdf-logo', 'pdf/pdf-base-styles', 'pdf/pdf-styles', 'pdf/pdf-report-data', 'pdf/pdf-sections', 'pdf/pdf-page-three', 'pdf/pdf-generator']) {
   Maquinavirtual.runInThisContext(Archivos.readFileSync(Rutas.join(__dirname, '../js/' + Nombre + '.js'), 'utf8'));
 }
 

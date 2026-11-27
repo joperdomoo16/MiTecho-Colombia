@@ -7,8 +7,8 @@ const Maquinavirtual = require('vm');
 
 const Raiz = Rutas.join(__dirname, '..');
 const Leer = Ruta => Archivos.readFileSync(Rutas.join(Raiz, Ruta), 'utf8');
-Maquinavirtual.runInThisContext(Leer('js/Tutorial.js'));
-Maquinavirtual.runInThisContext(Leer('js/Valorestutorial.js'));
+Maquinavirtual.runInThisContext(Leer('js/utils/tutorial.js'));
+Maquinavirtual.runInThisContext(Leer('js/store/store-tutorial.js'));
 
 let Errores = 0;
 function Revisar(Condicion, Bien, Mal) {
@@ -25,7 +25,7 @@ const Sinimagen = Todos.filter(Paso => !Archivos.existsSync(Rutas.join(Raiz, 'as
 Revisar(Sinimagen.length === 0, 'Todas las ilustraciones existen en assets/tutorial.', 'Faltan ilustraciones: ' + Sinimagen.join(', '));
 Revisar(Pasosrecorrido.length <= 7 && Pasosrecorrido[Pasosrecorrido.length - 1].Final, 'El recorrido inicial es corto (' + Pasosrecorrido.length + ' pasos) y cierra con la hoja final.', 'El recorrido inicial es largo o no cierra con la hoja final.');
 
-const Cssfoco = Leer('css/Tutorial.css');
+const Cssfoco = (Leer('css/views.css').match(/\.tutorial-foco\b[^}]*\}/g) || []).join('\n');
 Revisar(!/0\s+0\s+0\s+2px/.test(Cssfoco), 'El hueco iluminado no dibuja borde de color alrededor del objetivo.', 'Queda un borde alrededor de .tutorial-foco.');
 
 function Crearcomponente(Estado, Tema) {
@@ -85,7 +85,7 @@ Revisar(!Recorridoactual(Sinpro), 'Sin desbloquear tasas no sale el consejo de t
 const Contasasabiertas = Crearcomponente({ Autorizacionversion: '1.2', Tutorialvisto: true, Panel: 'tasas', Pro: false, Desbloqueadotasas: true });
 Revisar(Boolean(Recorridoactual(Contasasabiertas)), 'Al desbloquear tasas con videos sí se activa su consejo.', 'No sale el consejo de tasas al desbloquearlo con videos.');
 
-const App = Leer('js/Aplicacion.js');
+const App = Leer('js/app.js');
 Revisar(/Sincronizarbanner\(Boolean\([^\n]*Estado\.Tutorialvisto && !Recorridoactual\(this\)/.test(App), 'Los anuncios esperan a que termine el recorrido.', 'El banner puede salir durante el recorrido.');
 Revisar(!/Plantillaavisoperfil|Esbienvenida |Despuesbienvenida/.test(App + Plantillas), 'La bienvenida y el aviso de perfil anteriores ya no existen.', 'Quedan restos de la bienvenida o del aviso anterior.');
 
